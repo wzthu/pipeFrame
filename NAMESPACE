@@ -1,0 +1,4 @@
+exportPattern("^[[:alpha:]]+")
+importFrom(BSgenome,getBSgenome)
+exportClasses(Step)
+importFrom(digest,digest)
