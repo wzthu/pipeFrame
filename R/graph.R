@@ -15,18 +15,26 @@ setGeneric(name = "graphMngAddEdges",
 setMethod(f = "graphMngAddEdges",
           signature = "GraphMng",
           definition = function(graphMngObj,edges, argOrder,...){
-              stopifnot(length(edges)%%2==1)
+              if(length(graphMngObj@edgeStarts) < argOrder){
+                  for (i in (length(graphMngObj@edgeStarts)+1):argOrder) {
+                      graphMngObj@edgeStarts[[paste0("edge",i)]]<-"BASE"
+                      graphMngObj@edgeEnds[[paste0("edge",i)]]<-"BASE"
+                  }
+              }
+              stopifnot(length(edges)%%2!=1)
               s <- 1:length(edges)
               startPoints <- edges[s%%2 == 1]
               endPoints <- edges[s%%2 == 0]
-              graphMngObj@allStepName <- unique(c(graphMngObj@allStepName, edges))
-              for(i in length(startPoints)){
-                  if(sum(graphMngObj@edgeStarts[[argOrder]] == startPoints[i] &&
+              graphMngObj@allStepNames <- unique(c(graphMngObj@allStepNames, edges))
+              for(i in 1:length(startPoints)){
+                  if(sum(graphMngObj@edgeStarts[[argOrder]] == startPoints[i] &
                          graphMngObj@edgeEnds[[argOrder]] == endPoints[i]) == 0){
+                      print(graphMngObj)
                       graphMngObj@edgeStarts[[argOrder]] <- c(graphMngObj@edgeStarts[[argOrder]],startPoints[i])
                       graphMngObj@edgeEnds[[argOrder]] <- c(graphMngObj@edgeEnds[[argOrder]],endPoints[i])
                   }
               }
+              graphMngObj
           })
 
 
@@ -72,8 +80,8 @@ setGeneric(name = "graphMngCheckRelation",
 setMethod(f = "graphMngCheckRelation",
           signature = "GraphMng",
           definition = function(graphMngObj, upstreamStep,downstreamStep,downstreamArgOrder,...){
-              return(sum(graphMngObj@edgeStarts[[downstreamArgOrder]] == startPoints[i] &&
-                      graphMngObj@edgeEnds[[downstreamArgOrder]] == endPoints[i]) > 0)
+              return(sum(graphMngObj@edgeStarts[[downstreamArgOrder]] == upstreamStep &
+                      graphMngObj@edgeEnds[[downstreamArgOrder]] == downstreamStep) > 0)
               })
 
 
@@ -81,8 +89,8 @@ addEdges <- function(edges, argOrder){
     graphMng <- getOption("pipeFrameConfig.graph")
     if(is.null(graphMng)){
         graphMng <- new("GraphMng")
-        graphMngAddEdges(graphMng,edges,argOrder)
     }
+    graphMng <- graphMngAddEdges(graphMng,edges,argOrder)
     options(pipeFrameConfig.graph = graphMng)
 }
 

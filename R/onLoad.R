@@ -54,10 +54,7 @@ initPipeFrame <- function(defaultJobName,
 .onLoad <- function(libname, pkgname) {
     initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
                   defaultJobName = paste0(pkgname,"-pipeline"),
-                  defaultCheckAndInstallFunc = checkAndInstall,
-                  defaultTmpDir = getwd(),
-                  defaultRefDir = file.path("~",".pipeFrame","refdir"),
-                  defaultReference = list()
+                  defaultCheckAndInstallFunc = checkAndInstall
     )
     options(pipeFrameConfig.graph = new("GraphMng"))
 }
