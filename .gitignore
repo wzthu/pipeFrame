@@ -1,6 +1,7 @@
 #test folder
 pipeFrame-pipeline
 R/StepTest.R
+.DS_Store
 
 # History files
 .Rhistory
