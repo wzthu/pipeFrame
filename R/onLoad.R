@@ -1,9 +1,9 @@
 
 initPipeFrame <- function(defaultJobName,
                           availableGenome,
-                          defaultCheckAndInstallFunc,
+                          defaultCheckAndInstallFunc = NULL,
                           defaultTmpDir = getwd(),
-                          defaultRefDir = file.path("~",".pipeFrame","refdir"),
+                          defaultRefDir = file.path(getwd(),"refdir"), #file.path("~",".pipeFrame","refdir"),
                           defaultReference = list()
                           ){
     if(defaultJobName == "pipeFrame-pipeline"){
@@ -40,7 +40,14 @@ initPipeFrame <- function(defaultJobName,
              error = function(cond){
                  setRefDir(defaultRefDir)
              })
-    options(pipeFrameConfig.genome.checkAndInstallFunc = defaultCheckAndInstallFunc)
+    if(is.null(defaultCheckAndInstallFunc)){
+        options(pipeFrameConfig.genome.checkAndInstallFunc = checkAndInstall)
+    }else{
+ #       print(defaultCheckAndInstallFunc)
+ #       stopifnot(!is.function(defaultCheckAndInstallFunc))
+        options(pipeFrameConfig.genome.checkAndInstallFunc = defaultCheckAndInstallFunc)
+    }
+
     options(pipeFrameConfig.genome.refs = defaultReference)
 
     count <- getOption("pipeFrameConfig.count")
@@ -53,8 +60,7 @@ initPipeFrame <- function(defaultJobName,
 
 .onLoad <- function(libname, pkgname) {
     initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
-                  defaultJobName = paste0(pkgname,"-pipeline"),
-                  defaultCheckAndInstallFunc = checkAndInstall
+                  defaultJobName = paste0(pkgname,"-pipeline")
     )
     options(pipeFrameConfig.graph = new("GraphMng"))
 }
