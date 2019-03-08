@@ -29,7 +29,7 @@ setMethod(f = "graphMngAddEdges",
               for(i in 1:length(startPoints)){
                   if(sum(graphMngObj@edgeStarts[[argOrder]] == startPoints[i] &
                          graphMngObj@edgeEnds[[argOrder]] == endPoints[i]) == 0){
-                      print(graphMngObj)
+                      #print(graphMngObj)
                       graphMngObj@edgeStarts[[argOrder]] <- c(graphMngObj@edgeStarts[[argOrder]],startPoints[i])
                       graphMngObj@edgeEnds[[argOrder]] <- c(graphMngObj@edgeEnds[[argOrder]],endPoints[i])
                   }
@@ -50,7 +50,7 @@ setMethod(f = "graphMngGetNextSteps",
                       message(sprintf("Next steps on arguments %d are not available.",i))
                   }else{
                       message(sprintf("Next steps on arguments %d are available for:",i))
-                      print(raphMngObj@edgeEnds[[i]][graphMngObj@edgeStarts[[i]] == stepName])
+              #        print(raphMngObj@edgeEnds[[i]][graphMngObj@edgeStarts[[i]] == stepName])
                   }
               }
           })
@@ -67,7 +67,7 @@ setMethod(f = "graphMngGetPrevSteps",
                       message(sprintf("Previous steps on arguments %d are not available.",i))
                   }else{
                       message(sprintf("Previous steps on arguments %d are available for:",i))
-                      print(raphMngObj@edgeStarts[[i]][graphMngObj@edgeEnds[[i]] == stepName])
+                     # print(raphMngObj@edgeStarts[[i]][graphMngObj@edgeEnds[[i]] == stepName])
                   }
               }
           })

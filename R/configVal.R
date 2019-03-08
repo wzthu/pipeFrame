@@ -14,9 +14,9 @@ setGenome <- function(genome, check = TRUE, ...){
   }
 
   options(pipeFrameConfig.genome = genome)
-  print(checkAndInstall)
+#  print(checkAndInstall)
   checkAndInstall <- getCheckAndInstallFunc()
-  print(checkAndInstall)
+#  print(checkAndInstall)
   checkAndInstall(check, ...)
 }
 
@@ -117,7 +117,7 @@ runWithFinishCheck <- function(func, refName, resultDirPaths = NULL, resultVal =
     }
     rc <- NULL
     if(!is.null(resultDirPaths)){
-        print(file.exists(resultDirPaths))
+#        print(file.exists(resultDirPaths))
         if(prod(file.exists(resultDirPaths)) < 0.5){
             file.create(lockFilePath)
             rc <- func(resultDirPaths)
