@@ -197,20 +197,15 @@ setMethod(f = "getParamItems",
           signature = "Step",
           definition = function(.Object, type = c("input","output","other"), ...){
               type <- unique(type)
-              print(type)
               allitem <- c()
               for(t in type){
-                  print(t)
                   t1 <- match.arg(t,c("input","output","other"))
                   if(t1 == "input"){
                       allitem <- c(allitem,names(.Object@inputList))
-                      print("iii")
                   }else if(t1 == "output"){
                       allitem <- c(allitem,names(.Object@outputList))
-                      print("ooo")
                   }else{
                       allitem <- c(allitem,names(.Object@paramList))
-                      print("ppp")
                   }
               }
               print(allitem)
