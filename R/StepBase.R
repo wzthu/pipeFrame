@@ -83,7 +83,6 @@ setMethod(f = "initialize",
                       .Object@propList <- c(.Object@propList, prevSteps[[i]]@propList)
                   }
               }
-              message("point1.2")
               nameIdList <- getOption("pipeFrameConfig.nameIdList")
               if(is.null(nameIdList)){
                   nameIdList <- list()
@@ -101,22 +100,17 @@ setMethod(f = "initialize",
 
 
               if(!dir.exists(getStepWorkDir(.Object))){
-                  message("create")
-                  print(getStepWorkDir(.Object))
                   dir.create(getStepWorkDir(.Object))
               }
-              message("point2")
 
               argv <- c(list(.Object = .Object),argv)
               obj_return_from_init <- do.call(init,argv)
               stopifnot(is(obj_return_from_init,getStepName(.Object)))
               .Object <- obj_return_from_init
               paramValidation(.Object)
-              message("point3")
               obj_return_from_porcessing<-process(.Object)
               stopifnot(is(obj_return_from_porcessing,getStepName(.Object)))
               .Object <- obj_return_from_porcessing
-              message("point1")
               .Object
           })
 
@@ -142,7 +136,7 @@ setMethod(f = "process",
           definition = function(.Object,...){
               msgBoxBegin()
               if(checkMD5Cache(.Object)){
-                  message(paste0("The process:`",.Object@stepName,"` was finished. Nothing to do."))
+                  message(paste0("The step:`",.Object@stepName,"` was finished. Nothing to do."))
                   message("If you need to redo, please call 'clearProcCache(YourObject)'")
                   .Object@finish<-TRUE
               }else{
@@ -247,7 +241,7 @@ setMethod(f = "getParamItems",
                       allitem <- c(allitem,names(.Object@paramList))
                   }
               }
-              print(allitem)
+
               return(allitem)
           })
 
@@ -442,8 +436,6 @@ setMethod(f = "getParamMD5Path",
                       paramstr <- c(paramstr,paths)
                       next
                   }
-                  print(n)
-                  print(paths)
                   paths <- sort(unlist(paths))
                   paths1 <- c()
                   breakflag <- FALSE
@@ -493,9 +485,6 @@ setMethod(f = "setFinish",
               .Object<-writeLog(.Object,as.character(Sys.time()))
               .Object<-writeLog(.Object,"processing finished")
               logFilePath<-getParamMD5Path(.Object)
-              print('logloglogloglogloglogloglogloglogloglog')
-              print(logFilePath)
-              print(.Object@id)
               write.table(.Object@logRecord,logFilePath,quote = FALSE,row.names = FALSE,col.names = FALSE)
               .Object
           })
@@ -520,7 +509,6 @@ setGeneric(name = "getStepWorkDir",
 setMethod(f = "getStepWorkDir",
           signature = "Step",
           definition = function(.Object,...){
-              message(getStepId(.Object))
               return(file.path(getJobDir(),paste0("Step_",sprintf("%02d",getStepId(.Object)),"_",getDefName(.Object))))
           })
 
