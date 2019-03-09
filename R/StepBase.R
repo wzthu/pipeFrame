@@ -12,7 +12,8 @@ setClass(Class = "Step",
              timeStampStart="character",
              timeStampEnd="character",
              maxThreads = "integer",
-             id = "integer"
+             id = "integer",
+             defName = "character"
          ),
          prototype = c(argv = list(),
                        paramList = list(),
@@ -26,11 +27,12 @@ setClass(Class = "Step",
                        timeStampStart="Never Record",
                        timeStampEnd="Never Record",
                        maxThreads = 1L,
-                       id = 0L)
+                       id = 0L,
+                       defName = "Step")
          )
 setMethod(f = "initialize",
           signature = "Step",
-          definition = function(.Object,prevSteps = list(), ...){
+          definition = function(.Object,prevSteps = list(), defName = NULL, ...){
 
 
               argv <- c(as.list(environment()),list(...))
@@ -50,12 +52,19 @@ setMethod(f = "initialize",
               stepName <- as.character(class(.Object))
 
               .Object@stepName <- stepName
+              if(is.null(defName)){
+                  .Object@defName <- stepName
+              }else{
+                  .Object@defName <- defName
+              }
 
-              argvother <- argv[startsWith(paste0(names(argv),"."),stepName)]
+              argvother <- argv[startsWith(names(argv),paste0(stepName, "."))]
               for(a in names(argvother)){
-                  a0 <- substring(a,2 + nchar(stepName))
+                  a0 <- substring(a,2 + nchar(.Object@defName))
                   if(sum(names(argv)==a0)>0){
                       argv[[a0]] <- argvother[[a]]
+                  }else{
+                      stop(paste0(a," is not parameter of Step ", stepName))
                   }
               }
               .Object@argv <- argv
@@ -75,10 +84,22 @@ setMethod(f = "initialize",
                   }
               }
               message("point1.2")
-              count <- getOption("pipeFrameConfig.count")
-              .Object@id <- count
-              options(pipeFrameConfig.count = count+1L)
+              nameIdList <- getOption("pipeFrameConfig.nameIdList")
+              if(is.null(nameIdList)){
+                  nameIdList <- list()
+              }
+              if(!is.null(nameIdList[[.Object@defName]])){
+                  .Object@id <- nameIdList[[.Object@defName]]
+              }else{
+                  count <- getOption("pipeFrameConfig.count")
+                  .Object@id <- count
+                  options(pipeFrameConfig.count = count+1L)
+                  nameIdList[[.Object@defName]] <- .Object@id
+                  options(pipeFrameConfig.nameIdList = nameIdList)
+              }
               options(pipeFrameConfig.allowChangeJobDir = FALSE)
+
+
               if(!dir.exists(getStepWorkDir(.Object))){
                   message("create")
                   print(getStepWorkDir(.Object))
@@ -149,6 +170,24 @@ setMethod(f = "getStepName",
           signature = "Step",
           definition = function(.Object,...){
               return(.Object@stepName)
+          })
+
+
+
+
+setGeneric(name = "getDefName",
+           def = function(.Object,...){
+               standardGeneric("getDefName")
+           })
+
+#' @return \item{getDefName}{get Step object Characher name}
+#' @rdname Step-class
+#' @aliases getDefName
+#' @export
+setMethod(f = "getDefName",
+          signature = "Step",
+          definition = function(.Object,...){
+              return(.Object@defName)
           })
 
 setGeneric(name = "getParam",
@@ -482,7 +521,7 @@ setMethod(f = "getStepWorkDir",
           signature = "Step",
           definition = function(.Object,...){
               message(getStepId(.Object))
-              return(file.path(getJobDir(),paste0("Step_",sprintf("%02d",getStepId(.Object)),"_",getStepName(.Object))))
+              return(file.path(getJobDir(),paste0("Step_",sprintf("%02d",getStepId(.Object)),"_",getDefName(.Object))))
           })
 
 setGeneric(name = "getStepId",

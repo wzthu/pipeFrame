@@ -62,7 +62,6 @@ initPipeFrame <- function(defaultJobName,
     initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
                   defaultJobName = paste0(pkgname,"-pipeline")
     )
-    options(pipeFrameConfig.graph = new("GraphMng"))
 }
 
 
