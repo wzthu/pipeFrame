@@ -1,10 +1,12 @@
 setClass(Class = "GraphMng",
          slots = list(edgeStarts = "list",
                       edgeEnds = "list",
-                      allStepNames = "character"),
+                      allStepNames = "character",
+                      stepIds = "numeric"),
          prototype = list(edgeStarts = list(),
                           edgeEnds = list(),
-                          allStepNames = NULL))
+                          allStepNames = NULL,
+                          stepIds = numeric()))
 
 
 
@@ -26,12 +28,29 @@ setMethod(f = "graphMngAddEdges",
               startPoints <- edges[s%%2 == 1]
               endPoints <- edges[s%%2 == 0]
               graphMngObj@allStepNames <- unique(c(graphMngObj@allStepNames, edges))
+              count <- length(graphMngObj@stepIds)
+              if(count < length(graphMngObj@allStepNames)){
+                  newid <- (count+1):length(graphMngObj@allStepNames)
+                  names(newid) <- graphMngObj@allStepNames[is.na(graphMngObj@stepIds[graphMngObj@allStepNames])]
+                  graphMngObj@stepIds <- c(graphMngObj@stepIds,newid)
+              }
+
               for(i in 1:length(startPoints)){
                   if(sum(graphMngObj@edgeStarts[[argOrder]] == startPoints[i] &
                          graphMngObj@edgeEnds[[argOrder]] == endPoints[i]) == 0){
                       #print(graphMngObj)
                       graphMngObj@edgeStarts[[argOrder]] <- c(graphMngObj@edgeStarts[[argOrder]],startPoints[i])
                       graphMngObj@edgeEnds[[argOrder]] <- c(graphMngObj@edgeEnds[[argOrder]],endPoints[i])
+                  }
+              }
+              for (i in (length(graphMngObj@edgeStarts)+1):argOrder) {
+                  pt <- graphMngObj@edgeStarts[[paste0("edge",i)]]
+                  if(pt[1] == "BASE"){
+                      graphMngObj@edgeStarts[[paste0("edge",i)]] <- pt[2:length(pt)]
+                  }
+                  pt <- graphMngObj@edgeEnds[[paste0("edge",i)]]
+                  if(pt[1] == "BASE"){
+                      graphMngObj@edgeEnds[[paste0("edge",i)]] <- pt[2:length(pt)]
                   }
               }
               graphMngObj
@@ -102,22 +121,58 @@ checkRelation<-function(upstreamStep,downstreamStep,downstreamArgOrder){
     return(graphMngCheckRelation(graphMng,upstreamStep,downstreamStep,downstreamArgOrder))
 }
 
-#
-#
-# setClass(Class = "Test",
-#          slots = list(testslot = "list"),
-#          prototype = list(edgeStarts = list())
-#                           )
-# setGeneric(name = "testg0",
-#            def = function(.Objects,...){
-#                standardGeneric("testg0")
-#            })
-#
-# setMethod("testg0", signature="Test",definition =  function(.Objects,...){testg(.Objects)})
-#
-#
-# setGeneric(name = "testg",
-#            def = function(.Objects,...){
-#                standardGeneric("testg")
-#            })
+
+
+setGeneric(name = "graphPrintMap",
+           def = function(graphMngObj,stepName=NULL,display = TRUE,...){
+               standardGeneric("graphPrintMap")
+           })
+setMethod(f = "graphPrintMap",
+          signature = "GraphMng",
+          definition = function(graphMngObj,stepName=NULL,display=TRUE,...){
+
+              nodes <- data.frame(id = graphMngObj@stepIds,
+ #                                 label = names(graphMngObj@stepIds),                                 # add labels on nodes
+                                  #         group = c("GrA", "GrB"),                                     # add groups on nodes
+                                  #         value = 1:10,                                                # size adding value
+                                  shape = "ellipse",                   # control shape of nodes
+                                  #          title = paste0("<p><b>", 1:10,"</b><br>Node !</p>"),         # tooltip (html or character)
+                                  #           color = color, # color
+                                  shadow = FALSE                  # shadow
+              )
+              if(!is.null(stepName)){
+                  color <- rep("lightblue",length(graphMngObj@stepIds))
+                  stopifnot(!is.na(graphMngObj@stepIds[stepName]))
+                  color[graphMngObj@stepIds[stepName]] <- "red"
+                  nodes <- data.frame(id = graphMngObj@stepIds,
+                                      label = names(graphMngObj@stepIds),                                 # add labels on nodes
+                                      #         group = c("GrA", "GrB"),                                     # add groups on nodes
+                                      #         value = 1:10,                                                # size adding value
+                                      shape = "ellipse",                   # control shape of nodes
+                                      #          title = paste0("<p><b>", 1:10,"</b><br>Node !</p>"),         # tooltip (html or character)
+                                                 color = color, # color
+                                      shadow = FALSE                  # shadow
+                  )
+
+              }
+
+
+              edges <- data.frame(from = graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeStarts))],
+                                  to = graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeEnds))],
+  #                                label = paste("Edge", 1:8),                                 # add labels on edges
+  #                                length = c(100,500),                                        # length
+                                  arrows = "to",            # arrows
+                                  dashes = FALSE,                                    # dashes
+   #                               title = paste("Edge", 1:8),                                 # tooltip (html or character)
+                                  smooth = FALSE,                                    # smooth
+                                  shadow = FALSE
+                )
+              visNetwork(nodes, edges, width = "100%") %>%
+                  visEdges(arrows = "to") %>%
+                  visOptions(highlightNearest = list(enabled =TRUE, degree = 1))%>%
+                 visHierarchicalLayout(sortMethod = "directed")
+
+          })
+
+
 
