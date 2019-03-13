@@ -1,12 +1,16 @@
+#' @importFrom BSgenome getBSgenome
 
+#' @export
 getValidGenome <- function(){
     getOption("pipeFrameConfig.genome.valid")
 }
 
+#' @export
 getCheckAndInstallFunc <- function(){
     getOption("pipeFrameConfig.genome.checkAndInstallFunc")
 }
 
+#' @export
 setGenome <- function(genome, check = TRUE, ...){
   genome <- match.arg(genome,getValidGenome())
   if(!dir.exists(file.path(getRefDir(),genome))){
@@ -20,7 +24,7 @@ setGenome <- function(genome, check = TRUE, ...){
   checkAndInstall(check, ...)
 }
 
-
+#' @export
 getGenome <- function(){
   genome <- getOption("pipeFrameConfig.genome")
   if(is.null(genome)){
@@ -29,7 +33,20 @@ getGenome <- function(){
   return(genome)
 }
 
+#' @importFrom parallel detectCores
+#' @export
+setThreads <- function(threads = detectCores()){
+    stopifnot(is.numeric(threads))
+    options(pipeFrameConfig.threads = threads)
+}
 
+#' @export
+getThreads <- function(){
+    return(getOption("pipeFrameConfig.threads"))
+
+}
+
+#' @export
 setRefDir <- function(refdir, createDir = TRUE)
 {
     if(!dir.exists(refdir)){
@@ -41,7 +58,7 @@ setRefDir <- function(refdir, createDir = TRUE)
     }
     options(pipeFrameConfig.refdir = refdir)
 }
-
+#' @export
 getRefDir <- function(){
     refdir <- getOption('pipeFrameConfig.refdir')
     stopifnot(dir.exists(refdir))
@@ -49,6 +66,7 @@ getRefDir <- function(){
 }
 
 
+#' @export
 setTmpDir <- function(tmpDir = getwd()){
     stopifnot(dir.exists(tmpDir))
     allowChange <- getOption("pipeFrameConfig.allowChangeJobDir")
@@ -57,14 +75,14 @@ setTmpDir <- function(tmpDir = getwd()){
     }
     options(pipeFrameConfig.dir.tmpdir = tmpDir)
 }
-
+#' @export
 getTmpDir <- function(){
     tmpDir <- getOption("pipeFrameConfig.dir.tmpdir")
     stopifnot(dir.exists(tmpDir))
     return(tmpDir)
 }
 
-
+#' @export
 setJobName <- function(jobName){
     stopifnot(is.character(jobName))
     allowChange <- getOption("pipeFrameConfig.allowChangeJobDir")
@@ -73,13 +91,13 @@ setJobName <- function(jobName){
     }
     options(pipeFrameConfig.dir.jobname = jobName)
 }
-
+#' @export
 getJobName <- function(){
     jobName <- getOption("pipeFrameConfig.dir.jobname")
     stopifnot(is.character(jobName))
     return(jobName)
 }
-
+#' @export
 getJobDir <- function(){
     tmpDir <- getTmpDir()
     jobName <- getJobName()
@@ -91,7 +109,7 @@ getJobDir <- function(){
 }
 
 
-
+#' @export
 getRefFilePath <- function(fileName,check = TRUE){
   genome <- getGenome()
   refdir <- getRefDir()
@@ -102,7 +120,7 @@ getRefFilePath <- function(fileName,check = TRUE){
   return(reffilepath)
 }
 
-
+#' @export
 runWithFinishCheck <- function(func, refName, resultDirPaths = NULL, resultVal = NULL, execForNonRsFile = TRUE){
     message(paste("Configure",refName,"..."))
 
@@ -121,10 +139,12 @@ runWithFinishCheck <- function(func, refName, resultDirPaths = NULL, resultVal =
         if(prod(file.exists(resultDirPaths)) < 0.5){
             file.create(lockFilePath)
             rc <- func(resultDirPaths)
+            Sys.sleep(3)
         }
     }else if(exec){
         file.create(lockFilePath)
         rc <- func(resultDirPaths)
+        Sys.sleep(3)
     }
     if(!is.null(resultVal)){
         rc <- resultVal
@@ -140,19 +160,19 @@ runWithFinishCheck <- function(func, refName, resultDirPaths = NULL, resultVal =
     message(paste("Configure",refName,"finished"))
 }
 
-
+#' @export
 getRef <- function(refName){
     refs <- getOption("pipeFrameConfig.genome.refs")
     ref<-refs[[refName]]
     stopifnot(!is.null(ref))
     return(ref)
 }
-
+#' @export
 getRefFiles <- function(refName){
     ref <- getRef(refName = refName )
     return(ref$files)
 }
-
+#' @export
 getRefRc <- function(refName){
     ref <- getRef(refName = refName )
     return(ref$rc)
@@ -162,7 +182,7 @@ getRefRc <- function(refName){
 
 
 
-
+#' @export
 checkAndInstallBSgenome <- function(resultDirPaths){
     genome <- getGenome()
     bsgenomename<- BSgenome::available.genomes()[grepl(paste0(genome,"$"),BSgenome::available.genomes())]
@@ -178,6 +198,8 @@ checkAndInstallBSgenome <- function(resultDirPaths){
     }
 }
 
+
+#' @export
 checkAndInstallGenomeFa <- function(resultDirPaths){
     outFile <- resultDirPaths
     bsgenome<-getRefRc("bsgenome")

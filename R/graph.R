@@ -1,3 +1,10 @@
+#' @importFrom visNetwork visHierarchicalLayout
+#' @importFrom visNetwork visNetwork
+#' @importFrom visNetwork visEdges
+#' @importFrom visNetwork visOptions
+
+#' @importFrom magrittr %>%
+
 setClass(Class = "GraphMng",
          slots = list(edgeStarts = "list",
                       edgeEnds = "list",
@@ -43,16 +50,16 @@ setMethod(f = "graphMngAddEdges",
                       graphMngObj@edgeEnds[[argOrder]] <- c(graphMngObj@edgeEnds[[argOrder]],endPoints[i])
                   }
               }
-              for (i in (length(graphMngObj@edgeStarts)+1):argOrder) {
-                  pt <- graphMngObj@edgeStarts[[paste0("edge",i)]]
-                  if(pt[1] == "BASE"){
-                      graphMngObj@edgeStarts[[paste0("edge",i)]] <- pt[2:length(pt)]
-                  }
-                  pt <- graphMngObj@edgeEnds[[paste0("edge",i)]]
-                  if(pt[1] == "BASE"){
-                      graphMngObj@edgeEnds[[paste0("edge",i)]] <- pt[2:length(pt)]
-                  }
-              }
+              # for (i in 1:length(graphMngObj@edgeStarts)) {
+              #     pt <- graphMngObj@edgeStarts[[paste0("edge",i)]]
+              #     if(pt[1] == "BASE"){
+              #         graphMngObj@edgeStarts[[paste0("edge",i)]] <- pt[2:length(pt)]
+              #     }
+              #     pt <- graphMngObj@edgeEnds[[paste0("edge",i)]]
+              #     if(pt[1] == "BASE"){
+              #         graphMngObj@edgeEnds[[paste0("edge",i)]] <- pt[2:length(pt)]
+              #     }
+              # }
               graphMngObj
           })
 
@@ -103,7 +110,7 @@ setMethod(f = "graphMngCheckRelation",
                       graphMngObj@edgeEnds[[downstreamArgOrder]] == downstreamStep) > 0)
               })
 
-
+#' @export
 addEdges <- function(edges, argOrder){
     graphMng <- getOption("pipeFrameConfig.graph")
     if(is.null(graphMng)){
@@ -114,7 +121,7 @@ addEdges <- function(edges, argOrder){
 }
 
 
-
+#' @export
 checkRelation<-function(upstreamStep,downstreamStep,downstreamArgOrder){
     graphMng <- getOption("pipeFrameConfig.graph")
     stopifnot(!is.null(graphMng))
@@ -132,7 +139,7 @@ setMethod(f = "graphPrintMap",
           definition = function(graphMngObj,stepName=NULL,display=TRUE,...){
 
               nodes <- data.frame(id = graphMngObj@stepIds,
- #                                 label = names(graphMngObj@stepIds),                                 # add labels on nodes
+                                  label = names(graphMngObj@stepIds),                                 # add labels on nodes
                                   #         group = c("GrA", "GrB"),                                     # add groups on nodes
                                   #         value = 1:10,                                                # size adding value
                                   shape = "ellipse",                   # control shape of nodes
@@ -168,9 +175,9 @@ setMethod(f = "graphPrintMap",
                                   shadow = FALSE
                 )
               visNetwork(nodes, edges, width = "100%") %>%
-                  visEdges(arrows = "to") %>%
+                  visEdges(arrows = "to",physics = FALSE) %>%
                   visOptions(highlightNearest = list(enabled =TRUE, degree = 1))%>%
-                 visHierarchicalLayout(sortMethod = "directed")
+                 visHierarchicalLayout(sortMethod = "directed",blockShifting=FALSE)
 
           })
 

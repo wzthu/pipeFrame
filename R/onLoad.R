@@ -1,7 +1,8 @@
-
+#' @export
 initPipeFrame <- function(defaultJobName,
                           availableGenome,
                           defaultCheckAndInstallFunc = NULL,
+                          defaultThreads = 2,
                           defaultTmpDir = getwd(),
                           defaultRefDir = file.path(getwd(),"refdir"), #file.path("~",".pipeFrame","refdir"),
                           defaultReference = list()
@@ -11,6 +12,8 @@ initPipeFrame <- function(defaultJobName,
     }else{
         oldavailgenome <- getOption("pipeFrameConfig.genome.valid")
     }
+
+    options(pipeFrameConfig.threads = defaultThreads)
     if(!is.null(availableGenome) && !is.null(oldavailgenome)){
         for(i in 1:length(availableGenome)){
             stopifnot(availableGenome[i]%in%c("hg19", "hg38", "mm9", "mm10","testgenome"))
