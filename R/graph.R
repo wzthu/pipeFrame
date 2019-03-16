@@ -120,13 +120,43 @@ addEdges <- function(edges, argOrder){
     options(pipeFrameConfig.graph = graphMng)
 }
 
+getGraphObj <- function(){
+    graphMng <- getOption("pipeFrameConfig.graph")
+    stopifnot(!is.null(graphMng))
+    return(graphMng)
+}
 
 #' @export
 checkRelation<-function(upstreamStep,downstreamStep,downstreamArgOrder){
-    graphMng <- getOption("pipeFrameConfig.graph")
-    stopifnot(!is.null(graphMng))
+    graphMng <- getGraphObj()
     return(graphMngCheckRelation(graphMng,upstreamStep,downstreamStep,downstreamArgOrder))
 }
+
+#' @export
+getPrevSteps <- function(stepName, argOrder){
+    graphMng <- getGraphObj()
+    return(graphMngCheckRelation(graphMng,stepName, argOrder))
+
+}
+
+setGeneric(name = "graphGetPrevSteps",
+           def = function(graphMngObj,stepName, argOrder,...)
+               standardGeneric("graphGetPrevSteps")
+           )
+
+setMethod(f = "graphGetPrevSteps",
+          signature = "GraphMng",
+          definition = function(graphMngObj,stepName=NULL,argOrder,...){
+              if(length(graphMngObj@edgeStarts) < argOrder){
+                  return(NULL)
+              }
+              prev <- graphMngObj@edgeStarts[[argOrder]][stepName==graphMngObj@edgeEnds[[argOrder]]]
+              if (length(prev)==0){
+                  return(NULL)
+              }else{
+                  return(prev)
+              }
+          })
 
 
 
