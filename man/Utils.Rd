@@ -6,6 +6,7 @@
 \alias{getPathPrefix}
 \alias{checkFileExist}
 \alias{checkPathExist}
+\alias{checkFileCreatable}
 \title{functions for directory operations}
 \usage{
 getBasenamePrefix(filepath, words, ...)
@@ -15,6 +16,8 @@ getPathPrefix(filepath, words, ...)
 checkFileExist(filePath, ...)
 
 checkPathExist(filePath, ...)
+
+checkFileCreatable(filePath, ...)
 }
 \arguments{
 \item{filepath}{\code{character} scalar or vector.}
@@ -29,6 +32,8 @@ checkPathExist(filePath, ...)
 \item{checkFileExist}{(For package developer) Check file is exist.}
 
 \item{checkPathExist}{(For package developer) Check directory is exist.}
+
+\item{checkFileCreatable}{(For package developer) Check file creatable.}
 }
 \description{
 functions for directory operations

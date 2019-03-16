@@ -49,7 +49,7 @@ checkPathExist <- function(filePath,...){
     }
 }
 #' @return \item{checkFileCreatable}{(For package developer) Check file creatable.}
-#' @rdname Step-class
+#' @rdname Utils
 #' @aliases checkFileCreatable
 #' @export
 checkFileCreatable <- function(filePath,...){
