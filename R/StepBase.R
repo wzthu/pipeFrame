@@ -173,9 +173,6 @@
 #'         inputBed <- getParam(.Object,"inputBed")
 #'         randomBed <- getParam(.Object,"randomBed")
 #'         outputBed <- getParam(.Object,"outputBed")
-#'         message(inputBed)
-#'         message(randomBed)
-#'         message(outputBed)
 #'
 #'         # begin the calculation
 #'         gr1 <- import.bed(con = inputBed)
@@ -232,6 +229,11 @@
 #'
 #' clearStepCache(overlap1)
 #' overlap1 <-overlappedRandomRegion(inputBed = system.file(package = "pipeFrame", "extdata","testRegion.bed"),randomBed = randombed)
+#' clearStepCache(rd)
+#' clearStepCache(overlap1)
+#' rd <- randomRegionOnGenome(10000) %>%
+#' runOverlappedRandomRegion(inputBed = system.file(package = "pipeFrame", "extdata","testRegion.bed"))
+#'
 #' getStepName(rd)
 #' getStepId(rd)
 #' getDefName(rd)
@@ -268,7 +270,7 @@ Step <- setClass(Class = "Step",
                        timeStampEnd=Sys.time(),
                        maxThreads = 1L,
                        id = 0L,
-                       groupName = "pipe",
+                       groupName = character(),
                        loaded = FALSE)
          )
 setMethod(f = "initialize",
@@ -279,6 +281,8 @@ setMethod(f = "initialize",
 
               argv <- c(as.list(environment()),list(...))
 
+              argv[["prevSteps"]] <- NULL
+
 
 
 
@@ -287,6 +291,9 @@ setMethod(f = "initialize",
               if(length(prevSteps)>0){
                   objs<-unlist(prevSteps)
                   for(obj in objs){
+                      if(is.null(obj)){
+                          next
+                      }
                       stopifnot(inherits(obj,"Step"))
                   }
               }
@@ -295,12 +302,7 @@ setMethod(f = "initialize",
 
               .Object@stepName <- stepName
 
-              if(is.null(groupName)){
-                  .Object@groupName <- "pipe"
-              }else{
-                  stopifnot(!is.character(groupName))
-                  .Object@groupName <- groupName
-              }
+
 
               argvother <- argv[startsWith(names(argv),paste0(getDefName(.Object), "."))]
               for(a in names(argvother)){
@@ -316,38 +318,71 @@ setMethod(f = "initialize",
 
               argSize <- length(prevSteps)
 
+
               if(argSize>0){
                   for(i in 1:argSize){
                       if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
                           stop(paste(getStepName(prevSteps[[i]]),"is not ready"))
                       }
-                      if(!checkRelation(getStepName(prevSteps[[i]]),getStepName(.Object),i)){
-                          stop(paste(getStepName(prevSteps[[i]]),"is not valid input"))
+                      # if(!checkRelation(getStepName(prevSteps[[i]]),getStepName(.Object),i)){
+                      #     stop(paste(getStepName(prevSteps[[i]]),"is not valid input"))
+                      # }
+                      if(!is.null(prevSteps[[i]])){
+                          .Object@propList <- c(.Object@propList, prevSteps[[i]]@propList)
+                          .Object@groupName <- c(.Object@groupName, prevSteps[[i]]@groupName)
                       }
-                      .Object@propList <- c(.Object@propList, prevSteps[[i]]@propList)
                   }
+                  .Object@groupName <- sort(unique(.Object@groupName))
               }
-              nameIdList <- getOption("pipeFrameConfig.nameIdList")
-              if(is.null(nameIdList)){
-                  nameIdList <- list()
+
+              if(!is.null(groupName)){
+                  stopifnot(!is.character(groupName))
+                  .Object@groupName <- sort(unique(groupName))
               }
-              if(!is.null(nameIdList[[getDefName(.Object)]])){
-                  .Object@id <- nameIdList[[getDefName(.Object)]]
+
+              if(is.null(groupName) && length(.Object@groupName)==0){
+                  .Object@groupName <- "pipe"
+              }
+
+
+
+
+
+
+              nameObjList <- getOption("pipeFrameConfig.nameObjList")
+              if(is.null(nameObjList)){
+                  nameObjList <- list()
+              }
+              if(!is.null(nameObjList[[getDefName(.Object)]])){
+                  .Object@id <- nameObjList[[getDefName(.Object)]]@id
               }else{
                   count <- getOption("pipeFrameConfig.count")
                   .Object@id <- count
-                  options(pipeFrameConfig.count = count+1L)
-                  nameIdList[[getDefName(.Object)]] <- .Object@id
-                  options(pipeFrameConfig.nameIdList = nameIdList)
               }
               options(pipeFrameConfig.allowChangeJobDir = FALSE)
+
+              prevSteps <- list()
+              for(i in 1:10){
+                  s <- getPrevSteps(stepName = getStepName(.Object),i)
+                  if(is.null(s)){
+                      break
+                  }
+                  tt <- nameObjList[[paste0(s,"_",paste0(.Object@groupName,collapse = "_"))]]
+                  if(is.null(tt)){
+                      stop(paste("Step", s, " is required for", stepName, "please calculate Step",s,"first"))
+                  }else{
+                      prevSteps<-c(prevSteps,list(tt))
+                  }
+              }
+
+
 
 
               if(!dir.exists(getStepWorkDir(.Object))){
                   dir.create(getStepWorkDir(.Object))
               }
 
-              argv <- c(list(.Object = .Object),argv)
+              argv <- c(list(.Object = .Object,prevSteps = prevSteps),argv)
               obj_return_from_init <- do.call(init,argv)
               stopifnot(is(obj_return_from_init,getStepName(.Object)))
               .Object <- obj_return_from_init
@@ -356,7 +391,12 @@ setMethod(f = "initialize",
               stopifnot(is(obj_return_from_porcessing,getStepName(.Object)))
               .Object <- obj_return_from_porcessing
 
-
+              if(is.null(nameObjList[[getDefName(.Object)]])){
+                  count <- getOption("pipeFrameConfig.count")
+                  options(pipeFrameConfig.count = count+1L)
+              }
+              nameObjList[[getDefName(.Object)]] <- .Object
+              options(pipeFrameConfig.nameObjList = nameObjList)
               .Object
           })
 
@@ -442,7 +482,7 @@ setGeneric(name = "getDefName",
 setMethod(f = "getDefName",
           signature = "Step",
           definition = function(.Object,...){
-              return(paste0(.Object@stepName,"_",.Object@groupName))
+              return(paste0(.Object@stepName,"_",paste0(.Object@groupName,collapse = "_")))
           })
 
 setGeneric(name = "getParam",

@@ -300,9 +300,6 @@ setMethod(
         inputBed <- getParam(.Object,"inputBed")
         randomBed <- getParam(.Object,"randomBed")
         outputBed <- getParam(.Object,"outputBed")
-        message(inputBed)
-        message(randomBed)
-        message(outputBed)
 
         # begin the calculation
         gr1 <- import.bed(con = inputBed)
@@ -359,6 +356,11 @@ overlap1 <-overlappedRandomRegion(inputBed = system.file(package = "pipeFrame", 
 
 clearStepCache(overlap1)
 overlap1 <-overlappedRandomRegion(inputBed = system.file(package = "pipeFrame", "extdata","testRegion.bed"),randomBed = randombed)
+clearStepCache(rd)
+clearStepCache(overlap1)
+rd <- randomRegionOnGenome(10000) \%>\%
+runOverlappedRandomRegion(inputBed = system.file(package = "pipeFrame", "extdata","testRegion.bed"))
+
 getStepName(rd)
 getStepId(rd)
 getDefName(rd)

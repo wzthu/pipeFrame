@@ -135,7 +135,7 @@ checkRelation<-function(upstreamStep,downstreamStep,downstreamArgOrder){
 #' @export
 getPrevSteps <- function(stepName, argOrder){
     graphMng <- getGraphObj()
-    return(graphMngCheckRelation(graphMng,stepName, argOrder))
+    return(graphGetPrevSteps(graphMng,stepName, argOrder))
 
 }
 
