@@ -64,39 +64,6 @@ setMethod(f = "graphMngAddEdges",
           })
 
 
-setGeneric(name = "graphMngGetNextSteps",
-           def = function(graphMngObj,stepName,...){
-               standardGeneric("graphMngGetNextSteps")
-           })
-setMethod(f = "graphMngGetNextSteps",
-          signature = "GraphMng",
-          definition = function(graphMngObj,stepName,...){
-              for(i in 1:length(graphMngObj@edgeStarts)){
-                  if(sum(graphMngObj@edgeStarts[[i]] == stepName)==0){
-                      message(sprintf("Next steps on arguments %d are not available.",i))
-                  }else{
-                      message(sprintf("Next steps on arguments %d are available for:",i))
-              #        print(raphMngObj@edgeEnds[[i]][graphMngObj@edgeStarts[[i]] == stepName])
-                  }
-              }
-          })
-
-setGeneric(name = "graphMngGetPrevSteps",
-           def = function(graphMngObj,stepName,...){
-               standardGeneric("graphMngGetPrevSteps")
-           })
-setMethod(f = "graphMngGetPrevSteps",
-          signature = "GraphMng",
-          definition = function(graphMngObj,stepName,...){
-              for(i in 1:length(graphMngObj@edgeEnds)){
-                  if(sum(graphMngObj@edgeEnds[[i]] == stepName)==0){
-                      message(sprintf("Previous steps on arguments %d are not available.",i))
-                  }else{
-                      message(sprintf("Previous steps on arguments %d are available for:",i))
-                     # print(raphMngObj@edgeStarts[[i]][graphMngObj@edgeEnds[[i]] == stepName])
-                  }
-              }
-          })
 
 
 setGeneric(name = "graphMngCheckRelation",
@@ -109,7 +76,17 @@ setMethod(f = "graphMngCheckRelation",
               return(sum(graphMngObj@edgeStarts[[downstreamArgOrder]] == upstreamStep &
                       graphMngObj@edgeEnds[[downstreamArgOrder]] == downstreamStep) > 0)
               })
-
+#' @name graphMng
+#' @title Step graph management
+#' @rdname graphMng
+#' @param edges \code{Character} vector. Contain the start and end points name of all edges.
+#' It need to follow the format like c("startpt1","endpt1","startpt2","endpt2","startpt3","endpt3")
+#' @param argOrder \code{Numeric} scalar. The augument order of the input Step object.
+#' @param stepName \code{Character} scalar. Step class name of each step.
+#'
+#' @rdname graphMng
+#' @return \item{addEdges}{Nother will be returned.}
+#' @aliases  graphMng
 #' @export
 addEdges <- function(edges, argOrder){
     graphMng <- getOption("pipeFrameConfig.graph")
@@ -126,12 +103,15 @@ getGraphObj <- function(){
     return(graphMng)
 }
 
-#' @export
+
 checkRelation<-function(upstreamStep,downstreamStep,downstreamArgOrder){
     graphMng <- getGraphObj()
     return(graphMngCheckRelation(graphMng,upstreamStep,downstreamStep,downstreamArgOrder))
 }
 
+#' @rdname graphMng
+#' @return \item{getPrevSteps}{Previous steps name}
+#' @aliases  getPrevSteps
 #' @export
 getPrevSteps <- function(stepName, argOrder){
     graphMng <- getGraphObj()
@@ -155,6 +135,36 @@ setMethod(f = "graphGetPrevSteps",
                   return(NULL)
               }else{
                   return(prev)
+              }
+          })
+
+
+#' @rdname graphMng
+#' @return \item{getNextSteps}{Next steps name}
+#' @aliases  getPrevSteps
+#' @export
+getNextSteps <- function(stepName, argOrder){
+    graphMng <- getGraphObj()
+    return(graphGetNextSteps(graphMng,stepName, argOrder))
+
+}
+
+setGeneric(name = "graphGetNextSteps",
+           def = function(graphMngObj,stepName, argOrder,...)
+               standardGeneric("graphGetNextSteps")
+)
+
+setMethod(f = "graphGetNextSteps",
+          signature = "GraphMng",
+          definition = function(graphMngObj,stepName=NULL,argOrder,...){
+              if(length(graphMngObj@edgeEnds) < argOrder){
+                  return(NULL)
+              }
+              nextpt <- graphMngObj@edgeEnds[[argOrder]][stepName==graphMngObj@edgeStarts[[argOrder]]]
+              if (length(nextpt)==0){
+                  return(NULL)
+              }else{
+                  return(nextpt)
               }
           })
 

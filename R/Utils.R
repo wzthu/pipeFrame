@@ -3,7 +3,33 @@
 #' @title functions for directory operations
 #' @param filepath \code{character} scalar or vector.
 #' @param words \code{character} scalar
-
+#' @param ... Additional arguments, currenly unused
+#' @examples
+#' getBasenamePrefix("aaa/bbb.ccc.ddd","ccc")
+#'
+#' getBasenamePrefix("aaa/bbb.ccc.ddd","ddd")
+#'
+#' getPathPrefix("aaa/bbb.ccc.ddd","ddd")
+#'
+#' getPathPrefix("aaa/bbb.ccc.ddd","ccc")
+#'
+#' file.create("test.bed")
+#'
+#' checkFileExist("test.bed")
+#'
+#' tryCatch({checkFileExist("test.bed1")},error = function(e) e)
+#'
+#' dir.create("testdir")
+#'
+#' checkPathExist("testdir")
+#'
+#' tryCatch({checkPathExist("testdir1")},error = function(e) e)
+#'
+#' checkFileCreatable("aaa.bed")
+#'
+#' tryCatch({checkFileCreatable("testdir1/aaa.bed")},error = function(e) e)
+#'
+#'
 #' @return \item{getBasenamePrefix}{Get the step ID}
 #' @rdname Utils
 #' @aliases getBasenamePrefix

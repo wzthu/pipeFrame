@@ -23,6 +23,8 @@ checkFileCreatable(filePath, ...)
 \item{filepath}{\code{character} scalar or vector.}
 
 \item{words}{\code{character} scalar}
+
+\item{...}{Additional arguments, currenly unused}
 }
 \value{
 \item{getBasenamePrefix}{Get the step ID}
@@ -37,4 +39,31 @@ checkFileCreatable(filePath, ...)
 }
 \description{
 functions for directory operations
+}
+\examples{
+getBasenamePrefix("aaa/bbb.ccc.ddd","ccc")
+
+getBasenamePrefix("aaa/bbb.ccc.ddd","ddd")
+
+getPathPrefix("aaa/bbb.ccc.ddd","ddd")
+
+getPathPrefix("aaa/bbb.ccc.ddd","ccc")
+
+file.create("test.bed")
+
+checkFileExist("test.bed")
+
+tryCatch({checkFileExist("test.bed1")},error = function(e) e)
+
+dir.create("testdir")
+
+checkPathExist("testdir")
+
+tryCatch({checkPathExist("testdir1")},error = function(e) e)
+
+checkFileCreatable("aaa.bed")
+
+tryCatch({checkFileCreatable("testdir1/aaa.bed")},error = function(e) e)
+
+
 }
