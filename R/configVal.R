@@ -248,7 +248,7 @@ getJobDir <- function(){
 #' @examples
 #'
 #' checkAndInstall <- function(){
-#'    runWithFinishCheck(func = checkAndInstallBSgenome,refName = "bsgenome", )
+#'    runWithFinishCheck(func = checkAndInstallBSgenome,refName = "bsgenome")
 #'    runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta", refFilePath = paste0(getGenome(),".fa"))
 #' }
 #' initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),

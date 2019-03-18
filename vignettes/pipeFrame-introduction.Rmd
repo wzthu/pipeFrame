@@ -1,0 +1,608 @@
+---
+title: "Componentized Pipeline Framework"
+author: "Zheng Wei"
+date: "`r Sys.Date()`"
+output: 
+    html_document:
+        toc: true
+        toc_float: true
+        number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{An Introduction to esATAC}
+  %\VignetteEncoding{UTF-8}
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+# What is pipeFrame
+
+pipeFrame is an R package for building comonentized bioinformatics pipeline. 
+Each step in the pipeline is wrapped by the framework so connection among steps become seemless and easy.
+Pipeline user can focus on arguments tuning rather than spending a lot of time on file format transfomation,
+passing result directory from output to input and installing the depedent data and software. 
+Componontized step elements are also able to customized into new pipeline flexibly. 
+Pipeline are splited into some important functional steps 
+so it is easier to understand the complex arguments combination from each step 
+rather than parameter mixture from the whole pipeline. 
+At the same time, comonentized pipeline can restart at the breakpoint and avoid reruning the whole pipeline,
+which may save a lot of time for pipeline tuning or any accident like power off or process interruption.
+
+![Compontized Pipeline](pintu.png)
+
+# Download and Installation
+
+To install the latest version of pipeFrame, you will need to be using the latest version of R. pipeFrame is part of Bioconductor project starting from Bioc 3.9 built on R 3.5. Please check your current Bioconductor version and R version first. Similar to other bioconductor package, you can download install pipeFrame and all its dependencies software like this:
+
+```{r eval=FALSE}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("esATAC")
+
+```
+
+The usage method are similar to other R package:
+
+```{r}
+library(pipeFrame)
+```
+
+# Build the pipeline
+
+## initialize
+
+Before building your pipeline, you need to initialize the configuration. 
+
+For general user, `initPipeFrame` is required to be called after library the package.
+
+```{r eval=FALSE}
+initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
+              defaultJobName = "test-pipeline"
+)
+
+```
+
+For package developer, this function is requir to be called in `.onload` function. So you need to implement `.onLoad` function like the code below.
+This function will be run when the new package is loading. So when the package loading is finished, the pipeFrame initialization is done.
+
+```{r}
+
+.onLoad <- function(libname, pkgname) {
+    initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
+                  defaultJobName = paste0(pkgname,"-pipeline")
+    )
+}
+
+```
+
+There are several items to be configure in this function: genome, job name, 
+reference directory, temporary directiory, check and install function, 
+threads number and reference list. They will be introduced one by one in the follow section.
+
+## Configuration
+
+For the default configuration, the directory and file are organized in this way:
+
+* Working Directory/ (Temporary Directory)
+    + pipeFrame-pipeline/ (Job name)
+        - Step_00_FirstStepName_pipe/ (Intermediate results are stored here)
+        - Step_01_SecondStepName_pipe/
+        - Step_02_ThirdStepName_pipe/
+        - ...
+    + refdir (Reference directory)
+        - hg19/ (Reference data like genome sequence hg19.fa for hg19 are store in this directory)
+        - hg38/ (Will be generated when users called `setGenome`)
+        - mm10/
+        - mm9/
+        - ...
+        
+### Temporary Directory
+
+The default temporary directory is current working directory.
+All jobs' intermediate results will be stored at their the job named sub-directory respectivly.
+It is set in `initPipeFrame` with argument `defaultTmpDir`. 
+User can get the full directory by calling.
+```{r}
+# see current temporary directory
+getTmpDir()
+```
+User can customize the temporary directory in this way:
+```{r}
+dir.create("./testdir")
+# set new temporary directory
+setTmpDir("./testdir")
+
+# see new temporary directory
+getTmpDir()
+```
+
+### Reference Directory
+
+The default reference directory is under the temporary directory.
+All genome assembly's reference data will be stored at their the genome assembly named sub-directory respectivly.
+It is set in `initPipeFrame` with argument `defaultRefDir`. 
+User can get the full directory by calling.
+```{r}
+# see current reference directory
+getRefDir()
+```
+User can customize the reference directory in this way:
+```{r}
+# set new reference directory
+setRefDir("./testdir")
+
+# see new reference directory
+getRefDir()
+```
+
+
+### Genome
+
+Usually, only several genome assembly are available for the pipeline so the 
+pipeline builder need to set which genome assembly is available. This can be
+set by the argument `availableGenome` in the `initPipeFrame` function.
+
+Users may obtain the avaible genome:
+
+```{r}
+getValidGenome()
+
+```
+
+Users can configure currently genome assembly by:
+```{r}
+
+setGenome("hg19")
+
+#to see current configured genome
+getGenome()
+
+```
+
+If the genome is not available, a stop message will prumpt.
+
+
+### Reference Data Generation
+
+Usually, user only use one genome assembly so they only want to generate the 
+reference data for that genome assembly only rather than all available genome
+assembly because the reference data generating cost plenty of time and storage 
+space.
+
+There is two way to generate reference data.
+
+For any R objects reference data shared by all genome, it can be set by 
+the argument `defaultReference` in the `initPipeFrame` function as an list member.
+User can use `getRef("itemName")` to obtain the reference data.
+
+In other case, please implement a function and pass it to `defaultCheckAndInstallFunc`
+for the function `initPipeFrame`. There are two steps.
+
+
+First, implement a the function for argument `defaultReference`. 
+Here we show some examples including
+installation BSgenome package for specific genome assembly and 
+generating genome sequence FASTA file. 
+`checkAndInstall` need to call  several installation functions (`checkAndInstallBSgenome` and `checkAndInstallGenomeFa` in this example) by calling `runWithFinishCheck`. Each reference data need a reference name for pipeline use and destination file name under the specific genome assembly folder of reference directory like "path/to/refdir/hg19/"
+This function can detect break point when the installation is not complete and skip the item that has already generated or installed. 
+
+
+```{r}
+checkAndInstall <- function(){
+    runWithFinishCheck(func = checkAndInstallBSgenome,refName = "bsgenome")
+    runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta", refFilePath = "genome.fa")
+}
+
+```
+
+
+
+
+Second, implement functions for installation or data generating with the only argument `refFilePath`. 
+`refFilePath` is the destination paths of reference file name like "path/to/refdir/hg19/genome.fa"
+
+
+For BSgenome installation:
+```{r}
+checkAndInstallBSgenome <- function(refFilePath){
+    genome <- getGenome()
+    bsgenomename<- BSgenome::available.genomes()[grepl(paste0(genome,"$"),BSgenome::available.genomes())]
+    if(length(bsgenomename)==0){
+        stop("There is no BSgenome support for this genome")
+    }
+    bsgenomeinstall <- BSgenome::installed.genomes()[grepl(paste0(genome,"$"),BSgenome::installed.genomes())]
+    if(length(bsgenomeinstall)==0){
+        message(paste("BSgenome for ",genome,"has not been installed,"))
+        message("begin to install ...")
+        BiocManager::install(bsgenomename)
+    }
+    return(getBSgenome(bsgenomename))
+}
+```
+In this example, based on currently set genome, the code check if there is BSgenome available and install the corresponding BSgenome package.  `refFilePath`  can be ignored because no file will be generated. The function return the BSgenome object as the resource of the reference name. So the next example can use `getRefRc("bsgenome")` to obtain this object.
+
+For genome sequence FASTA generating:
+```{r}
+checkAndInstallGenomeFa <- function(refFilePath){
+    outFile <- refFilePath
+    bsgenome<-getRefRc("bsgenome")
+    if(!is(bsgenome, "BSgenome")){stop("The variable 'bsgenome' is not a BSgenome")}
+    append <- FALSE
+    for(chrT in seqnames(bsgenome)){
+        if(is.null(masks(bsgenome[[chrT]])))
+            chrSeq <- DNAStringSet(bsgenome[[chrT]])
+        else
+            chrSeq <- DNAStringSet(injectHardMask(bsgenome[[chrT]], letter="N"))
+        names(chrSeq) <- chrT
+        writeXStringSet(chrSeq, filepath=outFile, format="fasta", append=append)
+        append <- TRUE
+    }
+    return(NULL)
+}
+```
+In this example, based on BSgenome object. The FASTA file can be generated. It needs to be saved at `refFilePath`. So the steps in the pipeline can obtain the reference directory by `getRefFile('fasta')`.
+Nothing is needed to be return because there is not any R object generated.
+
+
+At last, the function can be passed to the initialization function:
+
+```{r}
+initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
+              defaultJobName = "test-pipeline",
+              defaultCheckAndInstallFunc = checkAndInstall
+)
+
+```
+
+When user call  `setGenome("hg19")` to configure genome, this function will be call and the related reference data will be installed.
+
+
+### Threads
+
+For multi-core computer, using multi-thread program may make fully use of the performance of the computer. 
+It is set in `initPipeFrame` with argument `defaultThreads`. 
+User can get the currently max threads that can be used by each step in this way:
+```{r}
+# see current reference directory
+getThreads()
+```
+User can customize the max threads number in this way:
+```{r}
+# set new reference directory
+setThreads(4)
+
+# see new reference directory
+getThreads()
+```
+
+### Job Name
+
+Intermediate result will stored at an folder with job name under the temporary directory.
+
+It is set in `initPipeFrame` with argument `defaultJobName`. 
+User can get the currently job name that can be used by each step in this way:
+```{r}
+# see current  job name
+getJobName()
+```
+User can customize the job name in this way:
+```{r}
+# set new job name
+setJobName("testJobName")
+
+# see new job name
+getJobName()
+
+getJobDir()
+```
+
+
+
+## Step Registeration and Graph Management
+
+The step relation is managed and restricted by directed acyclic graph. The direction is data flow from upstream step to downstream step. So before developing the step object, registering the step and relation between exist steps and new step is necessary.
+
+For example, if a two steps pipeline is under development, they should be regist in this way:
+
+```{r}
+
+addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),argOrder = 1)
+```
+
+The edge character vector should interleavely write upstream step and downstream step name. `argOrder` will tell the graph what is the order number upstream step when it transfer to the downstream step. This will be important because when there are  more than one upstream step for a downstream object, the `Step` methods can distinct them.
+
+When developing the package, this function should also be call in the `.onLoad` function
+
+
+## Step Componentizing
+
+Each step in the pipeline should be wrapped with the pipeline framework 
+so that connection between two steps can be can become seamless.
+The framework is the `Step` base class. In the `Step` objects, 
+it contain the basic organized information of each step like input directories,
+output directories, other parameters etc. All other customized steps must
+inherit from this class which is also the wrapper. 
+Creating a new step need to follow the methods below
+
+
+
+
+### Non-object Function Wrapper
+
+Most of users do not know what class is and what object is so an function wrapper
+for the object generator is neccessary. In this example two-step pipeline, 
+the pipeline  randomly generate regions on the whole genome in the first step and
+find out the regions overlapped with known region. 
+Each step can be used individually or the first step of the pipeline. 
+So the two function shown as below. 
+
+For step `RandomRegionOnGenome` class, only sampleNumb is required. 
+All other arguments are filled with default value. 
+Because `genome` can be obtain from getGenome and `outputBed` can be generate automatically
+In this wrapper, all the parameters from the function are put in one `list` as the parameter of the
+`RandomRegionOnGenome` class generator. At last, the the step object should be returned. 
+
+```{r}
+randomRegionOnGenome <- function(sampleNumb, regionLen = 1000, genome = NULL, outputBed = NULL, ...){
+    allpara <- c(list(Class = "RandomRegionOnGenome"),as.list(environment()),list(...))
+    step <- do.call(new,allpara)
+    invisible(step)
+}
+
+```
+For step `OverlappedRandomRegion` class, it is almost the same. Only the `inputBed` and `randomBed` are required.
+```{r}
+
+overlappedRandomRegion <- function(inputBed, randomBed, outputBed = NULL, ...){
+    allpara <- c(list(Class = "OverlappedRandomRegion"),as.list(environment()),list(...))
+    step <- do.call(new,allpara)
+    invisible(step)
+}
+```
+
+But `OverlappedRandomRegion` can be the next step of `RandomRegionOnGenome`, so annother function wrapper is needed for seamless data transfer. First, a generic interface should be declared. All of the parameter are the same except for the prevStep. Besides, the randomBed is not necessary because it can be obtain from prevStep object.
+
+```{r}
+setGeneric("runOverlappedRandomRegion",function(prevStep,
+                                                inputBed,
+                                                randomBed = NULL,
+                                                outputBed = NULL,
+                                                ...) standardGeneric("runOverlappedRandomRegion"))
+
+```
+
+Second, a `Step` method should be declared. One more parameter `prevStep` need to be passed to `OverlappedRandomRegion` generator.
+
+```{r}
+setMethod(
+    f = "runOverlappedRandomRegion",
+    signature = "Step",
+    definition = function(prevStep,
+                          inputBed,
+                          randomBed = NULL,
+                          outputBed = NULL,
+                          ...){
+        allpara <- c(list(Class = "OverlappedRandomRegion", prevSteps = list(prevStep)),as.list(environment()),list(...))
+        step <- do.call(new,allpara)
+        invisible(step)
+    }
+)
+
+```
+
+In this way, users do not need to know anything about classes or objects.
+
+They can build the pipeline easily:
+
+```{r eval=FALSE}
+library(magrittr)
+
+testInputBedFilePath <- system.file(package = "pipeFrame", "extdata","testRegion.bed")
+
+result <- randomRegionOnGenome(1000) %>%
+    runOverlappedRandomRegion(inputBed = testInputBedFilePath)
+
+```
+
+Or use the function indiviually:
+
+```{r eval=FALSE}
+result1 <- randomRegionOnGenome(1000)
+
+result2 <- runOverlappedRandomRegion(inputBed = testInputBedFilePath, randomBed = testInputBedFilePath)
+
+```
+
+Currently the classes has not been implemented so these functions  are still not  available.
+
+### Class Implemention
+
+First, class declaration. The classes are required to be inherit from `Step`.
+
+Two example step classes shown belown
+
+
+```{r}
+# generate new Step : RandomRegionOnGenome
+setClass(Class = "RandomRegionOnGenome",
+         contains = "Step"
+)
+
+# generate another new Step : OverlappedRandomRegion
+setClass(Class = "OverlappedRandomRegion",
+         contains = "Step"
+)
+```
+
+Second, parameters initialization.
+
+`init` method of `Step` method is required to be override.
+It contain 3 arguments `.Object` is the object itself, `prevSteps` is the previous prior `Step` object that is required, `...` contains all parameters passed from wrapper function. In this function, the pipeline developer need to fill the three list object including `.Object@inputList` (all input directory or R objects), `.Object@outputList` (all output directory or R objects), `.Object@paramList` (other parameters) base on the given arguments.
+
+There are some tips here:
+
+* use `list(...)` to obtain all parameters passed from the wrapper
+* if there are prevSteps for this step, use `getParam(prevStep,"outputListKey")` to obtain the output to fill inputList object
+* all output file directory should be generate dafualtly under the step intermediate result directory, which can be obtained by getStepWorkDir(.Object,"defaultOutputFileName")
+* if the output file name is base on input file name, `getAutoPath(.Object,.Object@inputList[["theInputKey"]],"suffixToBeRemoved","newSuffixToBeReplacedc")`
+* input, output and other parameters should be filled type correctly
+* the dependent input reference file or objects should be filled with `getRef`, `getRefRc`, `getRefFiles` or `getGenome` when the arguments are set with `NULL` or other default values so that when user configure the genome assembly, these arguments are really not required
+* return .Object at the end of the method
+
+All tips can be found in following two examples.
+```{r}
+setMethod(
+    f = "init",
+    signature = "RandomRegionOnGenome",
+    definition = function(.Object,prevSteps = list(),...){
+        # All arguments in function randomRegionOnGenome will be passed from "..."
+        # so get the arguments from "..." first.
+        allparam <- list(...)
+        sampleNumb <- allparam[["sampleNumb"]]
+        regionLen <- allparam[["regionLen"]]
+        genome <- allparam[["genome"]]
+        outputBed <- allparam[["outputBed"]]
+        # no previous steps for this step so ingnore the "prevSteps"
+        # begin to set input parameters
+        # no input for this step
+        # begin to set output parameters
+        if(is.null(outputBed)){
+            .Object@outputList$outputBed <-  getStepWorkDir(.Object,"random.bed")
+        }else{
+            .Object@outputList$outputBed <- outputBed
+        }
+        # begin to set other parameters
+        .Object@paramList$regionLen <- regionLen
+        .Object@paramList$sampleNumb <- sampleNumb
+        if(is.null(genome)){
+            .Object@paramList$bsgenome <- getBSgenome(getGenome())
+        }else{
+            .Object@paramList$bsgenome <- getBSgenome(genome)
+        }
+        # don't forget to return .Object
+        .Object
+    }
+)
+
+
+setMethod(
+    f = "init",
+    signature = "OverlappedRandomRegion",
+    definition = function(.Object,prevSteps = list(),...){
+        # All arguments in function overlappedRandomRegion and runOerlappedRandomRegion will be passed from "..."
+        # so get the arguments from "..." first.
+        allparam <- list(...)
+        inputBed <- allparam[["inputBed"]]
+        randomBed <- allparam[["randomBed"]]
+        outputBed <- allparam[["outputBed"]]
+        # inputBed can obtain from previous step object when running runOerlappedRandomRegion
+        if(length(prevSteps)>0){
+            prevStep <- prevSteps[[1]]
+            .Object@inputList$randomBed <- getParam(prevStep,"outputBed")
+        }
+        # begin to set input parameters
+        if(!is.null(inputBed)){
+            .Object@inputList$inputBed <- inputBed
+        }
+        if(!is.null(randomBed)){
+            .Object@inputList$randomBed <- randomBed
+        }
+        # begin to set output parameters
+        # the output is recemended to set under the step work directory
+        if(!is.null(outputBed)){
+            .Object@outputList$outputBed <- outputBed
+        }else{
+            .Object@outputList$outputBed <- getAutoPath(.Object,.Object@inputList$inputBed, "bed", suffix = "bed")
+            # the path can also be generate in this way
+            # ib <- getParam(.Object,"inputBed")
+            #.Object@outputList$outputBed <- file.path(getStepWorkDir(.Object),paste0(substring(ib,1,nchar(ib)-3), "bed"))
+        }
+        # begin to set other parameters
+        # no other parameters
+        # don't forget to return .Object
+
+
+        .Object
+    }
+)
+
+```
+
+
+
+Third, data processing.
+
+`processing` method of `Step` method is required to be override.
+It contains two arguments including `.Object` and `...`. `.Object` is the object itself, `...` is currently unused and for future's extension. In this function, the pipeline developer need to implement the core calculation algorithm and save the result object or file to configured output directory.
+
+There are some tips here:
+
+* get the parameters including input, output and other parameters by `getParam(.Object, "the key name")`
+* return .Object at the end of the method
+
+```{r}
+
+setMethod(
+    f = "processing",
+    signature = "RandomRegionOnGenome",
+    definition = function(.Object,...){
+        # All arguments are set in .Object
+        # so we can get them from .Object
+        sampleNumb <- getParam(.Object,"sampleNumb")
+        regionLen <- getParam(.Object,"regionLen")
+        bsgenome <- getParam(.Object,"bsgenome")
+        outputBed <- getParam(.Object,"outputBed")
+        # begin the calculation
+        chrlens <-seqlengths(bsgenome)
+        selchr <- grep("_|M",names(chrlens),invert=TRUE)
+        chrlens <- chrlens[selchr]
+        startchrlens <- chrlens - regionLen
+        spchrs <- sample(x = names(startchrlens),size =  sampleNumb, replace = TRUE, prob = startchrlens / sum(startchrlens))
+        gr <- GRanges()
+        for(chr in names(startchrlens)){
+            startpt <- sample(x = 1:startchrlens[chr],size = sum(spchrs == chr),replace = FALSE)
+            gr <- c(gr,GRanges(seqnames = chr, ranges = IRanges(start = startpt, width = 1000)))
+        }
+        result <- sort(gr,ignore.strand=TRUE)
+        rtracklayer::export.bed(object = result, con =  outputBed)
+        # don't forget to return .Object
+        .Object
+    }
+)
+
+
+
+
+
+setMethod(
+    f = "processing",
+    signature = "OverlappedRandomRegion",
+    definition = function(.Object,...){
+        # All arguments are set in .Object
+        # so we can get them from .Object
+        allparam <- list(...)
+        inputBed <- getParam(.Object,"inputBed")
+        randomBed <- getParam(.Object,"randomBed")
+        outputBed <- getParam(.Object,"outputBed")
+
+        # begin the calculation
+        gr1 <- import.bed(con = inputBed)
+        gr2 <- import.bed(con = randomBed)
+        gr <- second(findOverlapPairs(gr1,gr2))
+        export.bed(gr,con = outputBed)
+        # don't forget to return .Object
+        .Object
+    }
+)
+```
+
+
+
+
+
+
+
+
