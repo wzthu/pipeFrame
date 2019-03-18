@@ -17,9 +17,16 @@ Imports:
     magrittr,
     methods,
     Biostrings,
-    GenomeInfoDb
+    GenomeInfoDb,
+    parallel,
+    stats,
+    utils
 Suggests:
     knitr,
     rtracklayer,
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
+biocViews: Software, WorkflowStep
+URL: https://github.com/wzthu/pipeFrame
+BugReports: https://github.com/wzthu/pipeFrame/issues
+
