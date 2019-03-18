@@ -1,7 +1,7 @@
 Package: pipeFrame
 Type: Package
 Title: pipeline framework for bioinformatics in R
-Version: 0.1.0
+Version: 0.99.0
 Author: Zheng Wei
 Maintainer: Zheng Wei <wzweizheng@qq.com>
 Description: More about what it does (maybe more than one line)
@@ -12,4 +12,21 @@ LazyData: true
 Imports:
     BiocManager,
     BSgenome,
-    digest
+    digest,
+    visNetwork,
+    magrittr,
+    methods,
+    Biostrings,
+    GenomeInfoDb,
+    parallel,
+    stats,
+    utils
+Suggests:
+    knitr,
+    rtracklayer,
+RoxygenNote: 6.1.1
+VignetteBuilder: knitr
+biocViews: Software, WorkflowStep
+URL: https://github.com/wzthu/pipeFrame
+BugReports: https://github.com/wzthu/pipeFrame/issues
+

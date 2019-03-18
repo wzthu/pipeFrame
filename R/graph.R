@@ -1,10 +1,19 @@
+#' @importFrom visNetwork visHierarchicalLayout
+#' @importFrom visNetwork visNetwork
+#' @importFrom visNetwork visEdges
+#' @importFrom visNetwork visOptions
+
+#' @importFrom magrittr %>%
+
 setClass(Class = "GraphMng",
          slots = list(edgeStarts = "list",
                       edgeEnds = "list",
-                      allStepNames = "character"),
+                      allStepNames = "character",
+                      stepIds = "numeric"),
          prototype = list(edgeStarts = list(),
                           edgeEnds = list(),
-                          allStepNames = NULL))
+                          allStepNames = NULL,
+                          stepIds = numeric()))
 
 
 
@@ -26,6 +35,13 @@ setMethod(f = "graphMngAddEdges",
               startPoints <- edges[s%%2 == 1]
               endPoints <- edges[s%%2 == 0]
               graphMngObj@allStepNames <- unique(c(graphMngObj@allStepNames, edges))
+              count <- length(graphMngObj@stepIds)
+              if(count < length(graphMngObj@allStepNames)){
+                  newid <- (count+1):length(graphMngObj@allStepNames)
+                  names(newid) <- graphMngObj@allStepNames[is.na(graphMngObj@stepIds[graphMngObj@allStepNames])]
+                  graphMngObj@stepIds <- c(graphMngObj@stepIds,newid)
+              }
+
               for(i in 1:length(startPoints)){
                   if(sum(graphMngObj@edgeStarts[[argOrder]] == startPoints[i] &
                          graphMngObj@edgeEnds[[argOrder]] == endPoints[i]) == 0){
@@ -34,43 +50,20 @@ setMethod(f = "graphMngAddEdges",
                       graphMngObj@edgeEnds[[argOrder]] <- c(graphMngObj@edgeEnds[[argOrder]],endPoints[i])
                   }
               }
+              # for (i in 1:length(graphMngObj@edgeStarts)) {
+              #     pt <- graphMngObj@edgeStarts[[paste0("edge",i)]]
+              #     if(pt[1] == "BASE"){
+              #         graphMngObj@edgeStarts[[paste0("edge",i)]] <- pt[2:length(pt)]
+              #     }
+              #     pt <- graphMngObj@edgeEnds[[paste0("edge",i)]]
+              #     if(pt[1] == "BASE"){
+              #         graphMngObj@edgeEnds[[paste0("edge",i)]] <- pt[2:length(pt)]
+              #     }
+              # }
               graphMngObj
           })
 
 
-setGeneric(name = "graphMngGetNextSteps",
-           def = function(graphMngObj,stepName,...){
-               standardGeneric("graphMngGetNextSteps")
-           })
-setMethod(f = "graphMngGetNextSteps",
-          signature = "GraphMng",
-          definition = function(graphMngObj,stepName,...){
-              for(i in 1:length(graphMngObj@edgeStarts)){
-                  if(sum(graphMngObj@edgeStarts[[i]] == stepName)==0){
-                      message(sprintf("Next steps on arguments %d are not available.",i))
-                  }else{
-                      message(sprintf("Next steps on arguments %d are available for:",i))
-              #        print(raphMngObj@edgeEnds[[i]][graphMngObj@edgeStarts[[i]] == stepName])
-                  }
-              }
-          })
-
-setGeneric(name = "graphMngGetPrevSteps",
-           def = function(graphMngObj,stepName,...){
-               standardGeneric("graphMngGetPrevSteps")
-           })
-setMethod(f = "graphMngGetPrevSteps",
-          signature = "GraphMng",
-          definition = function(graphMngObj,stepName,...){
-              for(i in 1:length(graphMngObj@edgeEnds)){
-                  if(sum(graphMngObj@edgeEnds[[i]] == stepName)==0){
-                      message(sprintf("Previous steps on arguments %d are not available.",i))
-                  }else{
-                      message(sprintf("Previous steps on arguments %d are available for:",i))
-                     # print(raphMngObj@edgeStarts[[i]][graphMngObj@edgeEnds[[i]] == stepName])
-                  }
-              }
-          })
 
 
 setGeneric(name = "graphMngCheckRelation",
@@ -83,8 +76,18 @@ setMethod(f = "graphMngCheckRelation",
               return(sum(graphMngObj@edgeStarts[[downstreamArgOrder]] == upstreamStep &
                       graphMngObj@edgeEnds[[downstreamArgOrder]] == downstreamStep) > 0)
               })
-
-
+#' @name graphMng
+#' @title Step graph management
+#' @rdname graphMng
+#' @param edges \code{Character} vector. Contain the start and end points name of all edges.
+#' It need to follow the format like c("startpt1","endpt1","startpt2","endpt2","startpt3","endpt3")
+#' @param argOrder \code{Numeric} scalar. The augument order of the input Step object.
+#' @param stepName \code{Character} scalar. Step class name of each step.
+#'
+#' @rdname graphMng
+#' @return \item{addEdges}{Nother will be returned.}
+#' @aliases  graphMng
+#' @export
 addEdges <- function(edges, argOrder){
     graphMng <- getOption("pipeFrameConfig.graph")
     if(is.null(graphMng)){
@@ -94,30 +97,129 @@ addEdges <- function(edges, argOrder){
     options(pipeFrameConfig.graph = graphMng)
 }
 
+getGraphObj <- function(){
+    graphMng <- getOption("pipeFrameConfig.graph")
+    stopifnot(!is.null(graphMng))
+    return(graphMng)
+}
 
 
 checkRelation<-function(upstreamStep,downstreamStep,downstreamArgOrder){
-    graphMng <- getOption("pipeFrameConfig.graph")
-    stopifnot(!is.null(graphMng))
+    graphMng <- getGraphObj()
     return(graphMngCheckRelation(graphMng,upstreamStep,downstreamStep,downstreamArgOrder))
 }
 
-#
-#
-# setClass(Class = "Test",
-#          slots = list(testslot = "list"),
-#          prototype = list(edgeStarts = list())
-#                           )
-# setGeneric(name = "testg0",
-#            def = function(.Objects,...){
-#                standardGeneric("testg0")
-#            })
-#
-# setMethod("testg0", signature="Test",definition =  function(.Objects,...){testg(.Objects)})
-#
-#
-# setGeneric(name = "testg",
-#            def = function(.Objects,...){
-#                standardGeneric("testg")
-#            })
+#' @rdname graphMng
+#' @return \item{getPrevSteps}{Previous steps name}
+#' @aliases  getPrevSteps
+#' @export
+getPrevSteps <- function(stepName, argOrder){
+    graphMng <- getGraphObj()
+    return(graphGetPrevSteps(graphMng,stepName, argOrder))
+
+}
+
+setGeneric(name = "graphGetPrevSteps",
+           def = function(graphMngObj,stepName, argOrder,...)
+               standardGeneric("graphGetPrevSteps")
+           )
+
+setMethod(f = "graphGetPrevSteps",
+          signature = "GraphMng",
+          definition = function(graphMngObj,stepName=NULL,argOrder,...){
+              if(length(graphMngObj@edgeStarts) < argOrder){
+                  return(NULL)
+              }
+              prev <- graphMngObj@edgeStarts[[argOrder]][stepName==graphMngObj@edgeEnds[[argOrder]]]
+              if (length(prev)==0){
+                  return(NULL)
+              }else{
+                  return(prev)
+              }
+          })
+
+
+#' @rdname graphMng
+#' @return \item{getNextSteps}{Next steps name}
+#' @aliases  getPrevSteps
+#' @export
+getNextSteps <- function(stepName, argOrder){
+    graphMng <- getGraphObj()
+    return(graphGetNextSteps(graphMng,stepName, argOrder))
+
+}
+
+setGeneric(name = "graphGetNextSteps",
+           def = function(graphMngObj,stepName, argOrder,...)
+               standardGeneric("graphGetNextSteps")
+)
+
+setMethod(f = "graphGetNextSteps",
+          signature = "GraphMng",
+          definition = function(graphMngObj,stepName=NULL,argOrder,...){
+              if(length(graphMngObj@edgeEnds) < argOrder){
+                  return(NULL)
+              }
+              nextpt <- graphMngObj@edgeEnds[[argOrder]][stepName==graphMngObj@edgeStarts[[argOrder]]]
+              if (length(nextpt)==0){
+                  return(NULL)
+              }else{
+                  return(nextpt)
+              }
+          })
+
+
+
+setGeneric(name = "graphPrintMap",
+           def = function(graphMngObj,stepName=NULL,display = TRUE,...){
+               standardGeneric("graphPrintMap")
+           })
+setMethod(f = "graphPrintMap",
+          signature = "GraphMng",
+          definition = function(graphMngObj,stepName=NULL,display=TRUE,...){
+
+              nodes <- data.frame(id = graphMngObj@stepIds,
+                                  label = names(graphMngObj@stepIds),                                 # add labels on nodes
+                                  #         group = c("GrA", "GrB"),                                     # add groups on nodes
+                                  #         value = 1:10,                                                # size adding value
+                                  shape = "ellipse",                   # control shape of nodes
+                                  #          title = paste0("<p><b>", 1:10,"</b><br>Node !</p>"),         # tooltip (html or character)
+                                  #           color = color, # color
+                                  shadow = FALSE                  # shadow
+              )
+              if(!is.null(stepName)){
+                  color <- rep("lightblue",length(graphMngObj@stepIds))
+                  stopifnot(!is.na(graphMngObj@stepIds[stepName]))
+                  color[graphMngObj@stepIds[stepName]] <- "red"
+                  nodes <- data.frame(id = graphMngObj@stepIds,
+                                      label = names(graphMngObj@stepIds),                                 # add labels on nodes
+                                      #         group = c("GrA", "GrB"),                                     # add groups on nodes
+                                      #         value = 1:10,                                                # size adding value
+                                      shape = "ellipse",                   # control shape of nodes
+                                      #          title = paste0("<p><b>", 1:10,"</b><br>Node !</p>"),         # tooltip (html or character)
+                                                 color = color, # color
+                                      shadow = FALSE                  # shadow
+                  )
+
+              }
+
+
+              edges <- data.frame(from = graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeStarts))],
+                                  to = graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeEnds))],
+  #                                label = paste("Edge", 1:8),                                 # add labels on edges
+  #                                length = c(100,500),                                        # length
+                                  arrows = "to",            # arrows
+                                  dashes = FALSE,                                    # dashes
+   #                               title = paste("Edge", 1:8),                                 # tooltip (html or character)
+                                  smooth = FALSE,                                    # smooth
+                                  shadow = FALSE
+                )
+              visNetwork(nodes, edges, width = "100%") %>%
+                  visEdges(arrows = "to",physics = FALSE) %>%
+                  visOptions(highlightNearest = list(enabled =TRUE, degree = 1))%>%
+                 visHierarchicalLayout(sortMethod = "directed",blockShifting=FALSE)
+
+          })
+
+
 
