@@ -600,7 +600,11 @@ setMethod(
 ```
 
 
+# Session Information
 
+```{r}
+sessionInfo()
+```
 
 
 
