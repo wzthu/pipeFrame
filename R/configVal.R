@@ -181,10 +181,10 @@ getRefRc <- function(refName){
 #' @export
 setTmpDir <- function(tmpDir = getwd()){
     stopifnot(dir.exists(tmpDir))
-    allowChange <- getOption("pipeFrameConfig.allowChangeJobDir")
-    if(!allowChange){
-        stop("setTmpDir must be called before calling any pipeling steps")
-    }
+    # allowChange <- getOption("pipeFrameConfig.allowChangeJobDir")
+    # if(!allowChange){
+    #     stop("setTmpDir must be called before calling any pipeling steps")
+    # }
     options(pipeFrameConfig.dir.tmpdir = tmpDir)
 }
 
@@ -212,10 +212,10 @@ getTmpDir <- function(){
 #' @export
 setJobName <- function(jobName){
     stopifnot(is.character(jobName))
-    allowChange <- getOption("pipeFrameConfig.allowChangeJobDir")
-    if(!allowChange){
-        stop("setJobName must be called before calling any pipeling steps")
-    }
+#    allowChange <- getOption("pipeFrameConfig.allowChangeJobDir")
+#   if(!allowChange){
+#        stop("setJobName must be called before calling any pipeling steps")
+#    }
     options(pipeFrameConfig.dir.jobname = jobName)
 }
 #' @return \item{setJobName}{Job name for following steps.}
@@ -260,7 +260,7 @@ getJobDir <- function(){
 #'    runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta", refFilePath = paste0(getGenome(),".fa"))
 #' }
 #' initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
-#'               defaultJobName = paste0(pkgname,"-pipeline")
+#'               defaultJobName = paste0("pkgname","-pipeline")
 #' )
 #'
 #' setGenome("hg19")

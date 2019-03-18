@@ -36,7 +36,7 @@ checkAndInstall <- function(){
    runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta", refFilePath = paste0(getGenome(),".fa"))
 }
 initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
-              defaultJobName = paste0(pkgname,"-pipeline")
+              defaultJobName = paste0("pkgname","-pipeline")
 )
 
 setGenome("hg19")
