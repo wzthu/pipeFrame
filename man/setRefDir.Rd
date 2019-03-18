@@ -22,6 +22,8 @@ getRefRc(refName)
 \item{refdir}{\code{Character} scalar. The directory for reference data dependency storage.}
 
 \item{createDir}{\code{Logica} scalar. Create the directory when the directory is not exist. Default: TRUE}
+
+\item{refName}{\code{Character} scalar. The reference name.}
 }
 \value{
 \item{setRefDir}{nothing will be returned}

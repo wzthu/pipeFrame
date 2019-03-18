@@ -1,7 +1,7 @@
 Package: pipeFrame
 Type: Package
 Title: pipeline framework for bioinformatics in R
-Version: 0.1.0
+Version: 0.99.0
 Author: Zheng Wei
 Maintainer: Zheng Wei <wzweizheng@qq.com>
 Description: More about what it does (maybe more than one line)
@@ -14,5 +14,12 @@ Imports:
     BSgenome,
     digest,
     visNetwork,
-    magrittr
+    magrittr,
+    methods,
+    Biostrings,
+    GenomeInfoDb
+Suggests:
+    knitr,
+    rtracklayer,
 RoxygenNote: 6.1.1
+VignetteBuilder: knitr

@@ -1,4 +1,9 @@
 #' @importFrom digest digest
+#' @importFrom methods new
+#' @importFrom stats runif
+#' @importFrom stats na.omit
+#' @importFrom methods is
+#' @importFrom utils write.table
 #' @name Step-class
 #' @rdname  Step-class
 #' @title Methods for Step objects
@@ -15,11 +20,12 @@
 #' @seealso
 
 #' \code{\link{setGenome}}
-#' \code{\link{setThread}}
+#' \code{\link{setThreads}}
 
 
 #' @param .Object \code{Step} object scalar.
 #' Step object return by functions of each step functions.
+#' @param prevSteps \code{List} scalar of Step object
 #' @param type \code{Character} scalar.
 #' Valid types of parameters including "input", "output" and "other"
 #' @param item \code{Character} scalar.
@@ -42,6 +48,7 @@
 #'
 #' library(BSgenome)
 #' library(rtracklayer)
+#' library(magrittr)
 #'
 #' # generate new Step : RandomRegionOnGenome
 #' setClass(Class = "RandomRegionOnGenome",
@@ -400,16 +407,17 @@ setMethod(f = "initialize",
               .Object
           })
 
-#' @return \item{init}{(For package developer only) A Step child class object with initialized input, output and other parameters}
-#' @rdname Step-class
-#' @aliases init
-#' @export
+
 setGeneric(name = "init",
            def = function(.Object,prevSteps = list(),...){
                standardGeneric("init")
            })
 
 
+#' @return \item{init}{(For package developer only) A Step child class object with initialized input, output and other parameters}
+#' @rdname Step-class
+#' @aliases init
+#' @export
 setMethod(f = "init",
           signature = "Step",
           definition = function(.Object,prevSteps = list(),...){
@@ -663,15 +671,16 @@ setMethod(f = "paramValidation",
               checkRequireParam(.Object);
           })
 
-#' @return \item{checkRequireParam}{(For package developer) Check required inputs are filled.}
-#' @rdname Step-class
-#' @aliases checkRequireParam
-#' @export
+
 setGeneric(name = "checkRequireParam",
            def = function(.Object,...){
                standardGeneric("checkRequireParam")
            })
 
+#' @return \item{checkRequireParam}{(For package developer) Check required inputs are filled.}
+#' @rdname Step-class
+#' @aliases checkRequireParam
+#' @export
 setMethod(f = "checkRequireParam",
           signature = "Step",
           definition = function(.Object,...){
@@ -682,15 +691,16 @@ setMethod(f = "checkRequireParam",
           })
 
 
-#' @return \item{checkRequireParam}{(For package developer) Check required inputs are filled.}
-#' @rdname Step-class
-#' @aliases checkAllPath
-#' @export
+
 setGeneric(name = "checkAllPath",
            def = function(.Object,...){
                standardGeneric("checkAllPath")
            })
 
+#' @return \item{checkRequireParam}{(For package developer) Check required inputs are filled.}
+#' @rdname Step-class
+#' @aliases checkAllPath
+#' @export
 setMethod(f = "checkAllPath",
           signature = "Step",
           definition = function(.Object,...){
@@ -857,32 +867,33 @@ setGeneric(name = "processing",
 
 
 
-#' @return \item{getReportValImp}{(For package developer) get Report Value}
-#' @rdname Step-class
-#' @aliases getReportValImp
-#' @export
+
 setGeneric(name = "getReportValImp",
            def = function(.Object,item,...){
                standardGeneric("getReportValImp")
            })
 
 
+#' @return \item{getReportValImp}{(For package developer) get Report Value}
+#' @rdname Step-class
+#' @aliases getReportValImp
+#' @export
 setMethod(f = "getReportValImp",
           signature = "Step",
           definition = function(.Object,item,...){
               return(.Object@reportVal[[item]])
           })
 
-#' @return \item{getReportItemsImp}{(For package developer) getReportItemsImp}
-#' @rdname Step-class
-#' @aliases getReportItemsImp
-#' @export
+
 setGeneric(name = "getReportItemsImp",
            def = function(.Object,item,...){
                standardGeneric("getReportItemsImp")
            })
 
-
+#' @return \item{getReportItemsImp}{(For package developer) getReportItemsImp}
+#' @rdname Step-class
+#' @aliases getReportItemsImp
+#' @export
 setMethod(f = "getReportItemsImp",
           signature = "Step",
           definition = function(.Object,item,...){

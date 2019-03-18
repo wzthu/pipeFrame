@@ -22,9 +22,11 @@ checkFileCreatable(filePath, ...)
 \arguments{
 \item{filepath}{\code{character} scalar or vector.}
 
-\item{words}{\code{character} scalar}
+\item{words}{\code{character} scalar. Remove substring of the path characters starting to match the word}
 
 \item{...}{Additional arguments, currenly unused}
+
+\item{filePath}{\code{Character} scalar.}
 }
 \value{
 \item{getBasenamePrefix}{Get the step ID}

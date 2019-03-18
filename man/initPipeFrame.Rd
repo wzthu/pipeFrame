@@ -37,7 +37,7 @@ This function should be used first line in R terminal for general user.
 }
 \examples{
 initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
-              defaultJobName = paste0(pkgname,"-pipeline")
+              defaultJobName = paste0("pkgname","-pipeline")
 )
 
 }

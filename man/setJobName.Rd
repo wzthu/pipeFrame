@@ -13,7 +13,7 @@ getJobName()
 getJobDir()
 }
 \arguments{
-\item{tmpDir}{\code{Character} scalar. Job name for following steps.}
+\item{jobName}{\code{Character} scalar. Job name for following steps.}
 }
 \value{
 \item{setJobName}{nothing will be returned}

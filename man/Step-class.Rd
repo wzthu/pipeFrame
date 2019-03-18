@@ -4,6 +4,7 @@
 \name{Step-class}
 \alias{Step-class}
 \alias{Step}
+\alias{init,Step-method}
 \alias{init}
 \alias{getStepName,Step-method}
 \alias{getStepName}
@@ -23,7 +24,9 @@
 \alias{getReportItems}
 \alias{getAutoPath,Step-method}
 \alias{getAutoPath}
+\alias{checkRequireParam,Step-method}
 \alias{checkRequireParam}
+\alias{checkAllPath,Step-method}
 \alias{checkAllPath}
 \alias{getParamMD5Path,Step-method}
 \alias{getParamMD5Path}
@@ -34,11 +37,13 @@
 \alias{writeLog,Step-method}
 \alias{writeLog}
 \alias{processing}
+\alias{getReportValImp,Step-method}
 \alias{getReportValImp}
+\alias{getReportItemsImp,Step-method}
 \alias{getReportItemsImp}
 \title{Methods for Step objects}
 \usage{
-init(.Object, prevSteps = list(), ...)
+\S4method{init}{Step}(.Object, prevSteps = list(), ...)
 
 \S4method{getStepName}{Step}(.Object, ...)
 
@@ -61,9 +66,9 @@ init(.Object, prevSteps = list(), ...)
 \S4method{getAutoPath}{Step}(.Object, originPath, regexSuffixName, suffix,
   ...)
 
-checkRequireParam(.Object, ...)
+\S4method{checkRequireParam}{Step}(.Object, ...)
 
-checkAllPath(.Object, ...)
+\S4method{checkAllPath}{Step}(.Object, ...)
 
 \S4method{getParamMD5Path}{Step}(.Object, ...)
 
@@ -76,13 +81,15 @@ checkAllPath(.Object, ...)
 
 processing(.Object, ...)
 
-getReportValImp(.Object, item, ...)
+\S4method{getReportValImp}{Step}(.Object, item, ...)
 
-getReportItemsImp(.Object, item, ...)
+\S4method{getReportItemsImp}{Step}(.Object, item, ...)
 }
 \arguments{
 \item{.Object}{\code{Step} object scalar.
 Step object return by functions of each step functions.}
+
+\item{prevSteps}{\code{List} scalar of Step object}
 
 \item{...}{Additional arguments, currently unused.}
 
@@ -169,6 +176,7 @@ rather than use Step S4 class to generate object themselves
 
 library(BSgenome)
 library(rtracklayer)
+library(magrittr)
 
 # generate new Step : RandomRegionOnGenome
 setClass(Class = "RandomRegionOnGenome",
@@ -369,7 +377,7 @@ isReady(rd)
 }
 \seealso{
 \code{\link{setGenome}}
-\code{\link{setThread}}
+\code{\link{setThreads}}
 }
 \author{
 Zheng Wei

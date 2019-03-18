@@ -1,4 +1,11 @@
 #' @importFrom BSgenome getBSgenome
+#' @importFrom GenomeInfoDb seqnames
+#' @importFrom Biostrings masks
+#' @importFrom Biostrings DNAStringSet
+#' @importFrom Biostrings injectHardMask
+#' @importFrom Biostrings writeXStringSet
+
+#'
 
 #' @name setGenome
 #' @rdname setGenome
@@ -84,6 +91,7 @@ getThreads <- function(){
 #' @rdname setRefDir
 #' @title Configure max threads number for all steps
 #' @param refdir \code{Character} scalar. The directory for reference data dependency storage.
+#' @param refName \code{Character} scalar. The reference name.
 #' @param createDir \code{Logica} scalar. Create the directory when the directory is not exist. Default: TRUE
 #' @return \item{setRefDir}{nothing will be returned}
 #' @aliases setRefDir
@@ -193,7 +201,7 @@ getTmpDir <- function(){
 #' @name setJobName
 #' @rdname setJobName
 #' @title Configure the job name for following steps.
-#' @param tmpDir \code{Character} scalar. Job name for following steps.
+#' @param jobName \code{Character} scalar. Job name for following steps.
 #' @return \item{setJobName}{nothing will be returned}
 #' @aliases setJobName
 #' @rdname setJobName
