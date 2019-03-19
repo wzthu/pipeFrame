@@ -59,7 +59,7 @@ Before building your pipeline, you need to initialize the configuration.
 For general user, `initPipeFrame` is required to be called after library the package.
 
 ```{r eval=FALSE}
-initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
+initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
               defaultJobName = "test-pipeline"
 )
 
@@ -71,7 +71,7 @@ This function will be run when the new package is loading. So when the package l
 ```{r}
 
 .onLoad <- function(libname, pkgname) {
-    initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
+    initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
                   defaultJobName = paste0(pkgname,"-pipeline")
     )
 }
@@ -250,7 +250,7 @@ Nothing is needed to be return because there is not any R object generated.
 At last, the function can be passed to the initialization function:
 
 ```{r}
-initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
+initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
               defaultJobName = "test-pipeline",
               defaultCheckAndInstallFunc = checkAndInstall
 )

@@ -4,8 +4,13 @@ Title: pipeline framework for bioinformatics in R
 Version: 0.99.0
 Author: Zheng Wei
 Maintainer: Zheng Wei <wzweizheng@qq.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: pipeFrame is an R package for building comonentized bioinformatics pipeline. 
+    Each step in the pipeline is wrapped by the framework so connection among steps become seamless and easy.
+    Pipeline user can focus on arguments tuning rather than spending a lot of time on file format transfomation,
+    passing result directory from output to input and installing the depedent data and software. 
+    Componontized step elements are also able to customized into new pipeline flexibly. 
+    Componontized pipeline can restart at the breakpoint and avoid reruning the whole pipeline 
+    when there is any kind of interruption.
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -26,7 +31,7 @@ Suggests:
     rtracklayer,
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
-biocViews: Software, WorkflowStep
+biocViews: Software, Infrastructure, WorkflowStep
 URL: https://github.com/wzthu/pipeFrame
 BugReports: https://github.com/wzthu/pipeFrame/issues
 
