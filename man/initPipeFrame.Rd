@@ -36,7 +36,7 @@ This function should be used first line in R terminal for general user.
  It's main function is to configure the basic options for the package.
 }
 \examples{
-initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
+initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
               defaultJobName = paste0("pkgname","-pipeline")
 )
 

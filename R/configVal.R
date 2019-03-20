@@ -271,10 +271,10 @@ runWithFinishCheck <- function(func, refName, refFilePath = NULL){
     objPath <- file.path(getRefDir(),getGenome(),paste0(refName,".obj.Rdata"))
     if(is.null(refFilePath)){
         refFilePath <- objPath
+    }else{
+        stopifnot(is.character(refFilePath))
+        refFilePath <- file.path(getRefDir(),getGenome(),refFilePath)
     }
-
-    stopifnot(is.character(refFilePath))
-    refFilePath <- file.path(getRefDir(),getGenome(),refFilePath)
 
     lockFilePath <- file.path(getRefDir(),getGenome(),paste(refName,"lock",sep = "."))
     if(file.exists(lockFilePath)){
