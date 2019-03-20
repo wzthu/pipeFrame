@@ -36,7 +36,7 @@ initPipeFrame <- function(defaultJobName,
     options(pipeFrameConfig.threads = defaultThreads)
     if(!is.null(availableGenome) && !is.null(oldavailgenome)){
         for(i in 1:length(availableGenome)){
-            stopifnot(availableGenome[i]%in%c("hg19", "hg38", "mm9", "mm10"))
+            stopifnot(availableGenome[i]%in%c("hg19", "hg38", "mm9", "mm10","testgenome"))
         }
         options(pipeFrameConfig.genome.valid = intersect(availableGenome,oldavailgenome))
     }else{
@@ -83,7 +83,7 @@ initPipeFrame <- function(defaultJobName,
 }
 
 .onLoad <- function(libname, pkgname) {
-    initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
+    initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
                   defaultJobName = paste0(pkgname,"-pipeline")
     )
 }
