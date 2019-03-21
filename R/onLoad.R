@@ -61,7 +61,9 @@ initPipeFrame <- function(defaultJobName,
     }
     tryCatch(getRefDir(),
              error = function(cond){
-                 setRefDir(defaultRefDir)
+                 if(!file.exists("DESCRIPTION")){
+                     setRefDir(defaultRefDir)
+                 }
              })
     cni<-getOption("pipeFrameConfig.genome.checkAndInstallFunc")
     if(is.null(defaultCheckAndInstallFunc)){
