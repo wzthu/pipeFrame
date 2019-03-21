@@ -1,9 +1,10 @@
-#' @importFrom visNetwork visHierarchicalLayout
-#' @importFrom visNetwork visNetwork
-#' @importFrom visNetwork visEdges
-#' @importFrom visNetwork visOptions
-
+# @importFrom visNetwork visHierarchicalLayout
+# @importFrom visNetwork visNetwork
+# @importFrom visNetwork visEdges
+# @importFrom visNetwork visOptions
 #' @importFrom magrittr %>%
+#' @importFrom ggdag dagify
+#' @importFrom ggdag ggdag
 
 setClass(Class = "GraphMng",
          slots = list(edgeStarts = "list",
@@ -169,6 +170,16 @@ setMethod(f = "graphGetNextSteps",
           })
 
 
+#' @rdname graphMng
+#' @return \item{printMap}{print pipeline flow map}
+#' @aliases  printMap
+#' @export
+printMap <- function(stepName=NULL,display=TRUE,...){
+    graphMng <- getGraphObj()
+    return(graphPrintMap(graphMng, stepName = stepName, display=display,...))
+
+}
+
 
 setGeneric(name = "graphPrintMap",
            def = function(graphMngObj,stepName=NULL,display = TRUE,...){
@@ -178,47 +189,56 @@ setMethod(f = "graphPrintMap",
           signature = "GraphMng",
           definition = function(graphMngObj,stepName=NULL,display=TRUE,...){
 
-              nodes <- data.frame(id = graphMngObj@stepIds,
-                                  label = names(graphMngObj@stepIds),                                 # add labels on nodes
-                                  #         group = c("GrA", "GrB"),                                     # add groups on nodes
-                                  #         value = 1:10,                                                # size adding value
-                                  shape = "ellipse",                   # control shape of nodes
-                                  #          title = paste0("<p><b>", 1:10,"</b><br>Node !</p>"),         # tooltip (html or character)
-                                  #           color = color, # color
-                                  shadow = FALSE                  # shadow
-              )
-              if(!is.null(stepName)){
-                  color <- rep("lightblue",length(graphMngObj@stepIds))
-                  stopifnot(!is.na(graphMngObj@stepIds[stepName]))
-                  color[graphMngObj@stepIds[stepName]] <- "red"
-                  nodes <- data.frame(id = graphMngObj@stepIds,
-                                      label = names(graphMngObj@stepIds),                                 # add labels on nodes
-                                      #         group = c("GrA", "GrB"),                                     # add groups on nodes
-                                      #         value = 1:10,                                                # size adding value
-                                      shape = "ellipse",                   # control shape of nodes
-                                      #          title = paste0("<p><b>", 1:10,"</b><br>Node !</p>"),         # tooltip (html or character)
-                                                 color = color, # color
-                                      shadow = FALSE                  # shadow
-                  )
-
-              }
-
-
-              edges <- data.frame(from = graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeStarts))],
-                                  to = graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeEnds))],
-  #                                label = paste("Edge", 1:8),                                 # add labels on edges
-  #                                length = c(100,500),                                        # length
-                                  arrows = "to",            # arrows
-                                  dashes = FALSE,                                    # dashes
-   #                               title = paste("Edge", 1:8),                                 # tooltip (html or character)
-                                  smooth = FALSE,                                    # smooth
-                                  shadow = FALSE
-                )
-              visNetwork(nodes, edges, width = "100%") %>%
-                  visEdges(arrows = "to",physics = FALSE) %>%
-                  visOptions(highlightNearest = list(enabled =TRUE, degree = 1))%>%
-                 visHierarchicalLayout(sortMethod = "directed",blockShifting=FALSE)
-
+  #             nodes <- data.frame(id = graphMngObj@stepIds,
+  #                                 label = names(graphMngObj@stepIds),                                 # add labels on nodes
+  #                                 #         group = c("GrA", "GrB"),                                     # add groups on nodes
+  #                                 #         value = 1:10,                                                # size adding value
+  #                                 shape = "ellipse",                   # control shape of nodes
+  #                                 #          title = paste0("<p><b>", 1:10,"</b><br>Node !</p>"),         # tooltip (html or character)
+  #                                 #           color = color, # color
+  #                                 shadow = FALSE                  # shadow
+  #             )
+  #             if(!is.null(stepName)){
+  #                 color <- rep("lightblue",length(graphMngObj@stepIds))
+  #                 stopifnot(!is.na(graphMngObj@stepIds[stepName]))
+  #                 color[graphMngObj@stepIds[stepName]] <- "red"
+  #                 nodes <- data.frame(id = graphMngObj@stepIds,
+  #                                     label = names(graphMngObj@stepIds),                                 # add labels on nodes
+  #                                     #         group = c("GrA", "GrB"),                                     # add groups on nodes
+  #                                     #         value = 1:10,                                                # size adding value
+  #                                     shape = "ellipse",                   # control shape of nodes
+  #                                     #          title = paste0("<p><b>", 1:10,"</b><br>Node !</p>"),         # tooltip (html or character)
+  #                                                color = color, # color
+  #                                     shadow = FALSE                  # shadow
+  #                 )
+  #
+  #             }
+  #
+  #
+  #             edges <- data.frame(from = graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeStarts))],
+  #                                 to = graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeEnds))],
+  # #                                label = paste("Edge", 1:8),                                 # add labels on edges
+  # #                                length = c(100,500),                                        # length
+  #                                 arrows = "to",            # arrows
+  #                                 dashes = FALSE,                                    # dashes
+  #  #                               title = paste("Edge", 1:8),                                 # tooltip (html or character)
+  #                                 smooth = FALSE,                                    # smooth
+  #                                 shadow = FALSE
+  #               )
+  #             visNetwork(nodes, edges, width = "100%") %>%
+  #                 visEdges(arrows = "to",physics = FALSE) %>%
+  #                 visOptions(highlightNearest = list(enabled =TRUE, degree = 1))%>%
+  #                visHierarchicalLayout(sortMethod = "directed",blockShifting=FALSE)
+              from <- names(na.omit(graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeStarts))]))
+              to <- names(na.omit(graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeEnds))]))
+              edges <-lapply(1:length(from), function(x){
+                  return(as.formula(paste(from[x], "~", to[x])))
+              })
+              allnames <- graphMngObj@allStepNames
+              names(allnames) <- allnames
+              wholedag<-do.call(dagify,c(edges,list(labels = allnames)))
+              aa<-ggdag(wholedag,text = FALSE, use_labels = "label")
+              return(aa)
           })
 
 

@@ -5,6 +5,7 @@
 \alias{addEdges}
 \alias{getPrevSteps}
 \alias{getNextSteps}
+\alias{printMap}
 \title{Step graph management}
 \usage{
 addEdges(edges, argOrder)
@@ -12,6 +13,8 @@ addEdges(edges, argOrder)
 getPrevSteps(stepName, argOrder)
 
 getNextSteps(stepName, argOrder)
+
+printMap(stepName = NULL, display = TRUE, ...)
 }
 \arguments{
 \item{edges}{\code{Character} vector. Contain the start and end points name of all edges.
@@ -27,6 +30,8 @@ It need to follow the format like c("startpt1","endpt1","startpt2","endpt2","sta
 \item{getPrevSteps}{Previous steps name}
 
 \item{getNextSteps}{Next steps name}
+
+\item{printMap}{print pipeline flow map}
 }
 \description{
 Step graph management

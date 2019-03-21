@@ -177,6 +177,7 @@ Second, implement functions for installation or data generation with the argumen
 
 For BSgenome installation:
 ```{r}
+library(BSgenome)
 checkAndInstallBSgenome <- function(refFilePath){
     genome <- getGenome()
     bsgenomename<- BSgenome::available.genomes()[grepl(paste0(genome,"$"),BSgenome::available.genomes())]
@@ -282,9 +283,18 @@ For example, if a two-step pipeline is under development, it should be restricte
 addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),argOrder = 1)
 ```
 
- `argOrder` will tell the order of upstream step in the graph when it transfers to the downstream step. This will be important and informative when there are more than one upstream steps for a downstream object, which helps the `Step` method distinguish them.
+
+The edge character vector should interleavely write upstream step and downstream step name.  `argOrder` will tell the order of upstream step in the graph when it transfers to the downstream step. This will be important and informative when there are more than one upstream steps for a downstream object, which helps the `Step` method distinguish them.
 
 For package development, this function should be called in the `.onLoad` function
+
+After the steps are registered, they are organized in a graph. So user can query this graph by:
+
+```{r eval=FALSE}
+printMap()
+```
+
+
 
 
 ## Step Componentization
@@ -552,6 +562,29 @@ setMethod(
         .Object
     }
 )
+```
+
+
+## Combine into Whole Pipeline
+
+The steps can be combined into a whole pipeline with a function wrapper:
+
+```{r}
+library(magrittr)
+examplePipe <- function(sampleNumb, inputBed, genome, threads = 2,...){
+    setThreads(threads = threads)
+    setGenome(genome = genome)
+    result <- randomRegionOnGenome(sampleNumb = sampleNumb, ...) %>%
+    runOverlappedRandomRegion(inputBed = inputBed,...)
+    return(result)
+}
+
+```
+
+Developer can select important necessary and frequently used arguments of the steps as the argument of the whole pipeline. Other argument are pass through `...` with `StepName.argumentsName = value` like:
+
+```{r}
+examplePipe(sampleNumb = 1000,inputBed = system.file(package = "pipeFrame", "extdata","testRegion.bed"),genome = "hg19",RandomRegionOnGenome_pipe.regionLen = 10000)
 ```
 
 

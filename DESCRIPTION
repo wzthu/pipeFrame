@@ -20,7 +20,7 @@ Imports:
     BiocManager,
     BSgenome,
     digest,
-    visNetwork,
+    ggdag,
     magrittr,
     methods,
     Biostrings,
