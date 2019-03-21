@@ -5,6 +5,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom ggdag dagify
 #' @importFrom ggdag ggdag
+#' @importFrom stats as.formula
 
 setClass(Class = "GraphMng",
          slots = list(edgeStarts = "list",
@@ -84,7 +85,8 @@ setMethod(f = "graphMngCheckRelation",
 #' It need to follow the format like c("startpt1","endpt1","startpt2","endpt2","startpt3","endpt3")
 #' @param argOrder \code{Numeric} scalar. The augument order of the input Step object.
 #' @param stepName \code{Character} scalar. Step class name of each step.
-#'
+#' @param display \code{Logical} scalar. If show the picture on device
+#' @param ... Additional arguments, currently used.
 #' @rdname graphMng
 #' @return \item{addEdges}{Nother will be returned.}
 #' @aliases  graphMng
