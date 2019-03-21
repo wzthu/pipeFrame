@@ -205,6 +205,7 @@ Second, implement functions for installation or data generating with the only ar
 
 For BSgenome installation:
 ```{r}
+library(BSgenome)
 checkAndInstallBSgenome <- function(refFilePath){
     genome <- getGenome()
     bsgenomename<- BSgenome::available.genomes()[grepl(paste0(genome,"$"),BSgenome::available.genomes())]
@@ -310,9 +311,16 @@ For example, if a two steps pipeline is under development, they should be regist
 addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),argOrder = 1)
 ```
 
+
 The edge character vector should interleavely write upstream step and downstream step name. `argOrder` will tell the graph what is the order number upstream step when it transfer to the downstream step. This will be important because when there are  more than one upstream step for a downstream object, the `Step` methods can distinct them.
 
 When developing the package, this function should also be call in the `.onLoad` function
+
+After the steps are registered, they are organized in a graph. So user can query this graph by:
+
+```{r eval=FALSE}
+printMap()
+```
 
 
 ## Step Componentizing
@@ -595,6 +603,29 @@ setMethod(
         .Object
     }
 )
+```
+
+
+## Combine into Whole Pipeline
+
+The steps can be combined into a whole pipeline with a function wrapper:
+
+```{r}
+library(magrittr)
+examplePipe <- function(sampleNumb, inputBed, genome, threads = 2,...){
+    setThreads(threads = threads)
+    setGenome(genome = genome)
+    result <- randomRegionOnGenome(sampleNumb = sampleNumb, ...) %>%
+    runOverlappedRandomRegion(inputBed = inputBed,...)
+    return(result)
+}
+
+```
+
+Developer can select important necessary and frequently used arguments of the steps as the argument of the whole pipeline. Other argument are pass through `...` with `StepName.argumentsName = value` like:
+
+```{r}
+examplePipe(sampleNumb = 1000,inputBed = system.file(package = "pipeFrame", "extdata","testRegion.bed"),genome = "hg19",RandomRegionOnGenome_pipe.regionLen = 10000)
 ```
 
 

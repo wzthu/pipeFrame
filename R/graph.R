@@ -4,7 +4,7 @@
 # @importFrom visNetwork visOptions
 #' @importFrom magrittr %>%
 #' @importFrom ggdag dagify
-#' @importFrom ggdag dagify
+#' @importFrom ggdag ggdag
 
 setClass(Class = "GraphMng",
          slots = list(edgeStarts = "list",
@@ -237,8 +237,8 @@ setMethod(f = "graphPrintMap",
               allnames <- graphMngObj@allStepNames
               names(allnames) <- allnames
               wholedag<-do.call(dagify,c(edges,list(labels = allnames)))
-              ggdag(wholedag,text = FALSE, use_labels = "label")
-
+              aa<-ggdag(wholedag,text = FALSE, use_labels = "label")
+              return(aa)
           })
 
 
