@@ -29,32 +29,31 @@ rather than parameter combination from the whole pipeline.
 At the same time, componentized pipeline can restart at the breakpoint and avoid rerunning the whole pipeline,
 which may save a lot of time for users on pipeline tuning or such issues as power off or process other interrupts.
 
-![Compontized Pipeline](pintu.png)
+![Componentized Pipeline](pintu.png)
 
 # Download and Installation
 
-To install the latest version of pipeFrame, you will need to be using the latest version of R. pipeFrame is part of Bioconductor project starting from Bioc 3.9 built on R 3.5. Please check your current Bioconductor version and R version first. Similar to other bioconductor package, you can download install pipeFrame and all its dependencies software like this:
+The package pipeFrame is part of Bioconductor project starting from Bioc 3.9 built on R 3.5. To install the latest version of pipeFrame, please check your current Bioconductor version and R version first. The latest version of R is recommended, and then you can download and install pipeFrame and all its dependencies as follows:
 
 ```{r eval=FALSE}
 if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
-BiocManager::install("esATAC")
+BiocManager::install("pipeFrame")
 
 ```
 
-The usage method are similar to other R package:
-
+Similar with other R packages, please load pipeFrame as follows: 
 ```{r}
 library(pipeFrame)
 ```
 
 # Build the pipeline
 
-## initialize
+## Initialize
 
-Before building your pipeline, you need to initialize the configuration. 
+Before building your pipeline, please initialize the configuration. 
 
-For general user, `initPipeFrame` is required to be called after library the package.
+For general users, calling the function `initPipeFrame` is required after library the package.
 
 ```{r eval=FALSE}
 initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
@@ -63,8 +62,7 @@ initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
 
 ```
 
-For package developer, this function is requir to be called in `.onload` function. So you need to implement `.onLoad` function like the code below.
-This function will be run when the new package is loading. So when the package loading is finished, the pipeFrame initialization is done.
+For package developers, as the function `.onload` is called automatically when a new package is loading, the pipeFrame initialization is set when the function `.onLoad` is implemented as follows.
 
 ```{r}
 
@@ -76,74 +74,68 @@ This function will be run when the new package is loading. So when the package l
 
 ```
 
-There are several items to be configure in this function: genome, job name, 
-reference directory, temporary directiory, check and install function, 
-threads number and reference list. They will be introduced one by one in the follow section.
+In this function, several parameters need to be defined and configured, including genome, job name, reference directory, temporary directory, check and install function, threads number, reference list, etc. In the following section, we will go through them in more details.
 
 ## Configuration
 
-For the default configuration, the directory and file are organized in this way:
+For the default configuration, the directory of files is organized in this way:
 
 * Working Directory/ (Temporary Directory)
-    + pipeFrame-pipeline/ (Job name)
-        - Step_00_FirstStepName_pipe/ (Intermediate results are stored here)
+    + pkgname-pipeline/ (Job name)
+        - Step_00_FirstStepName_pipe/
         - Step_01_SecondStepName_pipe/
         - Step_02_ThirdStepName_pipe/
         - ...
-    + refdir (Reference directory)
-        - hg19/ (Reference data like genome sequence hg19.fa for hg19 are store in this directory)
-        - hg38/ (Will be generated when users called `setGenome`)
+    + refdir (Reference genome directory, which could be set by calling the function 'setGenome')
+        - hg19/ (Human reference genome files (e.g. hg19.fa) are stored here)
+        - hg38/
         - mm10/
         - mm9/
         - ...
         
 ### Temporary Directory
 
-The default temporary directory is current working directory.
-All jobs' intermediate results will be stored at their the job named sub-directory respectivly.
-It is set in `initPipeFrame` with argument `defaultTmpDir`. 
-User can get the full directory by calling.
+By default, the temporary directory is set as the current working directory.
+It could be modified by the function `initPipeFrame` with argument `defaultTmpDir`. 
+Typically, all intermediate results for one job will be stored at the sub-directory named after this job.
+Users can get the full pathname by calling the function:
+
 ```{r}
-# see current temporary directory
+# display current temporary directory
 getTmpDir()
 ```
-User can customize the temporary directory in this way:
+Users can customize the temporary directory in this way:
 ```{r}
 dir.create("./testdir")
-# set new temporary directory
+# set a new temporary directory
 setTmpDir("./testdir")
 
-# see new temporary directory
+# display the new temporary directory
 getTmpDir()
 ```
 
 ### Reference Directory
 
-The default reference directory is under the temporary directory.
-All genome assembly's reference data will be stored at their the genome assembly named sub-directory respectivly.
-It is set in `initPipeFrame` with argument `defaultRefDir`. 
-User can get the full directory by calling.
+The default reference directory is under the temporary directory. It could be modified by the function `initPipeFrame` with argument `defaultRefDir`. All of the reference data will be stored at the sub-directory named after the reference genome version, respectively.
+Users can get the full pathname by calling the function:
 ```{r}
-# see current reference directory
+# display current reference directory
 getRefDir()
 ```
-User can customize the reference directory in this way:
+Users can customize the reference directory in this way:
 ```{r}
-# set new reference directory
+# set a new reference directory
 setRefDir("./testdir")
 
-# see new reference directory
+# display the new reference directory
 getRefDir()
 ```
 
 
-### Genome
+### Genome Annotation
 
-Usually, only several genome assembly are available for the pipeline so the 
-pipeline builder need to set which genome assembly is available. This can be
-set by the argument `availableGenome` in the `initPipeFrame` function.
-
-Users may obtain the avaible genome:
+Usually, only several genome assemblies are available for the pipeline. The pipeline builders need to specify which genome assemblies are available. It can be set by the argument `availableGenome` in the `initPipeFrame` function.
+Users can obtain the available genome assemblies:
 
 ```{r}
 getValidGenome()
@@ -155,7 +147,7 @@ Users can configure currently genome assembly by:
 
 setGenome("hg19")
 
-#to see current configured genome
+#display the current configured genome
 getGenome()
 
 ```
@@ -165,28 +157,12 @@ If the genome is not available, a stop message will prumpt.
 
 ### Reference Data Generation
 
-Usually, user only use one genome assembly so they only want to generate the 
-reference data for that genome assembly only rather than all available genome
-assembly because the reference data generating cost plenty of time and storage 
-space.
+Users usually select only one specific genome assembly, so it would be more efficient to generate the reference data for this specific genome rather than all available genome assemblies. 
 
-There is two way to generate reference data.
+There are two options to generate reference data.1) For any R objects reference data shared by all genome assemblies (e.g. motif PWMs for vertebrate), they can be set by the argument `defaultReference` in the `initPipeFrame` function as a list member.
+Users can use `getRef("itemName")` to obtain the reference data.2) In other cases, please implement a function and pass it to the argument `defaultCheckAndInstallFunc` in the function `initPipeFrame`. There are two steps.
 
-For any R objects reference data shared by all genome, it can be set by 
-the argument `defaultReference` in the `initPipeFrame` function as an list member.
-User can use `getRef("itemName")` to obtain the reference data.
-
-In other case, please implement a function and pass it to `defaultCheckAndInstallFunc`
-for the function `initPipeFrame`. There are two steps.
-
-
-First, implement a the function for argument `defaultReference`. 
-Here we show some examples including
-installation BSgenome package for specific genome assembly and 
-generating genome sequence FASTA file. 
-`checkAndInstall` need to call  several installation functions (`checkAndInstallBSgenome` and `checkAndInstallGenomeFa` in this example) by calling `runWithFinishCheck`. Each reference data need a reference name for pipeline use and destination file name under the specific genome assembly folder of reference directory like "path/to/refdir/hg19/"
-This function can detect break point when the installation is not complete and skip the item that has already generated or installed. 
-
+First, implement a function for argument `defaultReference`. Here we show how to install BSgenome package for a specific genome assembly and generate its FASTA file.  `checkAndInstall` needs to call several installation functions (e.g. `checkAndInstallBSgenome` and `checkAndInstallGenomeFa`) by `runWithFinishCheck`. Users assign a reference name (`refName`) and file/folder name (`refFilePath`) in the reference directory such as “path/to/refdir/hg19/”. This function can detect break point if the installation is not complete and skip the item that has already been generated or installed.
 
 ```{r}
 checkAndInstall <- function(){
@@ -195,12 +171,8 @@ checkAndInstall <- function(){
 }
 
 ```
-
-
-
-
-Second, implement functions for installation or data generating with the only argument `refFilePath`. 
-`refFilePath` is the destination paths of reference file name like "path/to/refdir/hg19/genome.fa"
+       
+Second, implement functions for installation or data generation with the argument `refFilePath`. 
 
 
 For BSgenome installation:
@@ -210,7 +182,7 @@ checkAndInstallBSgenome <- function(refFilePath){
     genome <- getGenome()
     bsgenomename<- BSgenome::available.genomes()[grepl(paste0(genome,"$"),BSgenome::available.genomes())]
     if(length(bsgenomename)==0){
-        stop("There is no BSgenome support for this genome")
+        stop("BSgenome does not support this genome")
     }
     bsgenomeinstall <- BSgenome::installed.genomes()[grepl(paste0(genome,"$"),BSgenome::installed.genomes())]
     if(length(bsgenomeinstall)==0){
@@ -221,9 +193,9 @@ checkAndInstallBSgenome <- function(refFilePath){
     return(getBSgenome(bsgenomename))
 }
 ```
-In this example, based on currently set genome, the code check if there is BSgenome available and install the corresponding BSgenome package.  `refFilePath`  can be ignored because no file will be generated. The function return the BSgenome object as the resource of the reference name. So the next example can use `getRefRc("bsgenome")` to obtain this object.
+In this example, the code will check if BSgenome is available for this genome and install the corresponding BSgenome package.  `refFilePath` can be ignored because no files will be generated. The function returns the BSgenome object as the resource of the reference name. So in the next example, use `getRefRc("bsgenome")` to obtain this object.
 
-For genome sequence FASTA generating:
+For genome sequence FASTA file generation:
 ```{r}
 checkAndInstallGenomeFa <- function(refFilePath){
     outFile <- refFilePath
@@ -242,11 +214,11 @@ checkAndInstallGenomeFa <- function(refFilePath){
     return(NULL)
 }
 ```
-In this example, based on BSgenome object. The FASTA file can be generated. It needs to be saved at `refFilePath`. So the steps in the pipeline can obtain the reference directory by `getRefFile('fasta')`.
-Nothing is needed to be return because there is not any R object generated.
+In this example, the FASTA file can be generated based on BSgenome object. It needs to be stored at `refFilePath`. So the steps in the pipeline can obtain the reference directory by `getRefFile('fasta')`.
+It does not return any value because there is no R object generated.
 
 
-At last, the function can be passed to the initialization function:
+Finally, the function can be passed to the initialization function:
 
 ```{r}
 initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
@@ -256,43 +228,43 @@ initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
 
 ```
 
-When user call  `setGenome("hg19")` to configure genome, this function will be call and the related reference data will be installed.
+When users call  `setGenome("hg19")` to configure genome, this function will be called and the corresponding reference data will be installed.
 
 
 ### Threads
 
-For multi-core computer, using multi-thread program may make fully use of the performance of the computer. 
-It is set in `initPipeFrame` with argument `defaultThreads`. 
-User can get the currently max threads that can be used by each step in this way:
+For multi-core processors, multi-thread program could make full use of CPUs. 
+It can be set in the function `initPipeFrame` with argument `defaultThreads`. 
+User can get the currently available max threads like this:
 ```{r}
-# see current reference directory
+# check the max user thread limit
 getThreads()
 ```
-User can customize the max threads number in this way:
+Users can customize the max threads number in this way:
 ```{r}
-# set new reference directory
+# customize the max threads number
 setThreads(4)
 
-# see new reference directory
+# check the max user thread limit
 getThreads()
 ```
 
 ### Job Name
 
-Intermediate result will stored at an folder with job name under the temporary directory.
+Intermediate results will be stored in a folder with the job name under the temporary directory.
 
-It is set in `initPipeFrame` with argument `defaultJobName`. 
-User can get the currently job name that can be used by each step in this way:
+It is set in the function `initPipeFrame` with argument `defaultJobName`. 
+Users can get the current job name in this way:
 ```{r}
-# see current  job name
+# display the current job name
 getJobName()
 ```
-User can customize the job name in this way:
+Users can customize the job name in this way:
 ```{r}
-# set new job name
+# set a new job name
 setJobName("testJobName")
 
-# see new job name
+# display the new job name
 getJobName()
 
 getJobDir()
@@ -300,11 +272,11 @@ getJobDir()
 
 
 
-## Step Registeration and Graph Management
+## Step Restriction and Graph Management
 
-The step relation is managed and restricted by directed acyclic graph. The direction is data flow from upstream step to downstream step. So before developing the step object, registering the step and relation between exist steps and new step is necessary.
+The step relations are managed and restricted to directed acyclic graph. The direction of data flow is from upstream to downstream. So when users create a new step object, restricting its relation with existing steps is necessary.
 
-For example, if a two steps pipeline is under development, they should be regist in this way:
+For example, if a two-step pipeline is under development, it should be restricted in this way:
 
 ```{r}
 
@@ -312,9 +284,9 @@ addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),argOrder = 1
 ```
 
 
-The edge character vector should interleavely write upstream step and downstream step name. `argOrder` will tell the graph what is the order number upstream step when it transfer to the downstream step. This will be important because when there are  more than one upstream step for a downstream object, the `Step` methods can distinct them.
+The edge character vector should interleavely write upstream step and downstream step name.  `argOrder` will tell the order of upstream step in the graph when it transfers to the downstream step. This will be important and informative when there are more than one upstream steps for a downstream object, which helps the `Step` method distinguish them.
 
-When developing the package, this function should also be call in the `.onLoad` function
+For package development, this function should be called in the `.onLoad` function
 
 After the steps are registered, they are organized in a graph. So user can query this graph by:
 
@@ -323,33 +295,23 @@ printMap()
 ```
 
 
-## Step Componentizing
 
-Each step in the pipeline should be wrapped with the pipeline framework 
-so that connection between two steps can be can become seamless.
-The framework is the `Step` base class. In the `Step` objects, 
-it contain the basic organized information of each step like input directories,
-output directories, other parameters etc. All other customized steps must
-inherit from this class which is also the wrapper. 
-Creating a new step need to follow the methods below
 
+## Step Componentization
+
+Each step should be properly wrapped in the pipeline framework to make the connections among steps seamless. The framework is the `Step` base class. The `Step` objects contain the basic organized information for each step such as input directories, output directories, other parameters etc. All other customized steps must inherit from this class which is also the wrapper. Creating a new step needs to follow the following rules.
 
 
 
 ### Non-object Function Wrapper
 
-Most of users do not know what class is and what object is so an function wrapper
-for the object generator is neccessary. In this example two-step pipeline, 
-the pipeline  randomly generate regions on the whole genome in the first step and
-find out the regions overlapped with known region. 
-Each step can be used individually or the first step of the pipeline. 
-So the two function shown as below. 
+As many users may not be familiar with the definition of class or object, a function wrapper for the object generator is necessary. In the above example, the two-step pipeline randomly generates regions on the whole genome in the first step and finds out regions overlapped with known regions. Each step can be used individually or as the first step for downstream steps. 
+So the two functions are shown as below. 
 
 For step `RandomRegionOnGenome` class, only sampleNumb is required. 
-All other arguments are filled with default value. 
-Because `genome` can be obtain from getGenome and `outputBed` can be generate automatically
-In this wrapper, all the parameters from the function are put in one `list` as the parameter of the
-`RandomRegionOnGenome` class generator. At last, the the step object should be returned. 
+All other arguments could be set by default, as `genome` can be obtained from getGenome and `outputBed` can be generated automatically.
+In this wrapper, all the parameters from the function are put in one `list` to generate the `RandomRegionOnGenome` class. Finally, the step object should be returned.
+
 
 ```{r}
 randomRegionOnGenome <- function(sampleNumb, regionLen = 1000, genome = NULL, outputBed = NULL, ...){
@@ -359,7 +321,7 @@ randomRegionOnGenome <- function(sampleNumb, regionLen = 1000, genome = NULL, ou
 }
 
 ```
-For step `OverlappedRandomRegion` class, it is almost the same. Only the `inputBed` and `randomBed` are required.
+For the `OverlappedRandomRegion` class, it is very similar. Only `inputBed` and `randomBed` are required.
 ```{r}
 
 overlappedRandomRegion <- function(inputBed, randomBed, outputBed = NULL, ...){
@@ -369,7 +331,7 @@ overlappedRandomRegion <- function(inputBed, randomBed, outputBed = NULL, ...){
 }
 ```
 
-But `OverlappedRandomRegion` can be the next step of `RandomRegionOnGenome`, so annother function wrapper is needed for seamless data transfer. First, a generic interface should be declared. All of the parameter are the same except for the prevStep. Besides, the randomBed is not necessary because it can be obtain from prevStep object.
+As `OverlappedRandomRegion` can be the next step of `RandomRegionOnGenome`, another function wrapper is needed for seamless data transfer. Firstly, a generic interface should be declared. All of the parameters are the same except for the prevStep. Besides, the randomBed is no longer necessary as it can be obtained from prevStep object.
 
 ```{r}
 setGeneric("runOverlappedRandomRegion",function(prevStep,
@@ -380,7 +342,7 @@ setGeneric("runOverlappedRandomRegion",function(prevStep,
 
 ```
 
-Second, a `Step` method should be declared. One more parameter `prevStep` need to be passed to `OverlappedRandomRegion` generator.
+Secondly, a `Step` method should be declared. One more parameter `prevStep` needs to be passed to `OverlappedRandomRegion` generator.
 
 ```{r}
 setMethod(
@@ -399,9 +361,7 @@ setMethod(
 
 ```
 
-In this way, users do not need to know anything about classes or objects.
-
-They can build the pipeline easily:
+In this way, users do not need to get familiar with the definition of classes or objects, and could build the pipeline easily:
 
 ```{r eval=FALSE}
 library(magrittr)
@@ -422,13 +382,14 @@ result2 <- runOverlappedRandomRegion(inputBed = testInputBedFilePath, randomBed 
 
 ```
 
-Currently the classes has not been implemented so these functions  are still not  available.
+Currently the classes have not been implemented yet, so these functions are still not available.
 
-### Class Implemention
+### Class Implementation
 
-First, class declaration. The classes are required to be inherit from `Step`.
+First, to declare classes, they are required to be inherit from `Step`.
 
-Two example step classes shown belown
+Two step classes are shown as below as an example
+
 
 
 ```{r}
@@ -443,22 +404,21 @@ setClass(Class = "OverlappedRandomRegion",
 )
 ```
 
-Second, parameters initialization.
+Second, to initialize parameters, `init` of `Step` method is required to be override.
+It includes three arguments, of which `.Object` is the object itself, `prevSteps` is the prior `Step` object that is required, and `...` contains all parameters passed from wrapper function. In this function, the pipeline developers need to fill the three list objects including `.Object@inputList` (all input directories or R objects), `.Object@outputList` (all output directories or R objects) and `.Object@paramList` (other parameters) based on the given arguments.
 
-`init` method of `Step` method is required to be override.
-It contain 3 arguments `.Object` is the object itself, `prevSteps` is the previous prior `Step` object that is required, `...` contains all parameters passed from wrapper function. In this function, the pipeline developer need to fill the three list object including `.Object@inputList` (all input directory or R objects), `.Object@outputList` (all output directory or R objects), `.Object@paramList` (other parameters) base on the given arguments.
 
-There are some tips here:
+Here are some tips:
 
-* use `list(...)` to obtain all parameters passed from the wrapper
-* if there are prevSteps for this step, use `getParam(prevStep,"outputListKey")` to obtain the output to fill inputList object
-* all output file directory should be generate dafualtly under the step intermediate result directory, which can be obtained by getStepWorkDir(.Object,"defaultOutputFileName")
-* if the output file name is base on input file name, `getAutoPath(.Object,.Object@inputList[["theInputKey"]],"suffixToBeRemoved","newSuffixToBeReplacedc")`
-* input, output and other parameters should be filled type correctly
-* the dependent input reference file or objects should be filled with `getRef`, `getRefRc`, `getRefFiles` or `getGenome` when the arguments are set with `NULL` or other default values so that when user configure the genome assembly, these arguments are really not required
-* return .Object at the end of the method
+* Use `list(...)` to obtain all parameters passed from the wrapper
+* If there are prevSteps for this step, use `getParam(prevStep,"outputListKey")` to obtain the output to fill inputList object
+* All output file directories should be generated by default in the step intermediate result directory, which can be obtained by getStepWorkDir(.Object,"defaultOutputFileName")
+* If the name of output file is based on the name of input file, use `getAutoPath(.Object,.Object@inputList[["theInputKey"]],"suffixToBeRemoved","newSuffixToBeReplacedc")`
+* Input, output and other parameters should be filled in correct formats.
+* The dependent input reference files or objects should be filled with `getRef`, `getRefRc`, `getRefFiles` or `getGenome` when the arguments are set with `NULL` or other default values. So when users configure the genome assembly, these arguments are actually not required.
+* Return .Object at the end of the method
 
-All tips can be found in following two examples.
+All tips can be found in the following two examples.
 ```{r}
 setMethod(
     f = "init",
@@ -539,15 +499,14 @@ setMethod(
 
 
 
-Third, data processing.
+Third, to process the data, `processing` of `Step` method is required to be override.
+It contains two arguments, `.Object` and `...`. `.Object` is the object itself, and `...` is currently unused and for future extension. In this function, the pipeline developers need to implement the core calculation algorithm and save the result objects or files to configure the output directory.
 
-`processing` method of `Step` method is required to be override.
-It contains two arguments including `.Object` and `...`. `.Object` is the object itself, `...` is currently unused and for future's extension. In this function, the pipeline developer need to implement the core calculation algorithm and save the result object or file to configured output directory.
+Here are some tips:
 
-There are some tips here:
+* Display the parameters including input, output and others by `getParam(.Object, "the key name")`
+* Return .Object at the end of the method
 
-* get the parameters including input, output and other parameters by `getParam(.Object, "the key name")`
-* return .Object at the end of the method
 
 ```{r}
 
