@@ -23,6 +23,10 @@ It need to follow the format like c("startpt1","endpt1","startpt2","endpt2","sta
 \item{argOrder}{\code{Numeric} scalar. The augument order of the input Step object.}
 
 \item{stepName}{\code{Character} scalar. Step class name of each step.}
+
+\item{display}{\code{Logical} scalar. If show the picture on device}
+
+\item{...}{Additional arguments, currently used.}
 }
 \value{
 \item{addEdges}{Nother will be returned.}

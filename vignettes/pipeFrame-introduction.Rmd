@@ -164,7 +164,15 @@ Users can use `getRef("itemName")` to obtain the reference data.2) In other case
 
 First, implement a function for argument `defaultReference`. Here we show how to install BSgenome package for a specific genome assembly and generate its FASTA file.  `checkAndInstall` needs to call several installation functions (e.g. `checkAndInstallBSgenome` and `checkAndInstallGenomeFa`) by `runWithFinishCheck`. Users assign a reference name (`refName`) and file/folder name (`refFilePath`) in the reference directory such as “path/to/refdir/hg19/”. This function can detect break point if the installation is not complete and skip the item that has already been generated or installed.
 
-```{r}
+```{r echo=FALSE}
+checkAndInstall <- function(){
+    runWithFinishCheck(func = checkAndInstallBSgenome,refName = "bsgenome")
+}
+
+```
+
+
+```{r eval=FALSE}
 checkAndInstall <- function(){
     runWithFinishCheck(func = checkAndInstallBSgenome,refName = "bsgenome")
     runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta", refFilePath = "genome.fa")
