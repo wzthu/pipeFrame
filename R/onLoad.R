@@ -17,7 +17,22 @@
 #'
 #' @export
 initPipeFrame <- function(defaultJobName,
-                          availableGenome,
+                          availableGenome = c("hg19",
+                                              "hg38",
+                                              "mm9",
+                                              "mm10",
+                                              "danRer10",
+                                              "galGal5",
+                                              "galGal4",
+                                              "rheMac3",
+                                              "rheMac8",
+                                              "panTro4",
+                                              "rn5",
+                                              "rn6",
+                                              "sacCer2",
+                                              "sacCer3",
+                                              "susScr3",
+                                              "testgenome"),
                           defaultCheckAndInstallFunc = NULL,
                           defaultThreads = 2,
                           defaultTmpDir = getwd(),
@@ -25,7 +40,22 @@ initPipeFrame <- function(defaultJobName,
                           defaultReference = list(test=list(file="fileName",rc = "obj"))
                           ){
     if(defaultJobName == "pipeFrame-pipeline"){
-        oldavailgenome <- c("hg19", "hg38", "mm9", "mm10","testgenome")
+        oldavailgenome <- c("hg19",
+                            "hg38",
+                            "mm9",
+                            "mm10",
+                            "danRer10",
+                            "galGal5",
+                            "galGal4",
+                            "rheMac3",
+                            "rheMac8",
+                            "panTro4",
+                            "rn5",
+                            "rn6",
+                            "sacCer2",
+                            "sacCer3",
+                            "susScr3",
+                            "testgenome")
     }else{
         oldavailgenome <- getOption("pipeFrameConfig.genome.valid")
     }
@@ -33,7 +63,22 @@ initPipeFrame <- function(defaultJobName,
     options(pipeFrameConfig.threads = defaultThreads)
     if(!is.null(availableGenome) && !is.null(oldavailgenome)){
         for(i in 1:length(availableGenome)){
-            stopifnot(availableGenome[i]%in%c("hg19", "hg38", "mm9", "mm10","testgenome"))
+            stopifnot(availableGenome[i]%in%c("hg19",
+                                              "hg38",
+                                              "mm9",
+                                              "mm10",
+                                              "danRer10",
+                                              "galGal5",
+                                              "galGal4",
+                                              "rheMac3",
+                                              "rheMac8",
+                                              "panTro4",
+                                              "rn5",
+                                              "rn6",
+                                              "sacCer2",
+                                              "sacCer3",
+                                              "susScr3",
+                                              "testgenome"))
         }
         options(pipeFrameConfig.genome.valid = intersect(availableGenome,oldavailgenome))
     }else{
@@ -82,9 +127,7 @@ initPipeFrame <- function(defaultJobName,
 }
 
 .onLoad <- function(libname, pkgname) {
-    initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
-                  defaultJobName = paste0(pkgname,"-pipeline")
-    )
+    initPipeFrame(defaultJobName = paste0(pkgname,"-pipeline"))
 }
 
 
