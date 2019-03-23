@@ -1,10 +1,10 @@
 #' @name Utils
 #' @rdname  Utils
-#' @title functions for directory operations
+#' @title Functions for directory operations
 #' @param filepath \code{character} scalar or vector.
 #' @param words \code{character} scalar. Remove substring of the path characters starting to match the word
 #' @param filePath \code{Character} scalar.
-#' @param ... Additional arguments, currenly unused
+#' @param ... Additional arguments, currently unused
 #' @examples
 #' getBasenamePrefix("aaa/bbb.ccc.ddd","ccc")
 #'
