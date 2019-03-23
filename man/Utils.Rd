@@ -7,7 +7,7 @@
 \alias{checkFileExist}
 \alias{checkPathExist}
 \alias{checkFileCreatable}
-\title{functions for directory operations}
+\title{Functions for directory operations}
 \usage{
 getBasenamePrefix(filepath, words, ...)
 
@@ -24,7 +24,7 @@ checkFileCreatable(filePath, ...)
 
 \item{words}{\code{character} scalar. Remove substring of the path characters starting to match the word}
 
-\item{...}{Additional arguments, currenly unused}
+\item{...}{Additional arguments, currently unused}
 
 \item{filePath}{\code{Character} scalar.}
 }
@@ -40,7 +40,7 @@ checkFileCreatable(filePath, ...)
 \item{checkFileCreatable}{(For package developer) Check file creatable.}
 }
 \description{
-functions for directory operations
+Functions for directory operations
 }
 \examples{
 getBasenamePrefix("aaa/bbb.ccc.ddd","ccc")
