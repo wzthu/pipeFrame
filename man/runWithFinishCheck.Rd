@@ -6,7 +6,7 @@
 \alias{checkAndInstallOrgDb}
 \alias{checkAndInstallTxDb}
 \alias{checkAndInstallGenomeFa}
-\title{Run dependent data or software installation function with finishing check}
+\title{Install dependent data or software with finishing check}
 \usage{
 runWithFinishCheck(func, refName, refFilePath = NULL)
 
@@ -19,30 +19,33 @@ checkAndInstallTxDb(refFilePath, genome = getGenome())
 checkAndInstallGenomeFa(refFilePath)
 }
 \arguments{
-\item{func}{\code{Function} scalar. The function with refFilePath argument(reference file directory). The return will be set as reference object.}
+\item{func}{\code{Function} scalar. The function with refFilePath argument (reference file directory). The returned value will be set as the reference object.}
 
-\item{refName}{\code{Character} scalar. Reference name for \code{\link{getRef}},\code{\link{getRefFiles}} and \code{\link{getRefRc}}.}
+\item{refName}{\code{Character} scalar. Reference name for \code{\link{getRef}}, \code{\link{getRefFiles}} and \code{\link{getRefRc}}.}
 
-\item{refFilePath}{\code{Character} scalar. The reference file storage relative directory under the "refdir/genome/"}
+
+\item{refFilePath}{\code{Character} scalar. The reference file relative directory under the "refdir/genome/"}
 
 \item{genome}{\code{Character} scalar. The genome like "hg19". Default: getGenome()}
 }
 \value{
-\item{runWithFinishCheck}{nothing will be returned}
+\item{runWithFinishCheck}{No value will be returned}
+
 
 \item{checkAndInstallBSgenome}{check if there is the BSgenome package installed for
-curent genome and install it if not. Nothing will be returned.}
+curent genome and install it if not.{No value will be returned}
 
 \item{checkAndInstallOrgDb}{check if there is the OrgDb package installed for
-curent genome and install it if not. Nothing will be returned.}
+curent genome and install it if not. No value will be returned.}
 
 \item{checkAndInstallTxDb}{check if there is the TxDb package installed for
-curent genome and install it if not. Nothing will be returned.}
+curent genome and install it if not. No value will be returned.}
 
-\item{checkAndInstallGenomeFa}{check if genome FASTA file exist and install if not. Nothing will be returned}
+\item{checkAndInstallGenomeFa}{check if genome FASTA file exist and install if not. No value will be returned}
+
 }
 \description{
-Run dependent data or software installation function with finishing check
+Install dependent data or software with finishing check
 }
 \examples{
 

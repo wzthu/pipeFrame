@@ -80,15 +80,16 @@ setMethod(f = "graphMngCheckRelation",
               })
 #' @name graphMng
 #' @title Step graph management
+#' @description The step relations are managed and restricted to directed acyclic graph. The direction of data flow is from upstream to downstream. So when users create a new step object, restricting its relation with existing steps is necessary.
 #' @rdname graphMng
-#' @param edges \code{Character} vector. Contain the start and end points name of all edges.
-#' It need to follow the format like c("startpt1","endpt1","startpt2","endpt2","startpt3","endpt3")
-#' @param argOrder \code{Numeric} scalar. The augument order of the input Step object.
+#' @param edges \code{Character} vector. Contain the names of start and end points for all edges.
+#' It needs to follow the format like c("startpt1","endpt1","startpt2","endpt2","startpt3","endpt3").
+#' @param argOrder \code{Numeric} scalar. The argument order of the input Step object.
 #' @param stepName \code{Character} scalar. Step class name of each step.
-#' @param display \code{Logical} scalar. If show the picture on device
+#' @param display \code{Logical} scalar. Whether show the picture on device or not.
 #' @param ... Additional arguments, currently used.
 #' @rdname graphMng
-#' @return \item{addEdges}{Nother will be returned.}
+#' @return \item{addEdges}{No value will be returned.}
 #' @aliases  graphMng
 #' @export
 addEdges <- function(edges, argOrder){
@@ -113,7 +114,7 @@ checkRelation<-function(upstreamStep,downstreamStep,downstreamArgOrder){
 }
 
 #' @rdname graphMng
-#' @return \item{getPrevSteps}{Previous steps name}
+#' @return \item{getPrevSteps}{Names of previous steps}
 #' @aliases  getPrevSteps
 #' @export
 getPrevSteps <- function(stepName, argOrder){
@@ -143,7 +144,7 @@ setMethod(f = "graphGetPrevSteps",
 
 
 #' @rdname graphMng
-#' @return \item{getNextSteps}{Next steps name}
+#' @return \item{getNextSteps}{Names of next steps}
 #' @aliases  getPrevSteps
 #' @export
 getNextSteps <- function(stepName, argOrder){
@@ -173,7 +174,7 @@ setMethod(f = "graphGetNextSteps",
 
 
 #' @rdname graphMng
-#' @return \item{printMap}{print pipeline flow map}
+#' @return \item{printMap}{Print the flow map for the pipeline.}
 #' @aliases  printMap
 #' @export
 printMap <- function(stepName=NULL,display=TRUE,...){
