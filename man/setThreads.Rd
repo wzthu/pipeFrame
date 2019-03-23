@@ -3,22 +3,22 @@
 \name{setThreads}
 \alias{setThreads}
 \alias{getThreads}
-\title{Configure max threads number for all steps}
+\title{Configure the maximum number of threads}
 \usage{
 setThreads(threads = detectCores())
 
 getThreads()
 }
 \arguments{
-\item{threads}{\code{Numeric} scalar. The max number of threads that can be used by each step.}
+\item{threads}{\code{Numeric} scalar. The maximum number of threads that can be allocated  to each step.}
 }
 \value{
-\item{setThreads}{nothing will be returned}
+\item{setThreads}{No value will be returned}
 
-\item{getThreads}{\code{Numeric} scalar. The max number of threads that can be used by each step}
+\item{getThreads}{\code{Numeric} scalar. Display the maximum number of threads that can be allocated  to each step.}
 }
 \description{
-Configure max threads number for all steps
+Configure the maximum number of threads for all steps
 }
 \examples{
 setThreads()

@@ -4,7 +4,7 @@
 \alias{runWithFinishCheck}
 \alias{checkAndInstallBSgenome}
 \alias{checkAndInstallGenomeFa}
-\title{Run dependent data or software installation function with finishing check}
+\title{Install dependent data or software with finishing check}
 \usage{
 runWithFinishCheck(func, refName, refFilePath = NULL)
 
@@ -13,21 +13,21 @@ checkAndInstallBSgenome(refFilePath)
 checkAndInstallGenomeFa(refFilePath)
 }
 \arguments{
-\item{func}{\code{Function} scalar. The function with refFilePath argument(reference file directory). The return will be set as reference object.}
+\item{func}{\code{Function} scalar. The function with refFilePath argument (reference file directory). The returned value will be set as the reference object.}
 
-\item{refName}{\code{Character} scalar. Reference name for \code{\link{getRef}},\code{\link{getRefFiles}} and \code{\link{getRefRc}}.}
+\item{refName}{\code{Character} scalar. Reference name for \code{\link{getRef}}, \code{\link{getRefFiles}} and \code{\link{getRefRc}}.}
 
-\item{refFilePath}{\code{Character} scalar. The reference file storage relative directory under the "refdir/genome/"}
+\item{refFilePath}{\code{Character} scalar. The reference file relative directory under the "refdir/genome/"}
 }
 \value{
-\item{runWithFinishCheck}{nothing will be returned}
+\item{runWithFinishCheck}{No value will be returned}
 
-\item{runWithFinishCheck}{nothing will be returned}
+\item{checkAndInstallBSgenome}{No value will be returned}
 
-\item{runWithFinishCheck}{nothing will be returned}
+\item{checkAndInstallGenomeFa}{No value will be returned}
 }
 \description{
-Run dependent data or software installation function with finishing check
+Install dependent data or software with finishing check
 }
 \examples{
 

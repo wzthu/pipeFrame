@@ -16,11 +16,11 @@ getJobDir()
 \item{jobName}{\code{Character} scalar. Job name for following steps.}
 }
 \value{
-\item{setJobName}{nothing will be returned}
+\item{setJobName}{No value will be returned}
 
-\item{setJobName}{Job name for following steps.}
+\item{setJobName}{Set a job name for following steps.}
 
-\item{setJobName}{Job directory}
+\item{setJobName}{Set the job directory}
 }
 \description{
 Configure the job name for following steps.

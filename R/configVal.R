@@ -10,8 +10,9 @@
 #' @name setGenome
 #' @rdname setGenome
 #' @title Configure genome for all steps
+#' @description Configure the reference genome assembly for all steps.
 #' @param genome \code{Character} scalar. Valid genome to be configured.
-#' @return \item{getValidGenome}{\code{Character} scalar. All valid genome assembly for this pacakge.}
+#' @return \item{getValidGenome}{\code{Character} scalar. . All valid genome assemblies for this package.}
 #' @aliases getValidGenome
 #' @rdname setGenome
 #' @examples
@@ -29,7 +30,7 @@ getCheckAndInstallFunc <- function(){
     getOption("pipeFrameConfig.genome.checkAndInstallFunc")
 }
 
-#' @return \item{setGenome}{All package and dependency are configured or installed. Nothing will be returned.}
+#' @return \item{setGenome}{All packages and dependencies are configured and installed. No value will be returned.}
 #' @aliases setGenome
 #' @rdname setGenome
 #' @export
@@ -48,7 +49,7 @@ setGenome <- function(genome){
     }
 }
 
-#' @return \item{getGenome}{\code{Character} scalar. The genome is configured}
+#' @return \item{getGenome}{\code{Character} scalar. Display the configured genome.}
 #' @aliases getGenome
 #' @rdname setGenome
 #' @export
@@ -64,9 +65,10 @@ getGenome <- function(){
 
 #' @name setThreads
 #' @rdname setThreads
-#' @title Configure max threads number for all steps
-#' @param threads \code{Numeric} scalar. The max number of threads that can be used by each step.
-#' @return \item{setThreads}{nothing will be returned}
+#' @title Configure the maximum number of threads
+#' @description Configure the maximum number of threads for all steps
+#' @param threads \code{Numeric} scalar. The maximum number of threads that can be allocated  to each step.
+#' @return \item{setThreads}{No value will be returned}
 #' @aliases setThreads
 #' @rdname setThreads
 #' @examples
@@ -78,7 +80,7 @@ setThreads <- function(threads = detectCores()){
     options(pipeFrameConfig.threads = threads)
 }
 
-#' @return \item{getThreads}{\code{Numeric} scalar. The max number of threads that can be used by each step}
+#' @return \item{getThreads}{\code{Numeric} scalar. Display the maximum number of threads that can be allocated  to each step.}
 #' @aliases getThreads
 #' @rdname setThreads
 #' @export
@@ -89,11 +91,11 @@ getThreads <- function(){
 
 #' @name setRefDir
 #' @rdname setRefDir
-#' @title Configure max threads number for all steps
-#' @param refdir \code{Character} scalar. The directory for reference data dependency storage.
-#' @param refName \code{Character} scalar. The reference name.
-#' @param createDir \code{Logica} scalar. Create the directory when the directory is not exist. Default: TRUE
-#' @return \item{setRefDir}{nothing will be returned}
+#' @title Set the reference directory
+#' @param refdir \code{Character} scalar. The directory to store the reference data.
+#' @param refName \code{Character} scalar. The name of reference data.
+#' @param createDir \code{Logica} scalar. Create the directory if the directory does not exist. Default: TRUE
+#' @return \item{setRefDir}{No value will be returned}
 #' @aliases setRefDir
 #' @rdname setRefDir
 #' @examples
@@ -116,7 +118,7 @@ setRefDir <- function(refdir, createDir = TRUE)
     }
     options(pipeFrameConfig.refdir = refdir)
 }
-#' @return \item{getRefDir}{\code{Character} scalar. The directory for reference data dependency storage.}
+#' @return \item{getRefDir}{\code{Character} scalar. Display the directory of reference data.}
 #' @aliases getRefDir
 #' @rdname setRefDir
 #' @export
@@ -127,7 +129,7 @@ getRefDir <- function(){
 }
 
 
-#' @return \item{getRef}{\code{List} scalar. A list object contain "files" (reference file paths) and "rc" (any R object reference) }
+#' @return \item{getRef}{\code{List} scalar. A list object which contains "files" (reference file paths) and "rc" (reference R object)}
 #' @aliases getRef
 #' @rdname setRefDir
 #' @export
@@ -138,7 +140,7 @@ getRef <- function(refName){
     return(ref)
 }
 
-#' @return \item{getRefFiles}{\code{Character} scalar or vector.Reference file directory. }
+#' @return \item{getRefFiles}{\code{Character} scalar or vector.Display the reference file directory. }
 #' @aliases getRefFiles
 #' @rdname setRefDir
 #' @export
@@ -147,8 +149,8 @@ getRefFiles <- function(refName){
     return(ref$files)
 }
 
-#' @return \item{getRefFiles}{\code{Uncertain} scalar or vector.Reference R object. }
-#' @aliases getRefFiles
+#' @return \item{getRefRc}{\code{Uncertain} scalar or vector.Display any reference R object. }
+#' @aliases getRefRc
 #' @rdname setRefDir
 #' @export
 getRefRc <- function(refName){
@@ -170,9 +172,9 @@ getRefRc <- function(refName){
 
 #' @name setTmpDir
 #' @rdname setTmpDir
-#' @title Configure directory for  intermediate result storage of all steps
-#' @param tmpDir \code{Character} scalar. The directory for  intermediate result storage of all steps. Default: Current woring directory.
-#' @return \item{setTmpDir}{nothing will be returned}
+#' @title Configure the directory for intermediate results of all steps
+#' @param tmpDir \code{Character} scalar. The directory to store intermediate results of all steps. Default: Current directory.
+#' @return \item{setTmpDir}{No value will be returned}
 #' @aliases setTmpDir
 #' @rdname setTmpDir
 #' @examples
@@ -188,7 +190,7 @@ setTmpDir <- function(tmpDir = getwd()){
     options(pipeFrameConfig.dir.tmpdir = tmpDir)
 }
 
-#' @return \item{getRefDir}{\code{Character} scalar. The directory for  intermediate result storage of all steps.}
+#' @return \item{getTmpDir}{\code{Character} scalar. Display the directory for intermediate results of all steps.}
 #' @aliases getTmpDir
 #' @rdname setTmpDir
 #' @export
@@ -202,7 +204,7 @@ getTmpDir <- function(){
 #' @rdname setJobName
 #' @title Configure the job name for following steps.
 #' @param jobName \code{Character} scalar. Job name for following steps.
-#' @return \item{setJobName}{nothing will be returned}
+#' @return \item{setJobName}{No value will be returned}
 #' @aliases setJobName
 #' @rdname setJobName
 #' @examples
@@ -218,7 +220,7 @@ setJobName <- function(jobName){
 #    }
     options(pipeFrameConfig.dir.jobname = jobName)
 }
-#' @return \item{setJobName}{Job name for following steps.}
+#' @return \item{setJobName}{Set a job name for following steps.}
 #' @aliases getJobName
 #' @rdname setJobName
 #' @export
@@ -227,7 +229,7 @@ getJobName <- function(){
     stopifnot(is.character(jobName))
     return(jobName)
 }
-#' @return \item{setJobName}{Job directory}
+#' @return \item{setJobName}{Set the job directory}
 #' @aliases getJobName
 #' @rdname setJobName
 #' @export
@@ -246,11 +248,11 @@ getJobDir <- function(){
 
 #' @name runWithFinishCheck
 #' @rdname runWithFinishCheck
-#' @title Run dependent data or software installation function with finishing check
-#' @param func \code{Function} scalar. The function with refFilePath argument(reference file directory). The return will be set as reference object.
-#' @param refName \code{Character} scalar. Reference name for \code{\link{getRef}},\code{\link{getRefFiles}} and \code{\link{getRefRc}}.
-#' @param refFilePath \code{Character} scalar. The reference file storage relative directory under the "refdir/genome/"
-#' @return \item{runWithFinishCheck}{nothing will be returned}
+#' @title Install dependent data or software with finishing check
+#' @param func \code{Function} scalar. The function with refFilePath argument (reference file directory). The returned value will be set as the reference object.
+#' @param refName \code{Character} scalar. Reference name for \code{\link{getRef}}, \code{\link{getRefFiles}} and \code{\link{getRefRc}}.
+#' @param refFilePath \code{Character} scalar. The reference file relative directory under the "refdir/genome/"
+#' @return \item{runWithFinishCheck}{No value will be returned}
 #' @aliases runWithFinishCheck
 #' @rdname runWithFinishCheck
 #' @examples
@@ -311,7 +313,7 @@ runWithFinishCheck <- function(func, refName, refFilePath = NULL){
 
 
 
-#' @return \item{runWithFinishCheck}{nothing will be returned}
+#' @return \item{checkAndInstallBSgenome}{No value will be returned}
 #' @aliases checkAndInstallBSgenome
 #' @rdname runWithFinishCheck
 #' @export
@@ -331,7 +333,7 @@ checkAndInstallBSgenome <- function(refFilePath){
 }
 
 
-#' @return \item{runWithFinishCheck}{nothing will be returned}
+#' @return \item{checkAndInstallGenomeFa}{No value will be returned}
 #' @aliases checkAndInstallGenomeFa
 #' @rdname runWithFinishCheck
 #' @export

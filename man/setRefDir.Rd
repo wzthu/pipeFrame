@@ -6,7 +6,7 @@
 \alias{getRef}
 \alias{getRefFiles}
 \alias{getRefRc}
-\title{Configure max threads number for all steps}
+\title{Set the reference directory}
 \usage{
 setRefDir(refdir, createDir = TRUE)
 
@@ -19,25 +19,25 @@ getRefFiles(refName)
 getRefRc(refName)
 }
 \arguments{
-\item{refdir}{\code{Character} scalar. The directory for reference data dependency storage.}
+\item{refdir}{\code{Character} scalar. The directory to store the reference data.}
 
-\item{createDir}{\code{Logica} scalar. Create the directory when the directory is not exist. Default: TRUE}
+\item{createDir}{\code{Logica} scalar. Create the directory if the directory does not exist. Default: TRUE}
 
-\item{refName}{\code{Character} scalar. The reference name.}
+\item{refName}{\code{Character} scalar. The name of reference data.}
 }
 \value{
-\item{setRefDir}{nothing will be returned}
+\item{setRefDir}{No value will be returned}
 
-\item{getRefDir}{\code{Character} scalar. The directory for reference data dependency storage.}
+\item{getRefDir}{\code{Character} scalar. Display the directory of reference data.}
 
-\item{getRef}{\code{List} scalar. A list object contain "files" (reference file paths) and "rc" (any R object reference) }
+\item{getRef}{\code{List} scalar. A list object which contains "files" (reference file paths) and "rc" (reference R object)}
 
-\item{getRefFiles}{\code{Character} scalar or vector.Reference file directory. }
+\item{getRefFiles}{\code{Character} scalar or vector.Display the reference file directory. }
 
-\item{getRefFiles}{\code{Uncertain} scalar or vector.Reference R object. }
+\item{getRefRc}{\code{Uncertain} scalar or vector.Display any reference R object. }
 }
 \description{
-Configure max threads number for all steps
+Set the reference directory
 }
 \examples{
 setRefDir("./refdir")

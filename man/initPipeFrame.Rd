@@ -11,29 +11,26 @@ initPipeFrame(defaultJobName, availableGenome,
   "obj")))
 }
 \arguments{
-\item{defaultJobName}{\code{Character} scalar. The default job name for the pacakge.
-When user uses pipeFrame package, "pipeFrame-pipeline" is the default defaultJobName.}
+\item{defaultJobName}{\code{Character} scalar. The default job name for the package. When users use pipeFrame package, defaultJobName is "pipeFrame-pipeline".}
 
 \item{availableGenome}{\code{Character} scalar or vector.
-To configure the default valid genome like "hg19", "mm10", etc. to be configured.}
+Configure the available valid genome such as "hg19", "mm10", etc.}
 
-\item{defaultCheckAndInstallFunc}{\code{Function} scalar. The function need to call several \code{\link{runWithFinishCheck}}}
+\item{defaultCheckAndInstallFunc}{\code{Function} scalar. The function needs to call  \code{\link{runWithFinishCheck}}}
 
-\item{defaultThreads}{\code{Numeric} scalar. The maximun thread a step can use. Default 2}
+\item{defaultThreads}{\code{Numeric} scalar. The maximum thread limit for each step. Default:2}
 
-\item{defaultTmpDir}{\code{Character} scalar. The directory for  intermediate result storage of all steps. Default: Current woring directory.}
+\item{defaultTmpDir}{\code{Character} scalar. The directory of intermediate results for all steps. Default: Current working directory.}
 
-\item{defaultRefDir}{\code{Character} scalar. The directory for reference data dependency storage. Default: \code{file.path(getwd(),"refdir")}}
+\item{defaultRefDir}{\code{Character} scalar. The directory of reference data. Default: \code{file.path(getwd(),"refdir")}}
 
-\item{defaultReference}{\code{List} scalar. Reference files list.}
+\item{defaultReference}{\code{List} scalar. List of reference files.}
 }
 \value{
-Nothing will be returned.
+No value will be returned.
 }
 \description{
-This function should be used first line in R terminal for general user.
- And it shoul be used in .onLoad() function when developing package.
- It's main function is to configure the basic options for the package.
+This function should be called first in R terminal for general users. And it should be used in .onLoad() function for package developers. In this function, several parameters need to be defined and configured, including genome, job name, reference directory, temporary directory, check and install function, threads number, reference list, etc.
 }
 \examples{
 initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),

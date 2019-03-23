@@ -3,22 +3,22 @@
 \name{setTmpDir}
 \alias{setTmpDir}
 \alias{getTmpDir}
-\title{Configure directory for  intermediate result storage of all steps}
+\title{Configure the directory for intermediate results of all steps}
 \usage{
 setTmpDir(tmpDir = getwd())
 
 getTmpDir()
 }
 \arguments{
-\item{tmpDir}{\code{Character} scalar. The directory for  intermediate result storage of all steps. Default: Current woring directory.}
+\item{tmpDir}{\code{Character} scalar. The directory to store intermediate results of all steps. Default: Current directory.}
 }
 \value{
-\item{setTmpDir}{nothing will be returned}
+\item{setTmpDir}{No value will be returned}
 
-\item{getRefDir}{\code{Character} scalar. The directory for  intermediate result storage of all steps.}
+\item{getTmpDir}{\code{Character} scalar. Display the directory for intermediate results of all steps.}
 }
 \description{
-Configure directory for  intermediate result storage of all steps
+Configure the directory for intermediate results of all steps
 }
 \examples{
 setTmpDir()
