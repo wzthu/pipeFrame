@@ -6,11 +6,11 @@
 #' @param filePath \code{Character} scalar.
 #' @param ... Additional arguments, currenly unused
 #' @examples
-#' getBasenamePrefix("aaa/bbb.ccc.ddd","ccc")
+#' getBasenamePrefix("aaa/bbb.ccc.ddd","cCc")
 #'
 #' getBasenamePrefix("aaa/bbb.ccc.ddd","ddd")
 #'
-#' getPathPrefix("aaa/bbb.ccc.ddd","ddd")
+#' getPathPrefix("aaa/bbb.ccc.ddd","dDd")
 #'
 #' getPathPrefix("aaa/bbb.ccc.ddd","ccc")
 #'
@@ -31,19 +31,19 @@
 #' tryCatch({checkFileCreatable("testdir1/aaa.bed")},error = function(e) e)
 #'
 #'
-#' @return \item{getBasenamePrefix}{Get the step ID}
+#' @return \item{getBasenamePrefix}{Get the filepath  basename with removed suffix}
 #' @rdname Utils
 #' @aliases getBasenamePrefix
 #' @export
 getBasenamePrefix <- function(filepath,words,...){
-    return(basename(gsub(paste0("[.]",words,".*"),"",filepath)))
+    return(basename(gsub(paste0("[.]",words,".*"),"",filepath, ignore.case = TRUE)))
 }
-#' @return \item{getPathPrefix}{Get the step ID}
+#' @return \item{getPathPrefix}{Get the filepath  with removed suffix}
 #' @rdname Utils
 #' @aliases getPathPrefix
 #' @export
 getPathPrefix <- function(filepath,words,...){
-    return(gsub(paste0("[.]",words,".*"),"",filepath))
+    return(gsub(paste0("[.]",words,".*"),"",filepath, ignore.case = TRUE))
 }
 
 

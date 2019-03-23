@@ -706,7 +706,26 @@ setMethod(f = "checkAllPath",
           definition = function(.Object,...){
               items <- getParamItems(.Object, type="input")
               for(items in items){
-
+                    paths<-.Object@inputList[[items]]
+                    if(!is.null(paths)){
+                        for(path in paths){
+                            if(!file.exists(path)){
+                                stop(paste0("input ",items,"'s directory '",path,"' does not exist."))
+                            }
+                        }
+                    }
+              }
+              items <- getParamItems(.Object, type="output")
+              for(items in items){
+                  paths<-.Object@inputList[[items]]
+                  if(!is.null(paths)){
+                      for(path in paths){
+                          if(!dir.exists(path)){
+                              file.create(path)
+                              unlink(path)
+                          }
+                      }
+                  }
               }
           })
 
