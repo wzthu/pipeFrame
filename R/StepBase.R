@@ -677,17 +677,14 @@ setGeneric(name = "checkRequireParam",
                standardGeneric("checkRequireParam")
            })
 
-#' @return \item{checkRequireParam}{(For package developer) Check required inputs are filled.}
+#' @return \item{checkRequireParam}{(For package developer) Check required inputs or parameters are filled.}
 #' @rdname Step-class
 #' @aliases checkRequireParam
 #' @export
 setMethod(f = "checkRequireParam",
           signature = "Step",
           definition = function(.Object,...){
-              items <- getParamItems(.Object, type="input")
-              for(items in items){
-
-              }
+              # override this function if necessary
           })
 
 

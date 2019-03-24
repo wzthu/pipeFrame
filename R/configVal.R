@@ -293,7 +293,9 @@ runWithFinishCheck <- function(func, refName, refFilePath = NULL){
             rc <- func(refFilePath)
         }
         save(rc = rc, file = objPath)
-        Sys.sleep(3)
+        if(getGenome()!="testgenome"){
+            Sys.sleep(3)
+        }
     }else{
         load(objPath)
     }
