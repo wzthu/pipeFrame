@@ -252,6 +252,7 @@ getJobDir <- function(){
 #' @param func \code{Function} scalar. The function with refFilePath argument (reference file directory). The returned value will be set as the reference object.
 #' @param refName \code{Character} scalar. Reference name for \code{\link{getRef}}, \code{\link{getRefFiles}} and \code{\link{getRefRc}}.
 #' @param refFilePath \code{Character} scalar. The reference file relative directory under the "refdir/genome/"
+#' @param genome \code{Character} scalar. The genome like "hg19". Default: getGenome()
 #' @return \item{runWithFinishCheck}{No value will be returned}
 #' @aliases runWithFinishCheck
 #' @rdname runWithFinishCheck
@@ -313,12 +314,12 @@ runWithFinishCheck <- function(func, refName, refFilePath = NULL){
 
 
 
-#' @return \item{checkAndInstallBSgenome}{No value will be returned}
+#' @return \item{checkAndInstallBSgenome}{check if there is the BSgenome package installed for
+#' curent genome and install it if not. No value will be returned.}
 #' @aliases checkAndInstallBSgenome
 #' @rdname runWithFinishCheck
 #' @export
-checkAndInstallBSgenome <- function(refFilePath){
-    genome <- getGenome()
+checkAndInstallBSgenome <- function(refFilePath, genome =  getGenome()){
     bsgenomename<- BSgenome::available.genomes()[grepl(paste0(genome,"$"),BSgenome::available.genomes())]
     if(length(bsgenomename)==0){
         message()
@@ -333,7 +334,100 @@ checkAndInstallBSgenome <- function(refFilePath){
 }
 
 
-#' @return \item{checkAndInstallGenomeFa}{No value will be returned}
+
+#' @return \item{checkAndInstallOrgDb}{check if there is the OrgDb package installed for
+#' curent genome and install it if not. No value will be returned.}
+#' @aliases checkAndInstallOrgDb
+#' @rdname runWithFinishCheck
+#' @export
+checkAndInstallOrgDb <- function(refFilePath, genome =  getGenome()){
+    curOrgDb <- NULL
+    if(genome == "hg19"||genome == "hg38"){
+        curOrgDb <- "org.Hs.eg.db"
+    }else if(genome == "mm10" || genome == "mm9"){
+        curOrgDb <- "org.Mm.eg.db"
+    }else if(genome == "danRer10"){
+        curOrgDb <- "org.Dr.eg.db"
+    }else if(genome == "galGal5" || genome == "galGal4"){
+        curOrgDb <- "org.Gg.eg.db"
+    }else if(genome == "rheMac3" || genome == "rheMac8"){
+        curOrgDb <- "org.Mmu.eg.db"
+    }else if(genome == "panTro4" ){
+        curOrgDb <- "org.Pt.eg.db"
+    }else if(genome == "rn6" || genome == "rn5"){
+        curOrgDb <- "org.Rn.eg.db"
+    }else if(genome == "sacCer3" || genome == "sacCer2"){
+        curOrgDb <- "org.Sc.sgd.db"
+    }else if(genome == "susScr3"){
+        curOrgDb <- "org.Ss.eg.db"
+    }else {
+        stop(paste0("OrgDb Annotation package does not support for ",genome))
+        return(NULL)
+    }
+    tryCatch({
+        library(curOrgDb,character.only = TRUE)
+    },
+    error = function(e){
+        BiocManager::install(curOrgDb)
+        library(curOrgDb,character.only = TRUE)
+    })
+    return(curOrgDb)
+}
+
+
+
+#' @return \item{checkAndInstallTxDb}{check if there is the TxDb package installed for
+#' curent genome and install it if not. Nothing will be returned.}
+#' @aliases checkAndInstallTxDb
+#' @rdname runWithFinishCheck
+#' @export
+checkAndInstallTxDb <- function(refFilePath, genome =  getGenome()){
+    genome <- getGenome()
+    curTxDb <- NULL
+    if(genome == "hg19"){
+        curTxDb <- "TxDb.Hsapiens.UCSC.hg19.knownGene"
+    }else if(genome == "hg38"){
+        curTxDb <- "TxDb.Hsapiens.UCSC.hg38.knownGene"
+    }else if(genome == "mm9"){
+        curTxDb <- "TxDb.Mmusculus.UCSC.mm9.knownGene"
+    }else if(genome == "mm10"){
+        curTxDb <- "TxDb.Mmusculus.UCSC.mm10.knownGene"
+    }else if(genome == "danRer10"){
+        curTxDb <- "TxDb.Drerio.UCSC.danRer10.refGene"
+    }else if(genome == "galGal5"){
+        curTxDb <- "TxDb.Ggallus.UCSC.galGal5.refGene"
+    }else if(genome == "galGal4"){
+        curTxDb <- "TxDb.Ggallus.UCSC.galGal4.refGene"
+    }else if(genome == "rheMac3"){
+        curTxDb <- "TxDb.Mmulatta.UCSC.rheMac3.refGene"
+    }else if(genome == "rheMac8"){
+        curTxDb <- "TxDb.Mmulatta.UCSC.rheMac8.refGene"
+    }else if(genome == "rn5"){
+        curTxDb <- "TxDb.Rnorvegicus.UCSC.rn5.refGene"
+    }else if(genome == "rn6"){
+        curTxDb <- "TxDb.Rnorvegicus.UCSC.rn6.refGene"
+    }else if(genome == "sacCer3"){
+        curTxDb <- "TxDb.Scerevisiae.UCSC.sacCer3.sgdGene"
+    }else if(genome == "sacCer2"){
+        curTxDb <- "TxDb.Scerevisiae.UCSC.sacCer2.sgdGene"
+    }else if(genome == "susScr3"){
+        curTxDb <- "TxDb.Sscrofa.UCSC.susScr3.refGene"
+    }else {
+        stop(paste0("TxDb Annotation package does not support for ",genome))
+        return(NULL)
+    }
+    tryCatch({
+        library(curTxDb,character.only = TRUE)
+    },
+    error = function(e){
+        BiocManager::install(curTxDb)
+        library(curTxDb,character.only = TRUE)
+    })
+    return(curTxDb)
+}
+
+
+#' @return \item{checkAndInstallGenomeFa}{check if genome FASTA file exist and install if not. No value will be returned}
 #' @aliases checkAndInstallGenomeFa
 #' @rdname runWithFinishCheck
 #' @export

@@ -4,7 +4,9 @@
 \alias{initPipeFrame}
 \title{initialize the pipeFrame package}
 \usage{
-initPipeFrame(defaultJobName, availableGenome,
+initPipeFrame(defaultJobName, availableGenome = c("hg19", "hg38", "mm9",
+  "mm10", "danRer10", "galGal5", "galGal4", "rheMac3", "rheMac8",
+  "panTro4", "rn5", "rn6", "sacCer2", "sacCer3", "susScr3", "testgenome"),
   defaultCheckAndInstallFunc = NULL, defaultThreads = 2,
   defaultTmpDir = getwd(), defaultRefDir = file.path(getwd(),
   "refdir"), defaultReference = list(test = list(file = "fileName", rc =

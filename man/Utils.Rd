@@ -29,9 +29,9 @@ checkFileCreatable(filePath, ...)
 \item{filePath}{\code{Character} scalar.}
 }
 \value{
-\item{getBasenamePrefix}{Get the step ID}
+\item{getBasenamePrefix}{Get the filepath  basename with removed suffix}
 
-\item{getPathPrefix}{Get the step ID}
+\item{getPathPrefix}{Get the filepath  with removed suffix}
 
 \item{checkFileExist}{(For package developer) Check file is exist.}
 
@@ -43,11 +43,11 @@ checkFileCreatable(filePath, ...)
 Functions for directory operations
 }
 \examples{
-getBasenamePrefix("aaa/bbb.ccc.ddd","ccc")
+getBasenamePrefix("aaa/bbb.ccc.ddd","cCc")
 
 getBasenamePrefix("aaa/bbb.ccc.ddd","ddd")
 
-getPathPrefix("aaa/bbb.ccc.ddd","ddd")
+getPathPrefix("aaa/bbb.ccc.ddd","dDd")
 
 getPathPrefix("aaa/bbb.ccc.ddd","ccc")
 
