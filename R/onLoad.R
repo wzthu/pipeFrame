@@ -1,18 +1,15 @@
 #' @rdname initPipeFrame
 #' @title initialize the pipeFrame package
-#' @description This function should be used first line in R terminal for general user.
-#'  And it shoul be used in .onLoad() function when developing package.
-#'  It's main function is to configure the basic options for the package.
-#' @param defaultJobName \code{Character} scalar. The default job name for the pacakge.
-#' When user uses pipeFrame package, "pipeFrame-pipeline" is the default defaultJobName.
+#' @description This function should be called first in R terminal for general users. And it should be used in .onLoad() function for package developers. In this function, several parameters need to be defined and configured, including genome, job name, reference directory, temporary directory, check and install function, threads number, reference list, etc.
+#' @param defaultJobName \code{Character} scalar. The default job name for the package. When users use pipeFrame package, defaultJobName is "pipeFrame-pipeline".
 #' @param availableGenome \code{Character} scalar or vector.
-#' To configure the default valid genome like "hg19", "mm10", etc. to be configured.
-#' @param defaultCheckAndInstallFunc \code{Function} scalar. The function need to call several \code{\link{runWithFinishCheck}}
-#' @param defaultThreads \code{Numeric} scalar. The maximun thread a step can use. Default 2
-#' @param defaultTmpDir \code{Character} scalar. The directory for  intermediate result storage of all steps. Default: Current woring directory.
-#' @param defaultRefDir \code{Character} scalar. The directory for reference data dependency storage. Default: \code{file.path(getwd(),"refdir")}
-#' @param defaultReference \code{List} scalar. Reference files list.
-#' @return Nothing will be returned.
+#' Configure the available valid genome such as "hg19", "mm10", etc.
+#' @param defaultCheckAndInstallFunc \code{Function} scalar. The function needs to call  \code{\link{runWithFinishCheck}}
+#' @param defaultThreads \code{Numeric} scalar. The maximum thread limit for each step. Default:2
+#' @param defaultTmpDir \code{Character} scalar. The directory of intermediate results for all steps. Default: Current working directory.
+#' @param defaultRefDir \code{Character} scalar. The directory of reference data. Default: \code{file.path(getwd(),"refdir")}
+#' @param defaultReference \code{List} scalar. List of reference files.
+#' @return No value will be returned.
 #' @examples
 #' initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
 #'               defaultJobName = paste0("pkgname","-pipeline")

@@ -1,6 +1,6 @@
 ---
 title: "Componentized Pipeline Framework"
-author: "Zheng Wei"
+author: "Zheng Wei and Shining Ma"
 date: "`r Sys.Date()`"
 output: 
     html_document:
@@ -589,7 +589,7 @@ examplePipe <- function(sampleNumb, inputBed, genome, threads = 2,...){
 
 ```
 
-Developer can select important necessary and frequently used arguments of the steps as the argument of the whole pipeline. Other argument are pass through `...` with `StepName.argumentsName = value` like:
+Developers can select important and frequently used arguments of the steps as the arguments of the whole pipeline. Other arguments can be passed through `...` with `StepName.argumentsName = value` like:
 
 ```{r}
 examplePipe(sampleNumb = 1000,inputBed = system.file(package = "pipeFrame", "extdata","testRegion.bed"),genome = "hg19",RandomRegionOnGenome_pipe.regionLen = 10000)

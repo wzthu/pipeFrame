@@ -17,26 +17,26 @@ getNextSteps(stepName, argOrder)
 printMap(stepName = NULL, display = TRUE, ...)
 }
 \arguments{
-\item{edges}{\code{Character} vector. Contain the start and end points name of all edges.
-It need to follow the format like c("startpt1","endpt1","startpt2","endpt2","startpt3","endpt3")}
+\item{edges}{\code{Character} vector. Contain the names of start and end points for all edges.
+It needs to follow the format like c("startpt1","endpt1","startpt2","endpt2","startpt3","endpt3").}
 
-\item{argOrder}{\code{Numeric} scalar. The augument order of the input Step object.}
+\item{argOrder}{\code{Numeric} scalar. The argument order of the input Step object.}
 
 \item{stepName}{\code{Character} scalar. Step class name of each step.}
 
-\item{display}{\code{Logical} scalar. If show the picture on device}
+\item{display}{\code{Logical} scalar. Whether show the picture on device or not.}
 
 \item{...}{Additional arguments, currently used.}
 }
 \value{
-\item{addEdges}{Nother will be returned.}
+\item{addEdges}{No value will be returned.}
 
-\item{getPrevSteps}{Previous steps name}
+\item{getPrevSteps}{Names of previous steps}
 
-\item{getNextSteps}{Next steps name}
+\item{getNextSteps}{Names of next steps}
 
-\item{printMap}{print pipeline flow map}
+\item{printMap}{Print the flow map for the pipeline.}
 }
 \description{
-Step graph management
+The step relations are managed and restricted to directed acyclic graph. The direction of data flow is from upstream to downstream. So when users create a new step object, restricting its relation with existing steps is necessary.
 }
