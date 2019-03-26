@@ -62,7 +62,7 @@ initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
 
 ```
 
-For package developers, as the function `.onload` is called automatically when a new package is loading, the pipeFrame initialization is set when the function `.onLoad` is implemented as follows.
+For package developers, as the function `.onload` is called automatically when a new package is loading, the pipeFrame initialization is set when the function `.onLoad` is invoked as follows.
 
 ```{r}
 
@@ -390,7 +390,7 @@ result2 <- runOverlappedRandomRegion(inputBed = testInputBedFilePath, randomBed 
 
 ```
 
-Currently the classes have not been implemented yet, so these functions are still not available.
+The classes `RandomRegionOnGenome` and `OverlappedRandomRegion` will be implemented and introduced in next section.
 
 ### Class Implementation
 
