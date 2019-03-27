@@ -20,20 +20,20 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 
 # What is pipeFrame
 pipeFrame is an R package for building a componentized bioinformatics pipeline.
-Each step in this pipeline is wrapped in the framework, so the connection among steps is created seamlessly and automatically.
-Users could focus more on fine-tuning arguments rather than spending a lot of time on transforming file format, passing task outputs to task inputs or installing the dependencies.
+Each step in this pipeline is wrapped in this framework, so the connection among steps is created seamlessly and automatically.
+Users could focus more on fine-tuning arguments rather than spending time on transforming file format, passing task outputs to task inputs or installing the dependencies.
 Componentized step elements can be customized into other new pipelines flexibly as well. 
 This pipeline can be split into several important functional steps,
 so it is much easier for users to understand the complex arguments from each step 
 rather than parameter combination from the whole pipeline. 
 At the same time, componentized pipeline can restart at the breakpoint and avoid rerunning the whole pipeline,
-which may save a lot of time for users on pipeline tuning or such issues as power off or process other interrupts.
+which may save time for users on pipeline tuning or such issues as power off or interrupted process.
 
 ![Componentized Pipeline](pintu.png)
 
 # Download and Installation
 
-The package pipeFrame is part of Bioconductor project starting from Bioc 3.9 built on R 3.5. To install the latest version of pipeFrame, please check your current Bioconductor version and R version first. The latest version of R is recommended, and then you can download and install pipeFrame and all its dependencies as follows:
+The package pipeFrame is part of Bioconductor project starting from Bioc 3.9 built on R 3.5. To install the latest version of pipeFrame, please check your current Bioconductor version and R version first. The latest version of R is recommended, then you can download and install pipeFrame and all its dependencies as follows:
 
 ```{r eval=FALSE}
 if (!requireNamespace("BiocManager", quietly=TRUE))
@@ -47,13 +47,13 @@ Similar with other R packages, please load pipeFrame as follows:
 library(pipeFrame)
 ```
 
-# Build the pipeline
+# Building the pipeline
 
 ## Initialize
 
 Before building your pipeline, please initialize the configuration. 
 
-For general users, calling the function `initPipeFrame` is required after library the package.
+For general users, calling the function `initPipeFrame` is required after loading the package.
 
 ```{r eval=FALSE}
 initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
@@ -62,7 +62,7 @@ initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
 
 ```
 
-For package developers, as the function `.onload` is called automatically when a new package is loading, the pipeFrame initialization is set when the function `.onLoad` is implemented as follows.
+For package developers, as the function `.onload` is called automatically when a new package is loading, the pipeFrame initialization is set when the function `.onLoad` is invoked as follows.
 
 ```{r}
 
@@ -78,7 +78,7 @@ In this function, several parameters need to be defined and configured, includin
 
 ## Configuration
 
-For the default configuration, the directory of files is organized in this way:
+For the default configuration, the directory of files is organized as follows:
 
 * Working Directory/ (Temporary Directory)
     + pkgname-pipeline/ (Job name)
@@ -159,7 +159,7 @@ If the genome is not available, a stop message will prumpt.
 
 Users usually select only one specific genome assembly, so it would be more efficient to generate the reference data for this specific genome rather than all available genome assemblies. 
 
-There are two options to generate reference data.1) For any R objects reference data shared by all genome assemblies (e.g. motif PWMs for vertebrate), they can be set by the argument `defaultReference` in the `initPipeFrame` function as a list member.
+There are two options for generating reference data.1) For any R objects reference data shared by all genome assemblies (e.g. motif PWMs for vertebrate), they can be set by the argument `defaultReference` in the `initPipeFrame` function as a list member.
 Users can use `getRef("itemName")` to obtain the reference data.2) In other cases, please implement a function and pass it to the argument `defaultCheckAndInstallFunc` in the function `initPipeFrame`. There are two steps.
 
 First, implement a function for argument `defaultReference`. Here we show how to install BSgenome package for a specific genome assembly and generate its FASTA file.  `checkAndInstall` needs to call several installation functions (e.g. `checkAndInstallBSgenome` and `checkAndInstallGenomeFa`) by `runWithFinishCheck`. Users assign a reference name (`refName`) and file/folder name (`refFilePath`) in the reference directory such as “path/to/refdir/hg19/”. This function can detect break point if the installation is not complete and skip the item that has already been generated or installed.
@@ -243,12 +243,12 @@ When users call  `setGenome("hg19")` to configure genome, this function will be 
 
 For multi-core processors, multi-thread program could make full use of CPUs. 
 It can be set in the function `initPipeFrame` with argument `defaultThreads`. 
-User can get the currently available max threads like this:
+User can get the currently available max threads as follows:
 ```{r}
 # check the max user thread limit
 getThreads()
 ```
-Users can customize the max threads number in this way:
+Users can customize the max threads number as follows:
 ```{r}
 # customize the max threads number
 setThreads(4)
@@ -262,12 +262,12 @@ getThreads()
 Intermediate results will be stored in a folder with the job name under the temporary directory.
 
 It is set in the function `initPipeFrame` with argument `defaultJobName`. 
-Users can get the current job name in this way:
+Users can get the current job name as follows:
 ```{r}
 # display the current job name
 getJobName()
 ```
-Users can customize the job name in this way:
+Users can customize the job name as follows:
 ```{r}
 # set a new job name
 setJobName("testJobName")
@@ -282,9 +282,9 @@ getJobDir()
 
 ## Step Restriction and Graph Management
 
-The step relations are managed and restricted to directed acyclic graph. The direction of data flow is from upstream to downstream. So when users create a new step object, restricting its relation with existing steps is necessary.
+The step relations managed are restricted to directed acyclic graph. The direction of data flow is from upstream to downstream. So when users create a new step object, restricting its relation with existing steps is necessary.
 
-For example, if a two-step pipeline is under development, it should be restricted in this way:
+For example, if a two-step pipeline is under development, it should be restricted as follows:
 
 ```{r}
 
@@ -292,11 +292,11 @@ addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),argOrder = 1
 ```
 
 
-The edge character vector should interleavely write upstream step and downstream step name.  `argOrder` will tell the order of upstream step in the graph when it transfers to the downstream step. This will be important and informative when there are more than one upstream steps for a downstream object, which helps the `Step` method distinguish them.
+The first parameter is the edge character vector, which consists of the upstream step and downstream step name. The second parameter `argOrder` will tell the order of upstream step in the graph when it transfers to the downstream step. This will be important and informative when there are more than one upstream steps for a downstream object, which helps the `Step` method distinguish them.
 
 For package development, this function should be called in the `.onLoad` function
 
-After the steps are registered, they are organized in a graph. So user can query this graph by:
+After the steps are restricted, they are organized in a graph. Users can query this graph by:
 
 ```{r eval=FALSE}
 printMap()
@@ -307,7 +307,7 @@ printMap()
 
 ## Step Componentization
 
-Each step should be properly wrapped in the pipeline framework to make the connections among steps seamless. The framework is the `Step` base class. The `Step` objects contain the basic organized information for each step such as input directories, output directories, other parameters etc. All other customized steps must inherit from this class which is also the wrapper. Creating a new step needs to follow the following rules.
+Each step should be properly wrapped in the pipeline framework to make the connections among steps seamless. The framework is specified in the `Step` base class. The `Step` objects contain the basic organized information for each step such as input directories, output directories, other parameters etc. All other customized steps must inherit from this class which is also the wrapper. Creating a new step needs to obey the rules outlined in the following section.
 
 
 
@@ -339,7 +339,7 @@ overlappedRandomRegion <- function(inputBed, randomBed, outputBed = NULL, ...){
 }
 ```
 
-As `OverlappedRandomRegion` can be the next step of `RandomRegionOnGenome`, another function wrapper is needed for seamless data transfer. Firstly, a generic interface should be declared. All of the parameters are the same except for the prevStep. Besides, the randomBed is no longer necessary as it can be obtained from prevStep object.
+As `OverlappedRandomRegion` can be the next step of `RandomRegionOnGenome`, another function wrapper is needed for seamless data transfer. First, a generic interface should be declared. All of the parameters are the same except for the prevStep. Besides, the randomBed is no longer necessary as it can be obtained from prevStep object.
 
 ```{r}
 setGeneric("runOverlappedRandomRegion",function(prevStep,
@@ -350,7 +350,7 @@ setGeneric("runOverlappedRandomRegion",function(prevStep,
 
 ```
 
-Secondly, a `Step` method should be declared. One more parameter `prevStep` needs to be passed to `OverlappedRandomRegion` generator.
+Second, a `Step` method should be declared. One more parameter `prevStep` needs to be passed to `OverlappedRandomRegion` generator.
 
 ```{r}
 setMethod(
@@ -381,7 +381,7 @@ result <- randomRegionOnGenome(1000) %>%
 
 ```
 
-Or use the function indiviually:
+Or use the function seperately:
 
 ```{r eval=FALSE}
 result1 <- randomRegionOnGenome(1000)
@@ -390,13 +390,13 @@ result2 <- runOverlappedRandomRegion(inputBed = testInputBedFilePath, randomBed 
 
 ```
 
-Currently the classes have not been implemented yet, so these functions are still not available.
+The classes `RandomRegionOnGenome` and `OverlappedRandomRegion` will be implemented and introduced in next section.
 
 ### Class Implementation
 
 First, to declare classes, they are required to be inherit from `Step`.
 
-Two step classes are shown as below as an example
+Two step classes are shown below as an example
 
 
 
@@ -426,7 +426,7 @@ Here are some tips:
 * The dependent input reference files or objects should be filled with `getRef`, `getRefRc`, `getRefFiles` or `getGenome` when the arguments are set with `NULL` or other default values. So when users configure the genome assembly, these arguments are actually not required.
 * Return .Object at the end of the method
 
-All tips can be found in the following two examples.
+All tips are illustrated in the following two examples.
 ```{r}
 setMethod(
     f = "init",
