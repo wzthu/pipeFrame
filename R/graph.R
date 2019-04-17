@@ -1,10 +1,10 @@
-# @importFrom visNetwork visHierarchicalLayout
-# @importFrom visNetwork visNetwork
-# @importFrom visNetwork visEdges
-# @importFrom visNetwork visOptions
+#' @importFrom visNetwork visHierarchicalLayout
+#' @importFrom visNetwork visNetwork
+#' @importFrom visNetwork visEdges
+#' @importFrom visNetwork visOptions
 #' @importFrom magrittr %>%
-#' @importFrom ggdag dagify
-#' @importFrom ggdag ggdag
+# @importFrom ggdag dagify
+# @importFrom ggdag ggdag
 #' @importFrom stats as.formula
 
 setClass(Class = "GraphMng",
@@ -200,18 +200,58 @@ setGeneric(name = "graphPrintMap",
 setMethod(f = "graphPrintMap",
           signature = "GraphMng",
           definition = function(graphMngObj,stepName=NULL,display=TRUE,...){
-              from <- names(na.omit(graphMngObj@stepIds[na.omit(
-                  unlist(graphMngObj@edgeStarts))]))
-              to <- names(na.omit(graphMngObj@stepIds[na.omit(
-                  unlist(graphMngObj@edgeEnds))]))
-              edges <-lapply(1:length(from), function(x){
-                  return(as.formula(paste(from[x], "~", to[x])))
-              })
-              allnames <- graphMngObj@allStepNames
-              names(allnames) <- allnames
-              wholedag<-do.call(dagify,c(edges,list(labels = allnames)))
-              aa<-ggdag(wholedag,text = FALSE, use_labels = "label")
-              return(aa)
+                          nodes <- data.frame(id = graphMngObj@stepIds,
+                                              label = names(graphMngObj@stepIds),                                 # add labels on nodes
+                                              #         group = c("GrA", "GrB"),                                     # add groups on nodes
+                                              #         value = 1:10,                                                # size adding value
+                                              shape = "ellipse",                   # control shape of nodes
+                                              #          title = paste0("<p><b>", 1:10,"</b><br>Node !</p>"),         # tooltip (html or character)
+                                              #           color = color, # color
+                                              shadow = FALSE                  # shadow
+                          )
+                          if(!is.null(stepName)){
+                              color <- rep("lightblue",length(graphMngObj@stepIds))
+                              stopifnot(!is.na(graphMngObj@stepIds[stepName]))
+                              color[graphMngObj@stepIds[stepName]] <- "red"
+                              nodes <- data.frame(id = graphMngObj@stepIds,
+                                                  label = names(graphMngObj@stepIds),                                 # add labels on nodes
+                                                  #         group = c("GrA", "GrB"),                                     # add groups on nodes
+                                                  #         value = 1:10,                                                # size adding value
+                                                  shape = "ellipse",                   # control shape of nodes
+                                                  #          title = paste0("<p><b>", 1:10,"</b><br>Node !</p>"),         # tooltip (html or character)
+                                                             color = color, # color
+                                                  shadow = FALSE                  # shadow
+                              )
+
+                          }
+
+
+                          edges <- data.frame(from = na.omit(graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeStarts))]),
+                                              to = na.omit(graphMngObj@stepIds[na.omit(unlist(graphMngObj@edgeEnds))]),
+              #                                label = paste("Edge", 1:8),                                 # add labels on edges
+              #                                length = c(100,500),                                        # length
+                                              arrows = "to",            # arrows
+                                              dashes = FALSE,                                    # dashes
+               #                               title = paste("Edge", 1:8),                                 # tooltip (html or character)
+                                              smooth = FALSE,                                    # smooth
+                                              shadow = FALSE
+                            )
+                          visNetwork(nodes, edges, width = "100%") %>%
+                              visEdges(arrows = "to",physics = FALSE) %>%
+                              visOptions(highlightNearest = list(enabled =TRUE, degree = 1))%>%
+                             visHierarchicalLayout(sortMethod = "directed",blockShifting=FALSE)
+              # from <- names(na.omit(graphMngObj@stepIds[na.omit(
+              #     unlist(graphMngObj@edgeStarts))]))
+              # to <- names(na.omit(graphMngObj@stepIds[na.omit(
+              #     unlist(graphMngObj@edgeEnds))]))
+              # edges <-lapply(1:length(from), function(x){
+              #     return(as.formula(paste(from[x], "~", to[x])))
+              # })
+              # allnames <- graphMngObj@allStepNames
+              # names(allnames) <- allnames
+              # wholedag<-do.call(dagify,c(edges,list(labels = allnames)))
+              # aa<-ggdag(wholedag,text = FALSE, use_labels = "label")
+              # return(aa)
           })
 
 

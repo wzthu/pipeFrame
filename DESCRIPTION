@@ -19,7 +19,7 @@ LazyData: FALSE
 Imports:
     BSgenome,
     digest,
-    ggdag,
+    visNetwork,
     magrittr,
     methods,
     Biostrings,
