@@ -97,6 +97,12 @@ setMethod(f = "graphMngCheckRelation",
 #' @rdname graphMng
 #' @return \item{addEdges}{No value will be returned.}
 #' @aliases  graphMng
+#' @examples
+#' addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),argOrder = 1)
+#' printMap()
+#'
+#' getPrevSteps("OverlappedRandomRegion",1)
+#'
 #' @export
 addEdges <- function(edges, argOrder){
     graphMng <- getOption("pipeFrameConfig.graph")

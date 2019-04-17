@@ -48,3 +48,10 @@ to directed acyclic graph. The direction of data flow is
 from upstream to downstream. So when users create a new step object,
 restricting its relation with existing steps is necessary.
 }
+\examples{
+addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),argOrder = 1)
+printMap()
+
+getPrevSteps("OverlappedRandomRegion",1)
+
+}
