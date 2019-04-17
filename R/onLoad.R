@@ -38,7 +38,7 @@ initPipeFrame <- function(defaultJobName,
                           defaultTmpDir = getwd(),
                           defaultRefDir = file.path(getwd(),"refdir"), #file.path("~",".pipeFrame","refdir"),
                           defaultReference = list(test=list(file="fileName",rc = "obj"))
-                          ){
+){
     if(defaultJobName == "pipeFrame-pipeline"){
         oldavailgenome <- c("hg19",
                             "hg38",
@@ -111,8 +111,8 @@ initPipeFrame <- function(defaultJobName,
     if(is.null(defaultCheckAndInstallFunc)){
         options(pipeFrameConfig.genome.checkAndInstallFunc = c(cni,checkAndInstall))
     }else{
- #       print(defaultCheckAndInstallFunc)
- #       stopifnot(!is.function(defaultCheckAndInstallFunc))
+        #       print(defaultCheckAndInstallFunc)
+        #       stopifnot(!is.function(defaultCheckAndInstallFunc))
         options(pipeFrameConfig.genome.checkAndInstallFunc = c(cni,defaultCheckAndInstallFunc))
     }
 

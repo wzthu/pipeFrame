@@ -54,11 +54,11 @@ setGenome <- function(genome){
 #' @rdname setGenome
 #' @export
 getGenome <- function(){
-  genome <- getOption("pipeFrameConfig.genome")
-  if(is.null(genome)){
-    stop("please call `setGenome` to set genome first")
-  }
-  return(genome)
+    genome <- getOption("pipeFrameConfig.genome")
+    if(is.null(genome)){
+        stop("please call `setGenome` to set genome first")
+    }
+    return(genome)
 }
 
 #' @importFrom parallel detectCores
@@ -214,10 +214,10 @@ getTmpDir <- function(){
 #' @export
 setJobName <- function(jobName){
     stopifnot(is.character(jobName))
-#    allowChange <- getOption("pipeFrameConfig.allowChangeJobDir")
-#   if(!allowChange){
-#        stop("setJobName must be called before calling any pipeling steps")
-#    }
+    #    allowChange <- getOption("pipeFrameConfig.allowChangeJobDir")
+    #   if(!allowChange){
+    #        stop("setJobName must be called before calling any pipeling steps")
+    #    }
     options(pipeFrameConfig.dir.jobname = jobName)
 }
 #' @return \item{setJobName}{Set a job name for following steps.}

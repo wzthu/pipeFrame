@@ -244,37 +244,37 @@
 
 #' @export Step
 Step <- setClass(Class = "Step",
-         slots = list(
-             argv = "list",
-             paramList = "list",
-             inputList = "list",
-             outputList = "list",
-             propList = "list",
-             reportVal = "list",
-             stepName = "character",
-             finish = "logical",
-             timeStampStart="POSIXct",
-             timeStampEnd="POSIXct",
-             maxThreads = "integer",
-             id = "integer",
-             groupName = "character",
-             loaded = "logical"
-         ),
-         prototype = c(argv = list(),
-                       paramList = list(),
-                       inputList = list(),
-                       outputList = list(),
-                       propList = list(),
-                       reportVal = list(),
-                       stepName = "Step",
-                       finish = FALSE,
-                       timeStampStart=Sys.time(),
-                       timeStampEnd=Sys.time(),
-                       maxThreads = 1L,
-                       id = 0L,
-                       groupName = character(),
-                       loaded = FALSE)
-         )
+                 slots = list(
+                     argv = "list",
+                     paramList = "list",
+                     inputList = "list",
+                     outputList = "list",
+                     propList = "list",
+                     reportVal = "list",
+                     stepName = "character",
+                     finish = "logical",
+                     timeStampStart="POSIXct",
+                     timeStampEnd="POSIXct",
+                     maxThreads = "integer",
+                     id = "integer",
+                     groupName = "character",
+                     loaded = "logical"
+                 ),
+                 prototype = c(argv = list(),
+                               paramList = list(),
+                               inputList = list(),
+                               outputList = list(),
+                               propList = list(),
+                               reportVal = list(),
+                               stepName = "Step",
+                               finish = FALSE,
+                               timeStampStart=Sys.time(),
+                               timeStampEnd=Sys.time(),
+                               maxThreads = 1L,
+                               id = 0L,
+                               groupName = character(),
+                               loaded = FALSE)
+)
 setMethod(f = "initialize",
           signature = "Step",
           definition = function(.Object,prevSteps = list(), groupName = NULL, ...){
@@ -698,14 +698,14 @@ setMethod(f = "checkAllPath",
           definition = function(.Object,...){
               items <- getParamItems(.Object, type="input")
               for(items in items){
-                    paths<-.Object@inputList[[items]]
-                    if(!is.null(paths)){
-                        for(path in paths){
-                            if(!file.exists(path)){
-                                stop(paste0("input ",items,"'s directory '",path,"' does not exist."))
-                            }
-                        }
-                    }
+                  paths<-.Object@inputList[[items]]
+                  if(!is.null(paths)){
+                      for(path in paths){
+                          if(!file.exists(path)){
+                              stop(paste0("input ",items,"'s directory '",path,"' does not exist."))
+                          }
+                      }
+                  }
               }
               items <- getParamItems(.Object, type="output")
               for(items in items){
