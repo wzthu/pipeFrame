@@ -9,7 +9,7 @@ output:
         number_sections: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{An Introduction to esATAC}
+  %\VignetteIndexEntry{An Introduction to pipeFrame}
   %\VignetteEncoding{UTF-8}
   
 ---
