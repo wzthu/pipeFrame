@@ -38,6 +38,10 @@ getCheckAndInstallFunc <- function(){
 #' @export
 setGenome <- function(genome){
     genome <- match.arg(genome,getValidGenome())
+    tryCatch(getRefDir(),
+             error = function(cond){
+                     setRefDir(file.path(getTmpDir(),"refdir"))
+             })
     if(!dir.exists(file.path(getRefDir(),genome))){
         dir.create(file.path(getRefDir(),genome))
     }

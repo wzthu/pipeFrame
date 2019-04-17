@@ -76,18 +76,18 @@
 #'         # no input for this step
 #'         # begin to set output parameters
 #'         if(is.null(outputBed)){
-#'             .Object@outputList$outputBed <-
-#'                 getStepWorkDir(.Object,"random.bed")
+#'             .Object <- setOutput(.Object, "outputBed",
+#'                 getStepWorkDir(.Object,"random.bed"))
 #'         }else{
-#'             .Object@outputList$outputBed <- outputBed
+#'             .Object <- setOutput(.Object, "outputBed", outputBed)
 #'         }
 #'         # begin to set other parameters
-#'         .Object@paramList$regionLen <- regionLen
-#'         .Object@paramList$sampleNumb <- sampleNumb
+#'         .Object <- setParam(.Object, "regionLen", regionLen)
+#'         .Object <- setParam(.Object, "sampleNumb" , sampleNumb)
 #'         if(is.null(genome)){
-#'             .Object@paramList$bsgenome <- getBSgenome(getGenome())
+#'             .Object <- setParam(.Object, "bsgenome" , getBSgenome(getGenome()))
 #'         }else{
-#'             .Object@paramList$bsgenome <- getBSgenome(genome)
+#'             .Object <- setParam(.Object, "bsgenome" , getBSgenome(genome))
 #'         }
 #'         # don't forget to return .Object
 #'         .Object
@@ -157,28 +157,28 @@
 #'         # runOerlappedRandomRegion
 #'         if(length(prevSteps)>0){
 #'             prevStep <- prevSteps[[1]]
-#'             .Object@inputList$randomBed <- getParam(prevStep,"outputBed")
+#'             .Object <- setInput(.Object, "randomBed" , getParam(prevStep,"outputBed"))
 #'         }
 #'         # begin to set input parameters
 #'         if(!is.null(inputBed)){
-#'             .Object@inputList$inputBed <- inputBed
+#'             .Object <- setInput(.Object, "inputBed", inputBed)
 #'         }
 #'         if(!is.null(randomBed)){
-#'             .Object@inputList$randomBed <- randomBed
+#'             .Object <- setInput(.Object, "randomBed", randomBed)
 #'         }
 #'         # begin to set output parameters
 #'         # the output is recemended to set under the step work directory
 #'         if(!is.null(outputBed)){
-#'             .Object@outputList$outputBed <- outputBed
+#'             .Object <- setOutput(.Object, "outputBed" , outputBed)
 #'         }else{
-#'             .Object@outputList$outputBed <-
-#'                 getAutoPath(.Object, .Object@inputList$inputBed,
-#'                             "bed", suffix = "bed")
+#'             .Object <- setOutput(.Object,"outputBed",
+#'                 getAutoPath(.Object, getParam(.Object, "inputBed"),
+#'                             "bed", suffix = "bed"))
 #'             # the path can also be generate in this way
 #'             # ib <- getParam(.Object,"inputBed")
-#'             #.Object@outputList$outputBed <-
+#'             # Object <- setOutput(.Object,"outputBed",
 #'             #    file.path(getStepWorkDir(.Object),
-#'             #    paste0(substring(ib,1,nchar(ib)-3), "bed"))
+#'             #    paste0(substring(ib,1,nchar(ib)-3), "bed")))
 #'         }
 #'         # begin to set other parameters
 #'         # no other parameters
@@ -244,33 +244,33 @@
 #' )
 #'
 #' # add to graph
-#' addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),a
-#'          rgOrder = 1)
+#' addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),
+#'          argOrder = 1)
 #' # begin to test pipeline
 #' setGenome("hg19")
+#' # generate test BED file
+#' test_bed <- file.path(tempdir(),"test.bed")
+#' library(rtracklayer)
+#' export.bed(GRanges("chr7:1-127473000"),test_bed)
+#'
+#'
 #' rd <- randomRegionOnGenome(10000)
-#' overlap <- runOverlappedRandomRegion(rd,
-#'     inputBed = system.file(package = "pipeFrame", "extdata","testRegion.bed"))
+#' overlap <- runOverlappedRandomRegion(rd, inputBed = test_bed)
 #'
 #' randombed <- getParam(rd,"outputBed")
 #'
 #' randombed
 #'
 #' overlap1 <-
-#'     overlappedRandomRegion(inputBed = system.file(package = "pipeFrame",
-#'                                              "extdata","testRegion.bed"),
-#'                                              randomBed = randombed)
+#'     overlappedRandomRegion(inputBed = test_bed, randomBed = randombed)
 #'
 #' clearStepCache(overlap1)
 #' overlap1 <-
-#'     overlappedRandomRegion(inputBed = system.file(package = "pipeFrame",
-#'                                              "extdata","testRegion.bed"),
-#'                                              randomBed = randombed)
+#'     overlappedRandomRegion(inputBed = test_bed, randomBed = randombed)
 #' clearStepCache(rd)
 #' clearStepCache(overlap1)
 #' rd <- randomRegionOnGenome(10000) %>%
-#' runOverlappedRandomRegion(inputBed =
-#'     system.file(package = "pipeFrame", "extdata","testRegion.bed"))
+#' runOverlappedRandomRegion(inputBed = test_bed)
 #'
 #' getStepName(rd)
 #' getStepId(rd)
@@ -541,6 +541,68 @@ setMethod(f = "getDefName",
               return(paste0(.Object@stepName,"_",paste0(.Object@groupName,
                                                         collapse = "_")))
           })
+
+setGeneric(name = "setInput",
+           def = function(.Object, item, value)
+               standardGeneric("setInput")
+           )
+
+#' @rdname Step-class
+#' @return \item{setInput}{Updated Step object after setting input directory}
+#' @aliases  setInput
+#' @export
+setMethod(f = "setInput",
+          signature = "Step",
+          definition = function(.Object, item, value){
+              if(item %in% c(names(.Object@outputList),names(.Object@paramList))){
+                  stop(paste("item `",item, "` is an output or other parameter"))
+              }
+              .Object@inputList[[item]] <- value
+              .Object
+          })
+
+
+setGeneric(name = "setOutput",
+           def = function(.Object, item, value)
+               standardGeneric("setOutput")
+)
+
+#' @rdname Step-class
+#' @return \item{setOutput}{Updated Step object after setting output directory}
+#' @aliases  setOutput
+#' @export
+setMethod(f = "setOutput",
+          signature = "Step",
+          definition = function(.Object, item, value){
+              if(item %in% c(names(.Object@inputList),names(.Object@paramList))){
+                  stop(paste("item `",item, "` is an input or other parameter"))
+              }
+              .Object@outputList[[item]] <- value
+              .Object
+          })
+
+
+
+setGeneric(name = "setParam",
+           def = function(.Object, item, value)
+               standardGeneric("setParam")
+)
+
+#' @rdname Step-class
+#' @return \item{setParam}{Updated Step object after setting parameters
+#' excluded input and output directory}
+#' @aliases  setParam
+#' @export
+setMethod(f = "setParam",
+          signature = "Step",
+          definition = function(.Object, item, value){
+              if(item %in% c(names(.Object@inputList),names(.Object@outputList))){
+                  stop(paste("item `",item, "` is an input or output"))
+              }
+              .Object@paramList[[item]] <- value
+              .Object
+          })
+
 
 setGeneric(name = "getParam",
            def = function(.Object,item,...){

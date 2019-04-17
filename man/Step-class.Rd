@@ -10,6 +10,12 @@
 \alias{getStepName}
 \alias{getDefName,Step-method}
 \alias{getDefName}
+\alias{setInput,Step-method}
+\alias{setInput}
+\alias{setOutput,Step-method}
+\alias{setOutput}
+\alias{setParam,Step-method}
+\alias{setParam}
 \alias{getParam,Step-method}
 \alias{getParam}
 \alias{getParamItems,Step-method}
@@ -48,6 +54,12 @@
 \S4method{getStepName}{Step}(.Object, ...)
 
 \S4method{getDefName}{Step}(.Object, ...)
+
+\S4method{setInput}{Step}(.Object, item, value)
+
+\S4method{setOutput}{Step}(.Object, item, value)
+
+\S4method{setParam}{Step}(.Object, item, value)
 
 \S4method{getParam}{Step}(.Object, item, type = c("input", "output",
   "other"), ...)
@@ -131,6 +143,13 @@ output and other parameters}
 
 \item{getDefName}{get Step object Character name}
 
+\item{setInput}{Updated Step object after setting input directory}
+
+\item{setOutput}{Updated Step object after setting output directory}
+
+\item{setParam}{Updated Step object after setting parameters
+excluded input and output directory}
+
 \item{getParam}{Get parameter value set by process function.
 See \code{getParamItems} to obtain valid items for query.}
 
@@ -210,18 +229,18 @@ setMethod(
         # no input for this step
         # begin to set output parameters
         if(is.null(outputBed)){
-            .Object@outputList$outputBed <-
-                getStepWorkDir(.Object,"random.bed")
+            .Object <- setOutput(.Object, "outputBed",
+                getStepWorkDir(.Object,"random.bed"))
         }else{
-            .Object@outputList$outputBed <- outputBed
+            .Object <- setOutput(.Object, "outputBed", outputBed)
         }
         # begin to set other parameters
-        .Object@paramList$regionLen <- regionLen
-        .Object@paramList$sampleNumb <- sampleNumb
+        .Object <- setParam(.Object, "regionLen", regionLen)
+        .Object <- setParam(.Object, "sampleNumb" , sampleNumb)
         if(is.null(genome)){
-            .Object@paramList$bsgenome <- getBSgenome(getGenome())
+            .Object <- setParam(.Object, "bsgenome" , getBSgenome(getGenome()))
         }else{
-            .Object@paramList$bsgenome <- getBSgenome(genome)
+            .Object <- setParam(.Object, "bsgenome" , getBSgenome(genome))
         }
         # don't forget to return .Object
         .Object
@@ -291,28 +310,28 @@ setMethod(
         # runOerlappedRandomRegion
         if(length(prevSteps)>0){
             prevStep <- prevSteps[[1]]
-            .Object@inputList$randomBed <- getParam(prevStep,"outputBed")
+            .Object <- setInput(.Object, "randomBed" , getParam(prevStep,"outputBed"))
         }
         # begin to set input parameters
         if(!is.null(inputBed)){
-            .Object@inputList$inputBed <- inputBed
+            .Object <- setInput(.Object, "inputBed", inputBed)
         }
         if(!is.null(randomBed)){
-            .Object@inputList$randomBed <- randomBed
+            .Object <- setInput(.Object, "randomBed", randomBed)
         }
         # begin to set output parameters
         # the output is recemended to set under the step work directory
         if(!is.null(outputBed)){
-            .Object@outputList$outputBed <- outputBed
+            .Object <- setOutput(.Object, "outputBed" , outputBed)
         }else{
-            .Object@outputList$outputBed <-
-                getAutoPath(.Object, .Object@inputList$inputBed,
-                            "bed", suffix = "bed")
+            .Object <- setOutput(.Object,"outputBed",
+                getAutoPath(.Object, getParam(.Object, "inputBed"),
+                            "bed", suffix = "bed"))
             # the path can also be generate in this way
             # ib <- getParam(.Object,"inputBed")
-            #.Object@outputList$outputBed <-
+            # Object <- setOutput(.Object,"outputBed",
             #    file.path(getStepWorkDir(.Object),
-            #    paste0(substring(ib,1,nchar(ib)-3), "bed"))
+            #    paste0(substring(ib,1,nchar(ib)-3), "bed")))
         }
         # begin to set other parameters
         # no other parameters
@@ -378,33 +397,31 @@ setMethod(
 )
 
 # add to graph
-addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),a
-         rgOrder = 1)
+addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),
+         argOrder = 1)
 # begin to test pipeline
 setGenome("hg19")
+# generate test BED file
+test_bed <- file.path(tempdir(),"test.bed")
+library(rtracklayer)
+export.bed(GRanges("chr7:1-127473000"),test_bed)
 rd <- randomRegionOnGenome(10000)
-overlap <- runOverlappedRandomRegion(rd,
-    inputBed = system.file(package = "pipeFrame", "extdata","testRegion.bed"))
+overlap <- runOverlappedRandomRegion(rd, inputBed = test_bed)
 
 randombed <- getParam(rd,"outputBed")
 
 randombed
 
 overlap1 <-
-    overlappedRandomRegion(inputBed = system.file(package = "pipeFrame",
-                                             "extdata","testRegion.bed"),
-                                             randomBed = randombed)
+    overlappedRandomRegion(inputBed = test_bed, randomBed = randombed)
 
 clearStepCache(overlap1)
 overlap1 <-
-    overlappedRandomRegion(inputBed = system.file(package = "pipeFrame",
-                                             "extdata","testRegion.bed"),
-                                             randomBed = randombed)
+    overlappedRandomRegion(inputBed = test_bed, randomBed = randombed)
 clearStepCache(rd)
 clearStepCache(overlap1)
 rd <- randomRegionOnGenome(10000) \%>\%
-runOverlappedRandomRegion(inputBed =
-    system.file(package = "pipeFrame", "extdata","testRegion.bed"))
+runOverlappedRandomRegion(inputBed = test_bed)
 
 getStepName(rd)
 getStepId(rd)
