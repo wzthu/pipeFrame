@@ -12,7 +12,8 @@
 #' @title Configure genome for all steps
 #' @description Configure the reference genome assembly for all steps.
 #' @param genome \code{Character} scalar. Valid genome to be configured.
-#' @return \item{getValidGenome}{\code{Character} scalar. . All valid genome assemblies for this package.}
+#' @return \item{getValidGenome}{\code{Character} scalar.
+#' All valid genome assemblies for this package.}
 #' @aliases getValidGenome
 #' @rdname setGenome
 #' @examples
@@ -30,7 +31,8 @@ getCheckAndInstallFunc <- function(){
     getOption("pipeFrameConfig.genome.checkAndInstallFunc")
 }
 
-#' @return \item{setGenome}{All packages and dependencies are configured and installed. No value will be returned.}
+#' @return \item{setGenome}{All packages and dependencies are
+#' configured and installed. No value will be returned.}
 #' @aliases setGenome
 #' @rdname setGenome
 #' @export
@@ -49,7 +51,8 @@ setGenome <- function(genome){
     }
 }
 
-#' @return \item{getGenome}{\code{Character} scalar. Display the configured genome.}
+#' @return \item{getGenome}{\code{Character} scalar.
+#' Display the configured genome.}
 #' @aliases getGenome
 #' @rdname setGenome
 #' @export
@@ -67,7 +70,8 @@ getGenome <- function(){
 #' @rdname setThreads
 #' @title Configure the maximum number of threads
 #' @description Configure the maximum number of threads for all steps
-#' @param threads \code{Numeric} scalar. The maximum number of threads that can be allocated  to each step.
+#' @param threads \code{Numeric} scalar. The maximum number of
+#' threads that can be allocated  to each step.
 #' @return \item{setThreads}{No value will be returned}
 #' @aliases setThreads
 #' @rdname setThreads
@@ -80,7 +84,9 @@ setThreads <- function(threads = detectCores()){
     options(pipeFrameConfig.threads = threads)
 }
 
-#' @return \item{getThreads}{\code{Numeric} scalar. Display the maximum number of threads that can be allocated  to each step.}
+#' @return \item{getThreads}{\code{Numeric} scalar.
+#' Display the maximum number of threads that
+#' can be allocated  to each step.}
 #' @aliases getThreads
 #' @rdname setThreads
 #' @export
@@ -92,9 +98,12 @@ getThreads <- function(){
 #' @name setRefDir
 #' @rdname setRefDir
 #' @title Set the reference directory
-#' @param refdir \code{Character} scalar. The directory to store the reference data.
-#' @param refName \code{Character} scalar. The name of reference data.
-#' @param createDir \code{Logica} scalar. Create the directory if the directory does not exist. Default: TRUE
+#' @param refdir \code{Character} scalar.
+#' The directory to store the reference data.
+#' @param refName \code{Character} scalar.
+#' The name of reference data.
+#' @param createDir \code{Logica} scalar.
+#' Create the directory if the directory does not exist. Default: TRUE
 #' @return \item{setRefDir}{No value will be returned}
 #' @aliases setRefDir
 #' @rdname setRefDir
@@ -118,7 +127,8 @@ setRefDir <- function(refdir, createDir = TRUE)
     }
     options(pipeFrameConfig.refdir = refdir)
 }
-#' @return \item{getRefDir}{\code{Character} scalar. Display the directory of reference data.}
+#' @return \item{getRefDir}{\code{Character} scalar.
+#' Display the directory of reference data.}
 #' @aliases getRefDir
 #' @rdname setRefDir
 #' @export
@@ -129,7 +139,8 @@ getRefDir <- function(){
 }
 
 
-#' @return \item{getRef}{\code{List} scalar. A list object which contains "files" (reference file paths) and "rc" (reference R object)}
+#' @return \item{getRef}{\code{List} scalar. A list object
+#' which contains "files" (reference file paths) and "rc" (reference R object)}
 #' @aliases getRef
 #' @rdname setRefDir
 #' @export
@@ -140,7 +151,8 @@ getRef <- function(refName){
     return(ref)
 }
 
-#' @return \item{getRefFiles}{\code{Character} scalar or vector.Display the reference file directory. }
+#' @return \item{getRefFiles}{\code{Character} scalar or vector.
+#' Display the reference file directory. }
 #' @aliases getRefFiles
 #' @rdname setRefDir
 #' @export
@@ -149,7 +161,8 @@ getRefFiles <- function(refName){
     return(ref$files)
 }
 
-#' @return \item{getRefRc}{\code{Uncertain} scalar or vector.Display any reference R object. }
+#' @return \item{getRefRc}{\code{Uncertain} scalar or vector.
+#' Display any reference R object. }
 #' @aliases getRefRc
 #' @rdname setRefDir
 #' @export
@@ -173,7 +186,9 @@ getRefRc <- function(refName){
 #' @name setTmpDir
 #' @rdname setTmpDir
 #' @title Configure the directory for intermediate results of all steps
-#' @param tmpDir \code{Character} scalar. The directory to store intermediate results of all steps. Default: Current directory.
+#' @param tmpDir \code{Character} scalar.
+#' The directory to store intermediate results of all steps.
+#' Default: Current directory.
 #' @return \item{setTmpDir}{No value will be returned}
 #' @aliases setTmpDir
 #' @rdname setTmpDir
@@ -190,7 +205,8 @@ setTmpDir <- function(tmpDir = getwd()){
     options(pipeFrameConfig.dir.tmpdir = tmpDir)
 }
 
-#' @return \item{getTmpDir}{\code{Character} scalar. Display the directory for intermediate results of all steps.}
+#' @return \item{getTmpDir}{\code{Character} scalar.
+#' Display the directory for intermediate results of all steps.}
 #' @aliases getTmpDir
 #' @rdname setTmpDir
 #' @export
@@ -216,7 +232,7 @@ setJobName <- function(jobName){
     stopifnot(is.character(jobName))
     #    allowChange <- getOption("pipeFrameConfig.allowChangeJobDir")
     #   if(!allowChange){
-    #        stop("setJobName must be called before calling any pipeling steps")
+    #       stop("setJobName must be called before calling any pipeling steps")
     #    }
     options(pipeFrameConfig.dir.jobname = jobName)
 }
@@ -249,10 +265,16 @@ getJobDir <- function(){
 #' @name runWithFinishCheck
 #' @rdname runWithFinishCheck
 #' @title Install dependent data or software with finishing check
-#' @param func \code{Function} scalar. The function with refFilePath argument (reference file directory). The returned value will be set as the reference object.
-#' @param refName \code{Character} scalar. Reference name for \code{\link{getRef}}, \code{\link{getRefFiles}} and \code{\link{getRefRc}}.
-#' @param refFilePath \code{Character} scalar. The reference file relative directory under the "refdir/genome/"
-#' @param genome \code{Character} scalar. The genome like "hg19". Default: getGenome()
+#' @param func \code{Function} scalar.
+#' The function with refFilePath argument (reference file directory).
+#' The returned value will be set as the reference object.
+#' @param refName \code{Character} scalar.
+#' Reference name for \code{\link{getRef}},
+#' \code{\link{getRefFiles}} and \code{\link{getRefRc}}.
+#' @param refFilePath \code{Character} scalar.
+#' The reference file relative directory under the "refdir/genome/"
+#' @param genome \code{Character} scalar.
+#'  The genome like "hg19". Default: getGenome()
 #' @return \item{runWithFinishCheck}{No value will be returned}
 #' @aliases runWithFinishCheck
 #' @rdname runWithFinishCheck
@@ -260,9 +282,10 @@ getJobDir <- function(){
 #'
 #' checkAndInstall <- function(){
 #'    runWithFinishCheck(func = checkAndInstallBSgenome,refName = "bsgenome")
-#'    runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta", refFilePath = paste0(getGenome(),".fa"))
+#'    runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta", r
+#'    efFilePath = paste0(getGenome(),".fa"))
 #' }
-#' initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
+#' initPipeFrame(availableGenome = c("hg19", "hg38","mm9","mm10","testgenome"),
 #'               defaultJobName = paste0("pkgname","-pipeline")
 #' )
 #'
@@ -279,7 +302,8 @@ runWithFinishCheck <- function(func, refName, refFilePath = NULL){
         refFilePath <- file.path(getRefDir(),getGenome(),refFilePath)
     }
 
-    lockFilePath <- file.path(getRefDir(),getGenome(),paste(refName,"lock",sep = "."))
+    lockFilePath <- file.path(getRefDir(),getGenome(),
+                              paste(refName,"lock",sep = "."))
     if(file.exists(lockFilePath)){
         unlink(refFilePath,recursive = TRUE, force = TRUE)
         unlink(lockFilePath,recursive = TRUE, force = TRUE)
@@ -316,18 +340,23 @@ runWithFinishCheck <- function(func, refName, refFilePath = NULL){
 
 
 
-#' @return \item{checkAndInstallBSgenome}{check if there is the BSgenome package installed for
+#' @return \item{checkAndInstallBSgenome}{check if there is
+#' the BSgenome package installed for
 #' curent genome and install it if not. No value will be returned.}
 #' @aliases checkAndInstallBSgenome
 #' @rdname runWithFinishCheck
 #' @export
 checkAndInstallBSgenome <- function(refFilePath, genome =  getGenome()){
-    bsgenomename<- BSgenome::available.genomes()[grepl(paste0(genome,"$"),BSgenome::available.genomes())]
+    bsgenomename<-
+        BSgenome::available.genomes()[grepl(paste0(genome,"$"),
+                                            BSgenome::available.genomes())]
     if(length(bsgenomename)==0){
         message()
         stop("There is no BSgenome support for this genome")
     }
-    bsgenomeinstall <- BSgenome::installed.genomes()[grepl(paste0(genome,"$"),BSgenome::installed.genomes())]
+    bsgenomeinstall <-
+        BSgenome::installed.genomes()[grepl(paste0(genome,"$"),
+                                            BSgenome::installed.genomes())]
     if(length(bsgenomeinstall)==0){
         message(paste("BSgenome for ",genome,"has not been installed,"))
         message("begin to install ...")
@@ -337,7 +366,8 @@ checkAndInstallBSgenome <- function(refFilePath, genome =  getGenome()){
 
 
 
-#' @return \item{checkAndInstallOrgDb}{check if there is the OrgDb package installed for
+#' @return \item{checkAndInstallOrgDb}{check if there is the OrgDb
+#' package installed for
 #' curent genome and install it if not. No value will be returned.}
 #' @aliases checkAndInstallOrgDb
 #' @rdname runWithFinishCheck
@@ -378,7 +408,8 @@ checkAndInstallOrgDb <- function(refFilePath, genome =  getGenome()){
 
 
 
-#' @return \item{checkAndInstallTxDb}{check if there is the TxDb package installed for
+#' @return \item{checkAndInstallTxDb}{check if there is the TxDb
+#' package installed for
 #' curent genome and install it if not. Nothing will be returned.}
 #' @aliases checkAndInstallTxDb
 #' @rdname runWithFinishCheck
@@ -429,22 +460,25 @@ checkAndInstallTxDb <- function(refFilePath, genome =  getGenome()){
 }
 
 
-#' @return \item{checkAndInstallGenomeFa}{check if genome FASTA file exist and install if not. No value will be returned}
+#' @return \item{checkAndInstallGenomeFa}{check if genome
+#' FASTA file exist and install if not. No value will be returned}
 #' @aliases checkAndInstallGenomeFa
 #' @rdname runWithFinishCheck
 #' @export
 checkAndInstallGenomeFa <- function(refFilePath){
     outFile <- refFilePath
     bsgenome<-getRefRc("bsgenome")
-    if(!is(bsgenome, "BSgenome")){stop("The variable 'bsgenome' is not a BSgenome")}
+    if(!is(bsgenome, "BSgenome")){
+        stop("The variable 'bsgenome' is not a BSgenome")
+    }
     append <- FALSE
     for(chrT in seqnames(bsgenome)){
         if(is.null(masks(bsgenome[[chrT]])))
             chrSeq <- DNAStringSet(bsgenome[[chrT]])
         else
-            chrSeq <- DNAStringSet(injectHardMask(bsgenome[[chrT]], letter="N"))
+            chrSeq <- DNAStringSet(injectHardMask(bsgenome[[chrT]],letter="N"))
         names(chrSeq) <- chrT
-        writeXStringSet(chrSeq, filepath=outFile, format="fasta", append=append)
+        writeXStringSet(chrSeq, filepath=outFile, format="fasta",append=append)
         append <- TRUE
     }
     return(outFile)
@@ -454,8 +488,10 @@ checkAndInstall <- function(){
 }
 
 #checkAndInstall <- function(check = TRUE, ...){
-#    runWithFinishCheck(func = checkAndInstallBSgenome,refName = "bsgenome", resultVal = getBSgenome(genome), execForNonRsFile = check)
-#    runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta", refFilePath = file.path(getRefDir(),getGenome(),paste0(getGenome(),".fa")))
+#    runWithFinishCheck(func = checkAndInstallBSgenome,refName = "bsgenome",
+#                    resultVal = getBSgenome(genome), execForNonRsFile = check)
+#    runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta",
+#  refFilePath = file.path(getRefDir(),getGenome(),paste0(getGenome(),".fa")))
 #}
 
 

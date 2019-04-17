@@ -1,13 +1,27 @@
 #' @rdname initPipeFrame
 #' @title initialize the pipeFrame package
-#' @description This function should be called first in R terminal for general users. And it should be used in .onLoad() function for package developers. In this function, several parameters need to be defined and configured, including genome, job name, reference directory, temporary directory, check and install function, threads number, reference list, etc.
-#' @param defaultJobName \code{Character} scalar. The default job name for the package. When users use pipeFrame package, defaultJobName is "pipeFrame-pipeline".
+#' @description This function should be called first in
+#' R terminal for general users. And it should be used
+#' in .onLoad() function for package developers.
+#' In this function, several parameters need to be defined and configured,
+#' including genome, job name, reference directory,
+#' temporary directory, check and install function,
+#' threads number, reference list, etc.
+#' @param defaultJobName \code{Character} scalar.
+#' The default job name for the package. When users use pipeFrame package,
+#' defaultJobName is "pipeFrame-pipeline".
 #' @param availableGenome \code{Character} scalar or vector.
 #' Configure the available valid genome such as "hg19", "mm10", etc.
-#' @param defaultCheckAndInstallFunc \code{Function} scalar. The function needs to call  \code{\link{runWithFinishCheck}}
-#' @param defaultThreads \code{Numeric} scalar. The maximum thread limit for each step. Default:2
-#' @param defaultTmpDir \code{Character} scalar. The directory of intermediate results for all steps. Default: Current working directory.
-#' @param defaultRefDir \code{Character} scalar. The directory of reference data. Default: \code{file.path(getwd(),"refdir")}
+#' @param defaultCheckAndInstallFunc \code{Function} scalar.
+#' The function needs to call  \code{\link{runWithFinishCheck}}
+#' @param defaultThreads \code{Numeric} scalar.
+#' The maximum thread limit for each step. Default:2
+#' @param defaultTmpDir \code{Character} scalar.
+#' The directory of intermediate results for all steps.
+#' Default: Current working directory.
+#' @param defaultRefDir \code{Character} scalar.
+#' The directory of reference data.
+#' Default: \code{file.path(getwd(),"refdir")}
 #' @param defaultReference \code{List} scalar. List of reference files.
 #' @return No value will be returned.
 #' @examples
@@ -36,8 +50,10 @@ initPipeFrame <- function(defaultJobName,
                           defaultCheckAndInstallFunc = NULL,
                           defaultThreads = 2,
                           defaultTmpDir = getwd(),
-                          defaultRefDir = file.path(getwd(),"refdir"), #file.path("~",".pipeFrame","refdir"),
-                          defaultReference = list(test=list(file="fileName",rc = "obj"))
+                          defaultRefDir = file.path(getwd(),"refdir"),
+                          #file.path("~",".pipeFrame","refdir"),
+                          defaultReference = list(
+                              test=list(file="fileName",rc = "obj"))
 ){
     if(defaultJobName == "pipeFrame-pipeline"){
         oldavailgenome <- c("hg19",
@@ -80,7 +96,8 @@ initPipeFrame <- function(defaultJobName,
                                               "susScr3",
                                               "testgenome"))
         }
-        options(pipeFrameConfig.genome.valid = intersect(availableGenome,oldavailgenome))
+        options(pipeFrameConfig.genome.valid =
+                    intersect(availableGenome,oldavailgenome))
     }else{
         options(pipeFrameConfig.genome.valid = NULL)
     }
@@ -109,11 +126,13 @@ initPipeFrame <- function(defaultJobName,
              })
     cni<-getOption("pipeFrameConfig.genome.checkAndInstallFunc")
     if(is.null(defaultCheckAndInstallFunc)){
-        options(pipeFrameConfig.genome.checkAndInstallFunc = c(cni,checkAndInstall))
+        options(pipeFrameConfig.genome.checkAndInstallFunc =
+                    c(cni,checkAndInstall))
     }else{
         #       print(defaultCheckAndInstallFunc)
         #       stopifnot(!is.function(defaultCheckAndInstallFunc))
-        options(pipeFrameConfig.genome.checkAndInstallFunc = c(cni,defaultCheckAndInstallFunc))
+        options(pipeFrameConfig.genome.checkAndInstallFunc =
+                    c(cni,defaultCheckAndInstallFunc))
     }
 
     options(pipeFrameConfig.genome.refs = defaultReference)

@@ -13,18 +13,26 @@ initPipeFrame(defaultJobName, availableGenome = c("hg19", "hg38", "mm9",
   "obj")))
 }
 \arguments{
-\item{defaultJobName}{\code{Character} scalar. The default job name for the package. When users use pipeFrame package, defaultJobName is "pipeFrame-pipeline".}
+\item{defaultJobName}{\code{Character} scalar.
+The default job name for the package. When users use pipeFrame package,
+defaultJobName is "pipeFrame-pipeline".}
 
 \item{availableGenome}{\code{Character} scalar or vector.
 Configure the available valid genome such as "hg19", "mm10", etc.}
 
-\item{defaultCheckAndInstallFunc}{\code{Function} scalar. The function needs to call  \code{\link{runWithFinishCheck}}}
+\item{defaultCheckAndInstallFunc}{\code{Function} scalar.
+The function needs to call  \code{\link{runWithFinishCheck}}}
 
-\item{defaultThreads}{\code{Numeric} scalar. The maximum thread limit for each step. Default:2}
+\item{defaultThreads}{\code{Numeric} scalar.
+The maximum thread limit for each step. Default:2}
 
-\item{defaultTmpDir}{\code{Character} scalar. The directory of intermediate results for all steps. Default: Current working directory.}
+\item{defaultTmpDir}{\code{Character} scalar.
+The directory of intermediate results for all steps.
+Default: Current working directory.}
 
-\item{defaultRefDir}{\code{Character} scalar. The directory of reference data. Default: \code{file.path(getwd(),"refdir")}}
+\item{defaultRefDir}{\code{Character} scalar.
+The directory of reference data.
+Default: \code{file.path(getwd(),"refdir")}}
 
 \item{defaultReference}{\code{List} scalar. List of reference files.}
 }
@@ -32,7 +40,13 @@ Configure the available valid genome such as "hg19", "mm10", etc.}
 No value will be returned.
 }
 \description{
-This function should be called first in R terminal for general users. And it should be used in .onLoad() function for package developers. In this function, several parameters need to be defined and configured, including genome, job name, reference directory, temporary directory, check and install function, threads number, reference list, etc.
+This function should be called first in
+R terminal for general users. And it should be used
+in .onLoad() function for package developers.
+In this function, several parameters need to be defined and configured,
+including genome, job name, reference directory,
+temporary directory, check and install function,
+threads number, reference list, etc.
 }
 \examples{
 initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),

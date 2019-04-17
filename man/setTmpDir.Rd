@@ -10,12 +10,15 @@ setTmpDir(tmpDir = getwd())
 getTmpDir()
 }
 \arguments{
-\item{tmpDir}{\code{Character} scalar. The directory to store intermediate results of all steps. Default: Current directory.}
+\item{tmpDir}{\code{Character} scalar.
+The directory to store intermediate results of all steps.
+Default: Current directory.}
 }
 \value{
 \item{setTmpDir}{No value will be returned}
 
-\item{getTmpDir}{\code{Character} scalar. Display the directory for intermediate results of all steps.}
+\item{getTmpDir}{\code{Character} scalar.
+Display the directory for intermediate results of all steps.}
 }
 \description{
 Configure the directory for intermediate results of all steps

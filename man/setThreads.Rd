@@ -10,12 +10,15 @@ setThreads(threads = detectCores())
 getThreads()
 }
 \arguments{
-\item{threads}{\code{Numeric} scalar. The maximum number of threads that can be allocated  to each step.}
+\item{threads}{\code{Numeric} scalar. The maximum number of
+threads that can be allocated  to each step.}
 }
 \value{
 \item{setThreads}{No value will be returned}
 
-\item{getThreads}{\code{Numeric} scalar. Display the maximum number of threads that can be allocated  to each step.}
+\item{getThreads}{\code{Numeric} scalar.
+Display the maximum number of threads that
+can be allocated  to each step.}
 }
 \description{
 Configure the maximum number of threads for all steps

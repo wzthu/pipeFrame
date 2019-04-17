@@ -16,11 +16,14 @@ getGenome()
 \item{genome}{\code{Character} scalar. Valid genome to be configured.}
 }
 \value{
-\item{getValidGenome}{\code{Character} scalar. . All valid genome assemblies for this package.}
+\item{getValidGenome}{\code{Character} scalar.
+All valid genome assemblies for this package.}
 
-\item{setGenome}{All packages and dependencies are configured and installed. No value will be returned.}
+\item{setGenome}{All packages and dependencies are
+configured and installed. No value will be returned.}
 
-\item{getGenome}{\code{Character} scalar. Display the configured genome.}
+\item{getGenome}{\code{Character} scalar.
+Display the configured genome.}
 }
 \description{
 Configure the reference genome assembly for all steps.

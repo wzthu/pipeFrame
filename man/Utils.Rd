@@ -22,22 +22,26 @@ checkFileCreatable(filePath, ...)
 \arguments{
 \item{filepath}{\code{character} scalar or vector.}
 
-\item{words}{\code{character} scalar. Remove substring of the path characters starting to match the word}
+\item{words}{\code{character} scalar.
+Remove substring of the path characters starting to match the word}
 
 \item{...}{Additional arguments, currently unused}
 
 \item{filePath}{\code{Character} scalar.}
 }
 \value{
-\item{getBasenamePrefix}{Get the filepath  basename with removed suffix}
+\item{getBasenamePrefix}{Get the filepath
+basename with removed suffix}
 
 \item{getPathPrefix}{Get the filepath  with removed suffix}
 
 \item{checkFileExist}{(For package developer) Check file is exist.}
 
-\item{checkPathExist}{(For package developer) Check directory is exist.}
+\item{checkPathExist}{(For package developer)
+Check directory is exist.}
 
-\item{checkFileCreatable}{(For package developer) Check file creatable.}
+\item{checkFileCreatable}{(For package developer)
+Check file creatable.}
 }
 \description{
 Functions for directory operations

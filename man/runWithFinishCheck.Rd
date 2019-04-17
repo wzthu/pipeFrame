@@ -19,27 +19,37 @@ checkAndInstallTxDb(refFilePath, genome = getGenome())
 checkAndInstallGenomeFa(refFilePath)
 }
 \arguments{
-\item{func}{\code{Function} scalar. The function with refFilePath argument (reference file directory). The returned value will be set as the reference object.}
+\item{func}{\code{Function} scalar.
+The function with refFilePath argument (reference file directory).
+The returned value will be set as the reference object.}
 
-\item{refName}{\code{Character} scalar. Reference name for \code{\link{getRef}}, \code{\link{getRefFiles}} and \code{\link{getRefRc}}.}
+\item{refName}{\code{Character} scalar.
+Reference name for \code{\link{getRef}},
+\code{\link{getRefFiles}} and \code{\link{getRefRc}}.}
 
-\item{refFilePath}{\code{Character} scalar. The reference file relative directory under the "refdir/genome/"}
+\item{refFilePath}{\code{Character} scalar.
+The reference file relative directory under the "refdir/genome/"}
 
-\item{genome}{\code{Character} scalar. The genome like "hg19". Default: getGenome()}
+\item{genome}{\code{Character} scalar.
+The genome like "hg19". Default: getGenome()}
 }
 \value{
 \item{runWithFinishCheck}{No value will be returned}
 
-\item{checkAndInstallBSgenome}{check if there is the BSgenome package installed for
+\item{checkAndInstallBSgenome}{check if there is
+the BSgenome package installed for
 curent genome and install it if not. No value will be returned.}
 
-\item{checkAndInstallOrgDb}{check if there is the OrgDb package installed for
+\item{checkAndInstallOrgDb}{check if there is the OrgDb
+package installed for
 curent genome and install it if not. No value will be returned.}
 
-\item{checkAndInstallTxDb}{check if there is the TxDb package installed for
+\item{checkAndInstallTxDb}{check if there is the TxDb
+package installed for
 curent genome and install it if not. Nothing will be returned.}
 
-\item{checkAndInstallGenomeFa}{check if genome FASTA file exist and install if not. No value will be returned}
+\item{checkAndInstallGenomeFa}{check if genome
+FASTA file exist and install if not. No value will be returned}
 }
 \description{
 Install dependent data or software with finishing check
@@ -48,9 +58,10 @@ Install dependent data or software with finishing check
 
 checkAndInstall <- function(){
    runWithFinishCheck(func = checkAndInstallBSgenome,refName = "bsgenome")
-   runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta", refFilePath = paste0(getGenome(),".fa"))
+   runWithFinishCheck(func = checkAndInstallGenomeFa,refName = "fasta", r
+   efFilePath = paste0(getGenome(),".fa"))
 }
-initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10","testgenome"),
+initPipeFrame(availableGenome = c("hg19", "hg38","mm9","mm10","testgenome"),
               defaultJobName = paste0("pkgname","-pipeline")
 )
 
