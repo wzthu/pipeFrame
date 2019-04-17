@@ -2,6 +2,8 @@
 pipeFrame-pipeline
 R/StepTest.R
 .DS_Store
+vignettes/testdir
+vignettes/refdir
 
 # History files
 .Rhistory
