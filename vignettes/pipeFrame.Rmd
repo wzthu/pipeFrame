@@ -149,7 +149,7 @@ getRefDir()
 Users can customize the reference directory in this way:
 ```{r}
 # set a new reference directory
-setRefDir("./testdir")
+setRefDir("./refdir")
 
 # display the new reference directory
 getRefDir()
@@ -374,7 +374,7 @@ the `.onLoad` function
 After the steps are restricted, they are organized in a graph.
 Users can query this graph by:
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 printMap()
 ```
 
@@ -473,32 +473,6 @@ setMethod(
 
 ```
 
-In this way, users do not need to get familiar with the 
-definition of classes or objects, and could build the pipeline easily:
-
-```{r eval=FALSE}
-library(magrittr)
-
-testInputBedFilePath <- system.file(package = "pipeFrame", "extdata",
-                                    "testRegion.bed")
-
-result <- randomRegionOnGenome(1000) %>%
-    runOverlappedRandomRegion(inputBed = testInputBedFilePath)
-
-```
-
-Or use the function seperately:
-
-```{r eval=FALSE}
-result1 <- randomRegionOnGenome(1000)
-
-result2 <- runOverlappedRandomRegion(inputBed = testInputBedFilePath, 
-                                     randomBed = testInputBedFilePath)
-
-```
-
-The classes `RandomRegionOnGenome` and `OverlappedRandomRegion` 
-will be implemented and introduced in next section.
 
 ### Class Implementation
 
@@ -723,6 +697,40 @@ setMethod(
 )
 ```
 
+### Step Components Usage
+
+
+In this way, users do not need to get familiar with the 
+definition of classes or objects, and could build the pipeline easily:
+
+```{r eval=TRUE}
+library(magrittr)
+
+
+testInputBedFilePath <- file.path(tempdir(),"test.bed")
+library(rtracklayer)
+export.bed(GRanges("chr7:1-127473000"),testInputBedFilePath)
+
+result <- randomRegionOnGenome(1000) %>%
+    runOverlappedRandomRegion(inputBed = testInputBedFilePath)
+
+```
+
+Or use the function seperately:
+
+```{r eval=TRUE}
+result1 <- randomRegionOnGenome(1000)
+
+randombed <- getParam(result1,"outputBed")
+
+randombed
+
+result2 <- overlappedRandomRegion(inputBed = testInputBedFilePath, 
+                                  randomBed = randombed)
+
+```
+
+
 
 ## Combine into Whole Pipeline
 
@@ -745,7 +753,7 @@ steps as the arguments of the whole pipeline. Other arguments can be
 passed through `...` with `StepName.argumentsName = value` like:
 
 ```{r}
-examplePipe(sampleNumb = 1000,inputBed = system.file(package = "pipeFrame", "extdata","testRegion.bed"),genome = "hg19",
+examplePipe(sampleNumb = 1000,inputBed = testInputBedFilePath,genome = "hg19",
             RandomRegionOnGenome_pipe.regionLen = 10000)
 ```
 
