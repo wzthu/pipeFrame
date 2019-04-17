@@ -405,6 +405,8 @@ setGenome("hg19")
 test_bed <- file.path(tempdir(),"test.bed")
 library(rtracklayer)
 export.bed(GRanges("chr7:1-127473000"),test_bed)
+
+
 rd <- randomRegionOnGenome(10000)
 overlap <- runOverlappedRandomRegion(rd, inputBed = test_bed)
 
