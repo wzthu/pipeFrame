@@ -1,6 +1,6 @@
 Package: pipeFrame
 Type: Package
-Title: pipeline framework for bioinformatics in R
+Title: Pipeline framework for bioinformatics in R
 Version: 0.99.11
 Author: Zheng Wei, Shining Ma
 Maintainer: Zheng Wei <wzweizheng@qq.com>
@@ -13,11 +13,10 @@ Description: pipeFrame is an R package for building a componentized bioinformati
     rather than parameter combination from the whole pipeline. 
     At the same time, componentized pipeline can restart at the breakpoint and avoid rerunning the whole pipeline,
     which may save a lot of time for users on pipeline tuning or such issues as power off or process other interrupts.
-License: GPL-3 | file LICENSE
+License: GPL-3 
 Encoding: UTF-8
-LazyData: true
+LazyData: FALSE
 Imports:
-    BiocManager,
     BSgenome,
     digest,
     ggdag,
@@ -29,6 +28,7 @@ Imports:
     stats,
     utils
 Suggests:
+    BiocManager,
     knitr,
     rtracklayer,
 RoxygenNote: 6.1.1
