@@ -482,9 +482,9 @@ checkAndInstallGenomeFa <- function(refFilePath){
     #     if(is.null(masks(bsgenome[[chrT]])))
     #         chrSeq <- DNAStringSet(bsgenome[[chrT]])
     #     else
-    #         chrSeq <- DNAStringSet(injectHardMask(bsgenome[[chrT]],letter="N"))
+    #       chrSeq <- DNAStringSet(injectHardMask(bsgenome[[chrT]],letter="N"))
     #     names(chrSeq) <- chrT
-    #     writeXStringSet(chrSeq, filepath=outFile, format="fasta",append=append)
+    #   writeXStringSet(chrSeq, filepath=outFile, format="fasta",append=append)
     #     append <- TRUE
     # }
 
