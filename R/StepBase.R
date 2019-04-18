@@ -799,8 +799,10 @@ setMethod(f = "clearStepCache",
               #            recursive = TRUE)
               # }
               lapply(outItems, function(item){
-                  unlink(normalizePath(unlist(getParam(.Object,item))),
+                  if(sum(file.exists(unlist(getParam(.Object,item))))>0){
+                        unlink(normalizePath(unlist(getParam(.Object,item))),
                          recursive = TRUE)
+                  }
               })
               .Object@finish<-FALSE
               .Object

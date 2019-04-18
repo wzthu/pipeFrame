@@ -23,9 +23,10 @@
 #'
 #' dir.create("testdir")
 #'
-#' checkPathExist("testdir")
+#' checkPathExist(file.path(getwd(),"testdir"))
 #'
-#' tryCatch({checkPathExist("testdir1")},error = function(e) e)
+#' tryCatch({checkPathExist(file.path(dirname(getwd()),
+#' "notexistfolder","testdir"))},error = function(e) e)
 #'
 #' checkFileCreatable("aaa.bed")
 #'
