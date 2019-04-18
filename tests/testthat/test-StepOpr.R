@@ -233,7 +233,7 @@ test_that("test basic operation of class Step ",{
     rd <- clearStepCache(rd)
     expect_false(isReady(rd))
 
-    clearStepCache(overlap1)
+    overlap1 <- clearStepCache(overlap1)
 
     expect_false(isReady(overlap1))
     rd <- randomRegionOnGenome(10000) %>%

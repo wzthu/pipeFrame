@@ -43,14 +43,15 @@ test_that("test thread configuration ",{
 
 test_that("test reference configuration ",{
 
-    setRefDir("./refdir")
-
-    expect_equal( normalizePath(getRefDir()),normalizePath("./refdir"))
     expect_equal(getRef("test")$file,"fileName")
     expect_equal(getRef("test")$rc,"obj")
 
     expect_equal(getRefFiles("test"),"fileName")
     expect_equal(getRefRc("test"),"obj")
+    setRefDir("./refdir")
+
+    expect_equal( normalizePath(getRefDir()),normalizePath("./refdir"))
+
 
 })
 

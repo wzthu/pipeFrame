@@ -106,7 +106,10 @@ Step object is returned by functions in each step.}
 \item{...}{Additional arguments, currently unused.}
 
 \item{item}{\code{Character} scalar.
-The items in parameter list or report list.}
+The items in parameter list (input, output and other) or report list.}
+
+\item{value}{any type scalar.
+The value to be set for corresponding item in a list.}
 
 \item{type}{\code{Character} scalar.
 Valid types of parameters including "input", "output" and "other"}

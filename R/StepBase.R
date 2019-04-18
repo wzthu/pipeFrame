@@ -30,7 +30,9 @@
 #' @param type \code{Character} scalar.
 #' Valid types of parameters including "input", "output" and "other"
 #' @param item \code{Character} scalar.
-#' The items in parameter list or report list.
+#' The items in parameter list (input, output and other) or report list.
+#' @param value any type scalar.
+#' The value to be set for corresponding item in a list.
 #' @param originPath \code{Character} scalar.
 #' The file name for output file is based on this original path name.
 #' @param regexSuffixName \code{Character} scalar. The suffix for replacement.
