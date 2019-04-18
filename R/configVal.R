@@ -50,9 +50,11 @@ setGenome <- function(genome){
     #  print(checkAndInstall)
     checkAndInstall <- getCheckAndInstallFunc()
     #  print(checkAndInstall)
-    for(cai in checkAndInstall){
-        cai()
-    }
+    lapply(checkAndInstall, function(cai) cai())
+    invisible(TRUE)
+    # for(cai in checkAndInstall){
+    #     cai()
+    # }
 }
 
 #' @return \item{getGenome}{\code{Character} scalar.
@@ -475,16 +477,31 @@ checkAndInstallGenomeFa <- function(refFilePath){
     if(!is(bsgenome, "BSgenome")){
         stop("The variable 'bsgenome' is not a BSgenome")
     }
-    append <- FALSE
-    for(chrT in seqnames(bsgenome)){
+    # append <- FALSE
+    # for(chrT in seqnames(bsgenome)){
+    #     if(is.null(masks(bsgenome[[chrT]])))
+    #         chrSeq <- DNAStringSet(bsgenome[[chrT]])
+    #     else
+    #         chrSeq <- DNAStringSet(injectHardMask(bsgenome[[chrT]],letter="N"))
+    #     names(chrSeq) <- chrT
+    #     writeXStringSet(chrSeq, filepath=outFile, format="fasta",append=append)
+    #     append <- TRUE
+    # }
+
+    sqn <- seqnames(bsgenome)
+    lapply(seq_len(length(seqnames(bsgenome))), function(i){
+        chrT <- sqn[i]
+        append <- FALSE
+        if(i == 1){
+            append <- TRUE
+        }
         if(is.null(masks(bsgenome[[chrT]])))
             chrSeq <- DNAStringSet(bsgenome[[chrT]])
         else
             chrSeq <- DNAStringSet(injectHardMask(bsgenome[[chrT]],letter="N"))
         names(chrSeq) <- chrT
         writeXStringSet(chrSeq, filepath=outFile, format="fasta",append=append)
-        append <- TRUE
-    }
+    })
     return(outFile)
 }
 

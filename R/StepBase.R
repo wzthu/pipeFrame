@@ -323,18 +323,21 @@ setMethod(f = "initialize",
               argv[["prevSteps"]] <- NULL
 
 
-
-
-
               stopifnot(is(prevSteps,"list"))
               if(length(prevSteps)>0){
                   objs<-unlist(prevSteps)
-                  for(obj in objs){
+                  # for(obj in objs){
+                  #     if(is.null(obj)){
+                  #         next
+                  #     }
+                  #     stopifnot(inherits(obj,"Step"))
+                  # }
+                  lapply(objs, function(obj){
                       if(is.null(obj)){
-                          next
+                          return()
                       }
                       stopifnot(inherits(obj,"Step"))
-                  }
+                  })
               }
 
               stepName <- as.character(class(.Object))
@@ -345,14 +348,25 @@ setMethod(f = "initialize",
 
               argvother <- argv[startsWith(names(argv),
                                            paste0(getDefName(.Object), "."))]
-              for(a in names(argvother)){
+              # for(a in names(argvother)){
+              #     a0 <- substring(a,1 + nchar(paste0(getDefName(.Object),".")))
+              #     if(sum(names(argv)==a0)>0){
+              #         argv[[a0]] <- argvother[[a]]
+              #     }else{
+              #         stop(paste0(a," is not parameter of Step ", stepName))
+              #     }
+              # }
+              rs <- lapply(names(argvother), function(a){
                   a0 <- substring(a,1 + nchar(paste0(getDefName(.Object),".")))
                   if(sum(names(argv)==a0)>0){
-                      argv[[a0]] <- argvother[[a]]
+                      return(argvother[[a]])
                   }else{
                       stop(paste0(a," is not parameter of Step ", stepName))
                   }
-              }
+              })
+              names(rs) <- names(argvother)
+              sel <- setdiff(names(argv),names(argvother))
+              argv <- c(argv[sel],rs)
               .Object@argv <- argv
 
 
@@ -360,7 +374,24 @@ setMethod(f = "initialize",
 
 
               if(argSize>0){
-                  for(i in 1:argSize){
+                  # for(i in 1:argSize){
+                  #     if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
+                  #         stop(paste(getStepName(prevSteps[[i]]),
+                  #                    "is not ready"))
+                  #     }
+                  #     # if(!checkRelation(getStepName(prevSteps[[i]]),
+                  #     #getStepName(.Object),i)){
+                  #     #     stop(paste(getStepName(prevSteps[[i]]),
+                  #     #            "is not valid input"))
+                  #     # }
+                  #     if(!is.null(prevSteps[[i]])){
+                  #         .Object@propList <- c(.Object@propList,
+                  #                               prevSteps[[i]]@propList)
+                  #         .Object@groupName <- c(.Object@groupName,
+                  #                                prevSteps[[i]]@groupName)
+                  #     }
+                  # }
+                  prop <- lapply(seq_len(argSize), function(i){
                       if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
                           stop(paste(getStepName(prevSteps[[i]]),
                                      "is not ready"))
@@ -371,12 +402,26 @@ setMethod(f = "initialize",
                       #            "is not valid input"))
                       # }
                       if(!is.null(prevSteps[[i]])){
-                          .Object@propList <- c(.Object@propList,
-                                                prevSteps[[i]]@propList)
-                          .Object@groupName <- c(.Object@groupName,
-                                                 prevSteps[[i]]@groupName)
+                            return(prevSteps[[i]]@propList)
                       }
-                  }
+                  })
+                  .Object@propList <- c(.Object@propList,as.list(unlist(prop)))
+
+                  gpn <- lapply(seq_len(argSize), function(i){
+                      if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
+                          stop(paste(getStepName(prevSteps[[i]]),
+                                     "is not ready"))
+                      }
+                      # if(!checkRelation(getStepName(prevSteps[[i]]),
+                      #getStepName(.Object),i)){
+                      #     stop(paste(getStepName(prevSteps[[i]]),
+                      #            "is not valid input"))
+                      # }
+                      if(!is.null(prevSteps[[i]])){
+                           return(prevSteps[[i]]@groupName)
+                      }
+                  })
+                  .Object@groupName <- c(.Object@groupName, unlist(gpn))
                   .Object@groupName <- sort(unique(.Object@groupName))
               }
 
@@ -407,10 +452,24 @@ setMethod(f = "initialize",
               options(pipeFrameConfig.allowChangeJobDir = FALSE)
 
               prevSteps <- list()
-              for(i in 1:10){
+              # for(i in 1:10){
+              #     s <- getPrevSteps(stepName = getStepName(.Object),i)
+              #     if(is.null(s)){
+              #         break
+              #     }
+              #     tt <- nameObjList[[
+              #         paste0(s,"_",paste0(.Object@groupName,collapse = "_"))]]
+              #     if(is.null(tt)){
+              #         stop(paste("Step", s, " is required for", stepName,
+              #                    "please calculate Step",s,"first"))
+              #     }else{
+              #         prevSteps<-c(prevSteps,list(tt))
+              #     }
+              # }
+              prevSteps <- lapply(seq_len(10), function(i){
                   s <- getPrevSteps(stepName = getStepName(.Object),i)
                   if(is.null(s)){
-                      break
+                      return()
                   }
                   tt <- nameObjList[[
                       paste0(s,"_",paste0(.Object@groupName,collapse = "_"))]]
@@ -418,9 +477,10 @@ setMethod(f = "initialize",
                       stop(paste("Step", s, " is required for", stepName,
                                  "please calculate Step",s,"first"))
                   }else{
-                      prevSteps<-c(prevSteps,list(tt))
+                      return(list(tt))
                   }
-              }
+              })
+              prevSteps <- as.list(unlist(prevSteps))
 
 
 
@@ -619,20 +679,39 @@ setMethod(f = "getParam",
           definition = function(.Object,item,
                                 type = c("input","output","other"),...){
               type <- unique(type)
-              for(t in type){
+              # for(t in type){
+              #     t1 <- match.arg(t,c("input","output","other"))
+              #     if(t1 == "input"){
+              #         if(!is.null(.Object@inputList[[item]])){
+              #             return(.Object@inputList[[item]])
+              #         }
+              #     }else if(t1 == "output"){
+              #         if(!is.null(.Object@outputList[[item]])){
+              #             return(.Object@outputList[[item]])
+              #         }
+              #     }else{
+              #         if(!is.null(.Object@paramList[[item]])){
+              #             return(.Object@paramList[[item]])
+              #         }
+              #     }
+              # }
+
+              lapply(type, function(t){
                   t1 <- match.arg(t,c("input","output","other"))
-                  if(t1 == "input"){
-                      if(!is.null(.Object@inputList[[item]])){
-                          return(.Object@inputList[[item]])
-                      }
-                  }else if(t1 == "output"){
-                      if(!is.null(.Object@outputList[[item]])){
-                          return(.Object@outputList[[item]])
-                      }
-                  }else{
-                      if(!is.null(.Object@paramList[[item]])){
-                          return(.Object@paramList[[item]])
-                      }
+              })
+              if("input" %in% type){
+                  if(!is.null(.Object@inputList[[item]])){
+                      return(.Object@inputList[[item]])
+                  }
+              }
+              if("output" %in% type){
+                  if(!is.null(.Object@outputList[[item]])){
+                      return(.Object@outputList[[item]])
+                  }
+              }
+              if("other" %in% type){
+                  if(!is.null(.Object@paramList[[item]])){
+                      return(.Object@paramList[[item]])
                   }
               }
               return(NULL)
@@ -653,17 +732,29 @@ setMethod(f = "getParamItems",
                                 ...){
               type <- unique(type)
               allitem <- c()
-              for(t in type){
+              # for(t in type){
+              #     t1 <- match.arg(t,c("input","output","other"))
+              #     if(t1 == "input"){
+              #         allitem <- c(allitem,names(.Object@inputList))
+              #     }else if(t1 == "output"){
+              #         allitem <- c(allitem,names(.Object@outputList))
+              #     }else{
+              #         allitem <- c(allitem,names(.Object@paramList))
+              #     }
+              # }
+              allitem <- c()
+              lapply(type, function(t){
                   t1 <- match.arg(t,c("input","output","other"))
-                  if(t1 == "input"){
-                      allitem <- c(allitem,names(.Object@inputList))
-                  }else if(t1 == "output"){
-                      allitem <- c(allitem,names(.Object@outputList))
-                  }else{
-                      allitem <- c(allitem,names(.Object@paramList))
-                  }
+              })
+              if("input" %in% type){
+                  allitem <-c(allitem, names(.Object@inputList))
               }
-
+              if("output" %in% type){
+                  allitem <-c(allitem,names(.Object@outputList))
+              }
+              if("other" %in% type){
+                  allitem <-c(allitem,names(.Object@paramList))
+              }
               return(allitem)
           })
 
@@ -703,10 +794,14 @@ setMethod(f = "clearStepCache",
                   message("Chache does not exist. Nothing has been done.")
               }
               outItems <-getParamItems(.Object,type="output")
-              for(item in outItems){
+              # for(item in outItems){
+              #     unlink(normalizePath(unlist(getParam(.Object,item))),
+              #            recursive = TRUE)
+              # }
+              lapply(outItems, function(item){
                   unlink(normalizePath(unlist(getParam(.Object,item))),
                          recursive = TRUE)
-              }
+              })
               .Object@finish<-FALSE
               .Object
           })
@@ -822,31 +917,69 @@ setMethod(f = "checkAllPath",
           signature = "Step",
           definition = function(.Object,...){
               items <- getParamItems(.Object, type="input")
-              for(items in items){
-                  paths<-.Object@inputList[[items]]
+              # for(items in items){
+              #     paths<-.Object@inputList[[items]]
+              #     if(!is.null(paths)){
+              #         for(path in paths){
+              #             if(!file.exists(path)){
+              #                 stop(paste0("input ",
+              #                             items,
+              #                             "'s directory '",
+              #                             path,"' does not exist."))
+              #             }
+              #         }
+              #     }
+              # }
+              lapply(items, function(item){
+                  paths<-.Object@inputList[[item]]
                   if(!is.null(paths)){
-                      for(path in paths){
+                      # for(path in paths){
+                      #     if(!file.exists(path)){
+                      #         stop(paste0("input ",
+                      #                     item,
+                      #                     "'s directory '",
+                      #                     path,"' does not exist."))
+                      #     }
+                      # }
+                      lapply(paths, function(path){
                           if(!file.exists(path)){
                               stop(paste0("input ",
-                                          items,
+                                          item,
                                           "'s directory '",
                                           path,"' does not exist."))
                           }
-                      }
+                      })
                   }
-              }
+              })
               items <- getParamItems(.Object, type="output")
-              for(items in items){
-                  paths<-.Object@inputList[[items]]
+              # for(item in items){
+              #     paths<-.Object@inputList[[items]]
+              #     if(!is.null(paths)){
+              #         for(path in paths){
+              #             if(!dir.exists(path)){
+              #                 file.create(path)
+              #                 unlink(path)
+              #             }
+              #         }
+              #     }
+              # }
+              lapply(items, function(item){
+                  paths<-.Object@inputList[[item]]
                   if(!is.null(paths)){
-                      for(path in paths){
+                      # for(path in paths){
+                      #     if(!dir.exists(path)){
+                      #         file.create(path)
+                      #         unlink(path)
+                      #     }
+                      # }
+                      lapply(paths, function(path){
                           if(!dir.exists(path)){
                               file.create(path)
                               unlink(path)
                           }
-                      }
+                      })
                   }
-              }
+              })
           })
 
 setGeneric(name = "getParamMD5Path",
@@ -862,51 +995,130 @@ setMethod(f = "getParamMD5Path",
           definition = function(.Object,...){
               paramstr <- c(getStepName(.Object))
               itNames <- getParamItems(.Object,type="other")
-              for(n in sort(itNames)){
-                  paramstr<-c(paramstr,n)
-                  paramstr<-c(paramstr,getParam(.Object,n,type="other"))
-              }
+              # for(n in sort(itNames)){
+              #     paramstr<-c(paramstr,n)
+              #     paramstr<-c(paramstr,getParam(.Object,n,type="other"))
+              # }
+              rs <- lapply(sort(itNames), function(n){
+                  return(c(n,getParam(.Object,n,type="other")))
+              })
+              paramstr <- c(paramstr,unlist(rs))
               ioNames <- getParamItems(.Object,type=c("input","output"))
-              for(n in sort(ioNames)){
-                  paramstr<-c(paramstr,n)
+              # for(n in sort(ioNames)){
+              #     paramstr<-c(paramstr,n)
+              #     paths <- getParam(.Object,n,type = c("input","output"))
+              #     if(!is.character(paths) && !is.list(paths)){
+              #         paramstr <- c(paramstr,paths)
+              #         next
+              #     }
+              #     paths <- sort(unlist(paths))
+              #     paths1 <- c()
+              #     breakflag <- FALSE
+              #     for(path in paths){
+              #         if(dir.exists(path)){
+              #             paths1 <- c(paths1, sort(dir(path,recursive = TRUE)))
+              #         }else if(file.exists(path)){
+              #             paths1 <- c(paths1, path)
+              #         }else{
+              #             paramstr <- c(paramstr,runif(1))
+              #             breakflag <- TRUE
+              #             break;
+              #         }
+              #     }
+              #     if(breakflag){
+              #         break
+              #     }
+              #     paths <- paths1
+              #     paths <- paths[grep("pipeFrame.obj",paths,invert = TRUE)]
+              #     checkpaths <- c()
+              #     for(path in paths){
+              #         p <- normalizePath(path)
+              #         checkpaths <- c(checkpaths,p)
+              #         if(startsWith(p,getJobDir())){
+              #             p <- substring(p,2+nchar(getJobDir()))
+              #         }
+              #         paramstr <- c(paramstr,p)
+              #     }
+              #     for(p in checkpaths){
+              #         filesize <- file.info(p)$size
+              #         paramstr <- c(paramstr,filesize)
+              #     }
+              # }
+              paramstr0 <- lapply(sort(ioNames), function(n){
+                  paramstr0<- n
                   paths <- getParam(.Object,n,type = c("input","output"))
                   if(!is.character(paths) && !is.list(paths)){
-                      paramstr <- c(paramstr,paths)
-                      next
+                      paramstr0 <- c(paramstr0, paths)
+                      return(paramstr0)
                   }
                   paths <- sort(unlist(paths))
                   paths1 <- c()
                   breakflag <- FALSE
-                  for(path in paths){
+                  # for(path in paths){
+                  #     if(dir.exists(path)){
+                  #         paths1 <- c(paths1, sort(dir(path,recursive = TRUE)))
+                  #     }else if(file.exists(path)){
+                  #         paths1 <- c(paths1, path)
+                  #     }else{
+                  #         paramstr <- c(paramstr,runif(1))
+                  #         breakflag <- TRUE
+                  #         break;
+                  #     }
+                  # }
+                  flag <- lapply(paths,function(path){
                       if(dir.exists(path)){
-                          paths1 <- c(paths1, sort(dir(path,recursive = TRUE)))
+                          return(FALSE)
                       }else if(file.exists(path)){
-                          paths1 <- c(paths1, path)
+                          return(FALSE)
                       }else{
-                          paramstr <- c(paramstr,runif(1))
-                          breakflag <- TRUE
-                          break;
+                          return(TRUE)
                       }
+                  })
+                  if(sum(unlist(flag))>0){
+                      return(runif(1))
                   }
-                  if(breakflag){
-                      break
-                  }
+                  paths1 <- lapply(paths,function(path){
+                      if(dir.exists(path)){
+                          return(sort(dir(path,recursive = TRUE)))
+                      }else if(file.exists(path)){
+                          return(path)
+                      }else{
+                          return(runif(1))
+                      }
+                  })
+                  paths1 <- unlist(paths1)
+
                   paths <- paths1
                   paths <- paths[grep("pipeFrame.obj",paths,invert = TRUE)]
                   checkpaths <- c()
-                  for(path in paths){
+                  # for(path in paths){
+                  #     p <- normalizePath(path)
+                  #     checkpaths <- c(checkpaths,p)
+                  #     if(startsWith(p,getJobDir())){
+                  #         p <- substring(p,2+nchar(getJobDir()))
+                  #     }
+                  #     paramstr <- c(paramstr,p)
+                  # }
+                  ps <- lapply(paths, function(path){
                       p <- normalizePath(path)
                       checkpaths <- c(checkpaths,p)
                       if(startsWith(p,getJobDir())){
                           p <- substring(p,2+nchar(getJobDir()))
                       }
-                      paramstr <- c(paramstr,p)
-                  }
-                  for(p in checkpaths){
-                      filesize <- file.info(p)$size
-                      paramstr <- c(paramstr,filesize)
-                  }
-              }
+                      return(p)
+                  })
+                  paramstr0 <- c(paramstr0,unlist(ps))
+                  # for(p in checkpaths){
+                  #     filesize <- file.info(p)$size
+                  #     paramstr <- c(paramstr,filesize)
+                  # }
+                  fs <- lapply(checkpaths, function(p){
+                      file.info(p)$size
+                  })
+                  paramstr0 <- c(paramstr0, unlist(fs))
+                  return(paramstr0)
+              })
+              paramstr <- c(paramstr,paramstr0)
               md5code<-substr(digest(object = paramstr,algo = "md5"),1,8)
               md5filepath<-file.path(getStepWorkDir(.Object),
                                      paste("pipeFrame.obj",md5code,

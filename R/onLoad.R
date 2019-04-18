@@ -55,46 +55,34 @@ initPipeFrame <- function(defaultJobName,
                           defaultReference = list(
                               test=list(file="fileName",rc = "obj"))
 ){
+    allvalidgenome <- c("hg19",
+                        "hg38",
+                        "mm9",
+                        "mm10",
+                        "danRer10",
+                        "galGal5",
+                        "galGal4",
+                        "rheMac3",
+                        "rheMac8",
+                        "panTro4",
+                        "rn5",
+                        "rn6",
+                        "sacCer2",
+                        "sacCer3",
+                        "susScr3",
+                        "testgenome")
+
     if(defaultJobName == "pipeFrame-pipeline"){
-        oldavailgenome <- c("hg19",
-                            "hg38",
-                            "mm9",
-                            "mm10",
-                            "danRer10",
-                            "galGal5",
-                            "galGal4",
-                            "rheMac3",
-                            "rheMac8",
-                            "panTro4",
-                            "rn5",
-                            "rn6",
-                            "sacCer2",
-                            "sacCer3",
-                            "susScr3",
-                            "testgenome")
+        oldavailgenome <- allvalidgenome
     }else{
         oldavailgenome <- getOption("pipeFrameConfig.genome.valid")
     }
 
     options(pipeFrameConfig.threads = defaultThreads)
     if(!is.null(availableGenome) && !is.null(oldavailgenome)){
-        for(i in 1:length(availableGenome)){
-            stopifnot(availableGenome[i]%in%c("hg19",
-                                              "hg38",
-                                              "mm9",
-                                              "mm10",
-                                              "danRer10",
-                                              "galGal5",
-                                              "galGal4",
-                                              "rheMac3",
-                                              "rheMac8",
-                                              "panTro4",
-                                              "rn5",
-                                              "rn6",
-                                              "sacCer2",
-                                              "sacCer3",
-                                              "susScr3",
-                                              "testgenome"))
+        notvalid <- setdiff(availableGenome,allvalidgenome)
+        if(length(notvalid) > 0){
+            stop(paste(paste(notvalid,collapse = ","),"is not available for pipeFrame"))
         }
         options(pipeFrameConfig.genome.valid =
                     intersect(availableGenome,oldavailgenome))

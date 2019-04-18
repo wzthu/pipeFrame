@@ -58,11 +58,16 @@ getPathPrefix <- function(filepath,words,...){
 checkFileExist <- function(filePath,...){
     filePath <- unlist(filePath)
     stopifnot(!is.null(filePath))
-    for(p in filePath){
+    # for(p in filePath){
+    #     if(!file.exists(p)){
+    #         stop(paste("error, file does not exist:",p))
+    #     }
+    # }
+    lapply(filePath, function(p){
         if(!file.exists(p)){
             stop(paste("error, file does not exist:",p))
         }
-    }
+    })
 }
 
 #' @return \item{checkPathExist}{(For package developer)
@@ -73,11 +78,16 @@ checkFileExist <- function(filePath,...){
 checkPathExist <- function(filePath,...){
     filePath <- unlist(filePath)
     stopifnot(!is.null(filePath))
-    for(p in filePath){
+    # for(p in filePath){
+    #     if(!dir.exists(dirname(p))){
+    #         stop(paste("error, path does not exist:",p))
+    #     }
+    # }
+    lapply(filePath, function(p){
         if(!dir.exists(dirname(p))){
             stop(paste("error, path does not exist:",p))
         }
-    }
+    })
 }
 #' @return \item{checkFileCreatable}{(For package developer)
 #' Check file creatable.}
@@ -87,7 +97,18 @@ checkPathExist <- function(filePath,...){
 checkFileCreatable <- function(filePath,...){
     filePaths <- unlist(filePath)
     stopifnot(!is.null(filePaths))
-    for(filePath in filePaths){
+    # for(filePath in filePaths){
+    #     if(file.exists(filePath)){
+    #         warning(paste("file exist:",filePath,
+    #                       ". It may be overwrited in processing"))
+    #     }else if(!file.create(filePath)){
+    #         stop(paste("cannot create file '",filePath,
+    #                    "', No such file or directory or permission denied"))
+    #     }else{
+    #         unlink(filePath)
+    #     }
+    # }
+    lapply(filePaths, function(filePath){
         if(file.exists(filePath)){
             warning(paste("file exist:",filePath,
                           ". It may be overwrited in processing"))
@@ -97,7 +118,7 @@ checkFileCreatable <- function(filePath,...){
         }else{
             unlink(filePath)
         }
-    }
+    })
 }
 
 
