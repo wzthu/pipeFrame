@@ -31,6 +31,7 @@ Suggests:
     BiocManager,
     knitr,
     rtracklayer,
+    testthat
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
 biocViews: Software, Infrastructure, WorkflowStep
