@@ -78,18 +78,18 @@
 #'         # no input for this step
 #'         # begin to set output parameters
 #'         if(is.null(outputBed)){
-#'             .Object <- setOutput(.Object, "outputBed",
-#'                 getStepWorkDir(.Object,"random.bed"))
+#'             output(.Object, "outputBed") <-
+#'                 getStepWorkDir(.Object,"random.bed")
 #'         }else{
-#'             .Object <- setOutput(.Object, "outputBed", outputBed)
+#'             output(.Object, "outputBed") <- outputBed
 #'         }
 #'         # begin to set other parameters
-#'         .Object <- setParam(.Object, "regionLen", regionLen)
-#'         .Object <- setParam(.Object, "sampleNumb" , sampleNumb)
+#'         param(.Object, "regionLen") <-  regionLen
+#'         param(.Object, "sampleNumb") <- sampleNumb
 #'         if(is.null(genome)){
-#'             .Object <- setParam(.Object, "bsgenome" , getBSgenome(getGenome()))
+#'             param(.Object, "bsgenome") <-  getBSgenome(getGenome())
 #'         }else{
-#'             .Object <- setParam(.Object, "bsgenome" , getBSgenome(genome))
+#'             param(.Object, "bsgenome") <-  getBSgenome(genome)
 #'         }
 #'         # don't forget to return .Object
 #'         .Object
@@ -159,28 +159,28 @@
 #'         # runOerlappedRandomRegion
 #'         if(length(prevSteps)>0){
 #'             prevStep <- prevSteps[[1]]
-#'             .Object <- setInput(.Object, "randomBed" , getParam(prevStep,"outputBed"))
+#'             input(.Object, "randomBed") <-  getParam(prevStep,"outputBed")
 #'         }
 #'         # begin to set input parameters
 #'         if(!is.null(inputBed)){
-#'             .Object <- setInput(.Object, "inputBed", inputBed)
+#'             input(.Object, "inputBed") <- inputBed
 #'         }
 #'         if(!is.null(randomBed)){
-#'             .Object <- setInput(.Object, "randomBed", randomBed)
+#'             input(.Object, "randomBed") <- randomBed
 #'         }
 #'         # begin to set output parameters
 #'         # the output is recemended to set under the step work directory
 #'         if(!is.null(outputBed)){
-#'             .Object <- setOutput(.Object, "outputBed" , outputBed)
+#'             output(.Object, "outputBed") <-  outputBed
 #'         }else{
-#'             .Object <- setOutput(.Object,"outputBed",
+#'             output(.Object,"outputBed") <-
 #'                 getAutoPath(.Object, getParam(.Object, "inputBed"),
-#'                             "bed", suffix = "bed"))
+#'                             "bed", suffix = "bed")
 #'             # the path can also be generate in this way
 #'             # ib <- getParam(.Object,"inputBed")
-#'             # Object <- setOutput(.Object,"outputBed",
+#'             # output(.Object,"outputBed") <-
 #'             #    file.path(getStepWorkDir(.Object),
-#'             #    paste0(substring(ib,1,nchar(ib)-3), "bed")))
+#'             #    paste0(substring(ib,1,nchar(ib)-3), "bed"))
 #'         }
 #'         # begin to set other parameters
 #'         # no other parameters
@@ -604,16 +604,67 @@ setMethod(f = "getDefName",
                                                         collapse = "_")))
           })
 
-setGeneric(name = "setInput",
-           def = function(.Object, item, value)
-               standardGeneric("setInput")
-           )
+
+setGeneric(name = "input",
+           def = function(.Object)
+               standardGeneric("input")
+)
 
 #' @rdname Step-class
-#' @return \item{setInput}{Updated Step object after setting input directory}
-#' @aliases  setInput
+#' @return \item{input}{input list}
+#' @aliases  input
 #' @export
-setMethod(f = "setInput",
+setMethod(f = "input",
+          signature = "Step",
+          definition = function(.Object){
+              return(.Object@inputList)
+          })
+
+
+
+setGeneric(name = "input$",
+           def = function(.Object, item)
+               standardGeneric("input$")
+)
+
+#' @rdname Step-class
+#' @return \item{input$}{get input directory for item}
+#' @aliases  input$
+#' @export
+setMethod(f = "input$",
+          signature = "Step",
+          definition = function(.Object, item){
+              return(.Object@inputList[[item]])
+          })
+
+
+setGeneric(name = "input[[",
+           def = function(.Object, item)
+               standardGeneric("input[[")
+)
+
+#' @rdname Step-class
+#' @return \item{input[[}{get input directory for item}
+#' @aliases  input[[
+#' @export
+setMethod(f = "input[[",
+          signature = "Step",
+          definition = function(.Object, item){
+              return(.Object@inputList[[item]])
+          })
+
+
+
+setGeneric(name = "input<-",
+           def = function(.Object, item, value)
+               standardGeneric("input<-")
+)
+
+#' @rdname Step-class
+#' @return \item{input<-}{set input directory for item}
+#' @aliases  input<-
+#' @export
+setReplaceMethod(f = "input",
           signature = "Step",
           definition = function(.Object, item, value){
               if(item %in% c(names(.Object@outputList),names(.Object@paramList))){
@@ -624,46 +675,160 @@ setMethod(f = "setInput",
           })
 
 
-setGeneric(name = "setOutput",
-           def = function(.Object, item, value)
-               standardGeneric("setOutput")
+
+
+
+
+
+setGeneric(name = "output",
+           def = function(.Object)
+               standardGeneric("output")
 )
 
 #' @rdname Step-class
-#' @return \item{setOutput}{Updated Step object after setting output directory}
-#' @aliases  setOutput
+#' @return \item{output}{output list}
+#' @aliases  output
 #' @export
-setMethod(f = "setOutput",
+setMethod(f = "output",
           signature = "Step",
-          definition = function(.Object, item, value){
-              if(item %in% c(names(.Object@inputList),names(.Object@paramList))){
-                  stop(paste("item `",item, "` is an input or other parameter"))
-              }
-              .Object@outputList[[item]] <- value
-              .Object
+          definition = function(.Object){
+              return(.Object@outputList)
           })
 
 
 
-setGeneric(name = "setParam",
-           def = function(.Object, item, value)
-               standardGeneric("setParam")
+setGeneric(name = "output$",
+           def = function(.Object, item)
+               standardGeneric("output$")
 )
 
 #' @rdname Step-class
-#' @return \item{setParam}{Updated Step object after setting parameters
-#' excluded input and output directory}
-#' @aliases  setParam
+#' @return \item{output$}{get output directory for item}
+#' @aliases  output$
 #' @export
-setMethod(f = "setParam",
+setMethod(f = "output$",
           signature = "Step",
-          definition = function(.Object, item, value){
-              if(item %in% c(names(.Object@inputList),names(.Object@outputList))){
-                  stop(paste("item `",item, "` is an input or output"))
-              }
-              .Object@paramList[[item]] <- value
-              .Object
+          definition = function(.Object, item){
+              return(.Object@outputList[[item]])
           })
+
+
+setGeneric(name = "output[[",
+           def = function(.Object, item)
+               standardGeneric("output[[")
+)
+
+#' @rdname Step-class
+#' @return \item{output[[}{get output directory for item}
+#' @aliases  output[[
+#' @export
+setMethod(f = "output[[",
+          signature = "Step",
+          definition = function(.Object, item){
+              return(.Object@outputList[[item]])
+          })
+
+
+
+setGeneric(name = "output<-",
+           def = function(.Object, item, value)
+               standardGeneric("output<-")
+)
+
+#' @rdname Step-class
+#' @return \item{output<-}{set output directory for item}
+#' @aliases  output<-
+#' @export
+setReplaceMethod(f = "output",
+                 signature = "Step",
+                 definition = function(.Object, item, value){
+                     if(item %in% c(names(.Object@inputList),names(.Object@paramList))){
+                         stop(paste("item `",item, "` is an output or other parameter"))
+                     }
+                     .Object@outputList[[item]] <- value
+                     .Object
+                 })
+
+
+
+
+
+
+
+
+setGeneric(name = "param",
+           def = function(.Object)
+               standardGeneric("param")
+)
+
+#' @rdname Step-class
+#' @return \item{param}{parameters list}
+#' @aliases  param
+#' @export
+setMethod(f = "param",
+          signature = "Step",
+          definition = function(.Object){
+              return(.Object@paramList)
+          })
+
+
+
+setGeneric(name = "param$",
+           def = function(.Object, item)
+               standardGeneric("param$")
+)
+
+#' @rdname Step-class
+#' @return \item{param$}{get parameters for item}
+#' @aliases  param$
+#' @export
+setMethod(f = "param$",
+          signature = "Step",
+          definition = function(.Object, item){
+              return(.Object@paramList[[item]])
+          })
+
+
+setGeneric(name = "param[[",
+           def = function(.Object, item)
+               standardGeneric("param[[")
+)
+
+#' @rdname Step-class
+#' @return \item{param[[}{get parameter  for item}
+#' @aliases  param[[
+#' @export
+setMethod(f = "param[[",
+          signature = "Step",
+          definition = function(.Object, item){
+              return(.Object@paramList[[item]])
+          })
+
+
+
+setGeneric(name = "param<-",
+           def = function(.Object, item, value)
+               standardGeneric("param<-")
+)
+
+#' @rdname Step-class
+#' @return \item{param<-}{set parameters  for item}
+#' @aliases  param<-
+#' @export
+setReplaceMethod(f = "param",
+                 signature = "Step",
+                 definition = function(.Object, item, value){
+                     if(item %in% c(names(.Object@inputList),names(.Object@outputList))){
+                         stop(paste("item `",item, "` is an output or input"))
+                     }
+                     .Object@paramList[[item]] <- value
+                     .Object
+                 })
+
+
+
+
+
 
 
 setGeneric(name = "getParam",
