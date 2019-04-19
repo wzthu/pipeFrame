@@ -74,20 +74,6 @@ initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
 
 ```
 
-For package developers, as the function `.onload` is called 
-automatically when a new package is loading, the pipeFrame 
-initialization is set when the function `.onLoad` is invoked as follows.
-
-```{r}
-
-.onLoad <- function(libname, pkgname) {
-    initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
-                  defaultJobName = paste0(pkgname,"-pipeline")
-    )
-}
-
-```
-
 In this function, several parameters need to be defined and configured, 
 including genome, job name, reference directory, temporary directory, 
 check and install function, threads number, reference list, etc. 
