@@ -37,8 +37,6 @@ setMethod(f = "graphMngAddEdges",
                   graphMngObj@edgeEnds[
                       paste("edge",
                           (length(graphMngObj@edgeEnds)+1):argOrder)] <- "BASE"
-                  print(graphMngObj@edgeStarts)
-                  print(graphMngObj@edgeEnds)
               }
               stopifnot(length(edges)%%2!=1)
               s <- seq_len(length(edges))
@@ -64,7 +62,6 @@ setMethod(f = "graphMngAddEdges",
               #             c(graphMngObj@edgeEnds[[argOrder]],endPoints[i])
               #     }
               #}
-              print(startPoints)
               st <- lapply(seq_len(length(startPoints)), function(i){
                   if(sum(graphMngObj@edgeStarts[[argOrder]] == startPoints[i] &
                          graphMngObj@edgeEnds[[argOrder]] == endPoints[i])==0){
