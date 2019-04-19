@@ -12,26 +12,14 @@
 \alias{getDefName}
 \alias{input,Step-method}
 \alias{input}
-\alias{input$,Step-method}
-\alias{input$}
-\alias{input[[,Step-method}
-\alias{input[[}
 \alias{input<-,Step-method}
 \alias{input<-}
 \alias{output,Step-method}
 \alias{output}
-\alias{output$,Step-method}
-\alias{output$}
-\alias{output[[,Step-method}
-\alias{output[[}
 \alias{output<-,Step-method}
 \alias{output<-}
 \alias{param,Step-method}
 \alias{param}
-\alias{param$,Step-method}
-\alias{param$}
-\alias{param[[,Step-method}
-\alias{param[[}
 \alias{param<-,Step-method}
 \alias{param<-}
 \alias{getParam,Step-method}
@@ -75,25 +63,13 @@
 
 \S4method{input}{Step}(.Object)
 
-\S4method{input$}{Step}(.Object, item)
-
-\S4method{input[[}{Step}(.Object, item)
-
 \S4method{input}{Step}(.Object, item) <- value
 
 \S4method{output}{Step}(.Object)
 
-\S4method{output$}{Step}(.Object, item)
-
-\S4method{output[[}{Step}(.Object, item)
-
 \S4method{output}{Step}(.Object, item) <- value
 
 \S4method{param}{Step}(.Object)
-
-\S4method{param$}{Step}(.Object, item)
-
-\S4method{param[[}{Step}(.Object, item)
 
 \S4method{param}{Step}(.Object, item) <- value
 
@@ -184,25 +160,13 @@ output and other parameters}
 
 \item{input}{input list}
 
-\item{input$}{get input directory for item}
-
-\item{input[[}{get input directory for item}
-
 \item{input<-}{set input directory for item}
 
 \item{output}{output list}
 
-\item{output$}{get output directory for item}
-
-\item{output[[}{get output directory for item}
-
 \item{output<-}{set output directory for item}
 
 \item{param}{parameters list}
-
-\item{param$}{get parameters for item}
-
-\item{param[[}{get parameter  for item}
 
 \item{param<-}{set parameters  for item}
 

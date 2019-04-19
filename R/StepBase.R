@@ -622,39 +622,6 @@ setMethod(f = "input",
 
 
 
-setGeneric(name = "input$",
-           def = function(.Object, item)
-               standardGeneric("input$")
-)
-
-#' @rdname Step-class
-#' @return \item{input$}{get input directory for item}
-#' @aliases  input$
-#' @export
-setMethod(f = "input$",
-          signature = "Step",
-          definition = function(.Object, item){
-              return(.Object@inputList[[item]])
-          })
-
-
-setGeneric(name = "input[[",
-           def = function(.Object, item)
-               standardGeneric("input[[")
-)
-
-#' @rdname Step-class
-#' @return \item{input[[}{get input directory for item}
-#' @aliases  input[[
-#' @export
-setMethod(f = "input[[",
-          signature = "Step",
-          definition = function(.Object, item){
-              return(.Object@inputList[[item]])
-          })
-
-
-
 setGeneric(name = "input<-",
            def = function(.Object, item, value)
                standardGeneric("input<-")
@@ -696,40 +663,6 @@ setMethod(f = "output",
           })
 
 
-
-setGeneric(name = "output$",
-           def = function(.Object, item)
-               standardGeneric("output$")
-)
-
-#' @rdname Step-class
-#' @return \item{output$}{get output directory for item}
-#' @aliases  output$
-#' @export
-setMethod(f = "output$",
-          signature = "Step",
-          definition = function(.Object, item){
-              return(.Object@outputList[[item]])
-          })
-
-
-setGeneric(name = "output[[",
-           def = function(.Object, item)
-               standardGeneric("output[[")
-)
-
-#' @rdname Step-class
-#' @return \item{output[[}{get output directory for item}
-#' @aliases  output[[
-#' @export
-setMethod(f = "output[[",
-          signature = "Step",
-          definition = function(.Object, item){
-              return(.Object@outputList[[item]])
-          })
-
-
-
 setGeneric(name = "output<-",
            def = function(.Object, item, value)
                standardGeneric("output<-")
@@ -769,39 +702,6 @@ setMethod(f = "param",
           signature = "Step",
           definition = function(.Object){
               return(.Object@paramList)
-          })
-
-
-
-setGeneric(name = "param$",
-           def = function(.Object, item)
-               standardGeneric("param$")
-)
-
-#' @rdname Step-class
-#' @return \item{param$}{get parameters for item}
-#' @aliases  param$
-#' @export
-setMethod(f = "param$",
-          signature = "Step",
-          definition = function(.Object, item){
-              return(.Object@paramList[[item]])
-          })
-
-
-setGeneric(name = "param[[",
-           def = function(.Object, item)
-               standardGeneric("param[[")
-)
-
-#' @rdname Step-class
-#' @return \item{param[[}{get parameter  for item}
-#' @aliases  param[[
-#' @export
-setMethod(f = "param[[",
-          signature = "Step",
-          definition = function(.Object, item){
-              return(.Object@paramList[[item]])
           })
 
 

@@ -28,18 +28,18 @@ test_that("test basic operation of class Step ",{
             # no input for this step
             # begin to set output parameters
             if(is.null(outputBed)){
-                .Object <- setOutput(.Object, "outputBed",
-                                     getStepWorkDir(.Object,"random.bed"))
+                output(.Object, "outputBed") <-
+                                     getStepWorkDir(.Object,"random.bed")
             }else{
-                .Object <- setOutput(.Object, "outputBed", outputBed)
+                output(.Object, "outputBed") <- outputBed
             }
             # begin to set other parameters
-            .Object <- setParam(.Object, "regionLen", regionLen)
-            .Object <- setParam(.Object, "sampleNumb" , sampleNumb)
+            param(.Object, "regionLen") <- regionLen
+            param(.Object, "sampleNumb") <- sampleNumb
             if(is.null(genome)){
-                .Object <- setParam(.Object, "bsgenome" , getBSgenome(getGenome()))
+                param(.Object, "bsgenome") <- getBSgenome(getGenome())
             }else{
-                .Object <- setParam(.Object, "bsgenome" , getBSgenome(genome))
+                param(.Object, "bsgenome") <- getBSgenome(genome)
             }
             # don't forget to return .Object
             .Object
@@ -109,26 +109,26 @@ test_that("test basic operation of class Step ",{
             # runOerlappedRandomRegion
             if(length(prevSteps)>0){
                 prevStep <- prevSteps[[1]]
-                .Object <- setInput(.Object, "randomBed" , getParam(prevStep,"outputBed"))
+                input(.Object, "randomBed" ) <- getParam(prevStep,"outputBed")
             }
             # begin to set input parameters
             if(!is.null(inputBed)){
-                .Object <- setInput(.Object, "inputBed", inputBed)
+                input(.Object, "inputBed")<- inputBed
             }
             if(!is.null(randomBed)){
-                .Object <- setInput(.Object, "randomBed", randomBed)
+                input(.Object, "randomBed")<- randomBed
             }
             # begin to set output parameters
             # the output is recemended to set under the step work directory
             if(!is.null(outputBed)){
-                .Object <- setOutput(.Object, "outputBed" , outputBed)
+                output(.Object, "outputBed") <- outputBed
             }else{
-                .Object <- setOutput(.Object,"outputBed",
-                                     getAutoPath(.Object, getParam(.Object, "inputBed"),
-                                                 "bed", suffix = "bed"))
+                output(.Object,"outputBed") <-
+                    getAutoPath(.Object, getParam(.Object, "inputBed"),
+                                                 "bed", suffix = "bed")
                 # the path can also be generate in this way
                 # ib <- getParam(.Object,"inputBed")
-                # Object <- setOutput(.Object,"outputBed",
+                # output(.Object,"outputBed") <-
                 #    file.path(getStepWorkDir(.Object),
                 #    paste0(substring(ib,1,nchar(ib)-3), "bed")))
             }
