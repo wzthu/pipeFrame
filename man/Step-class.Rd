@@ -22,6 +22,10 @@
 \alias{param}
 \alias{param<-,Step-method}
 \alias{param<-}
+\alias{property,Step-method}
+\alias{property}
+\alias{property<-,Step-method}
+\alias{property<-}
 \alias{$,Step-method}
 \alias{$}
 \alias{getParam,Step-method}
@@ -74,6 +78,10 @@
 \S4method{param}{Step}(.Object)
 
 \S4method{param}{Step}(.Object, item) <- value
+
+\S4method{property}{Step}(.Object)
+
+\S4method{property}{Step}(.Object, item) <- value
 
 \S4method{$}{Step}(x, name)
 
@@ -180,6 +188,10 @@ output and other parameters}
 \item{param}{parameters list}
 
 \item{param<-}{set parameters  for item}
+
+\item{property}{property list}
+
+\item{property<-}{set property  for item}
 
 \item{$}{get inputList, outputList, paramList, allList or any item value in these list}
 

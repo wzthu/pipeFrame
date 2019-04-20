@@ -732,6 +732,41 @@ setReplaceMethod(f = "param",
 
 
 
+setGeneric(name = "property",
+           def = function(.Object)
+               standardGeneric("property")
+)
+
+#' @rdname Step-class
+#' @return \item{property}{property list}
+#' @aliases  property
+#' @export
+setMethod(f = "property",
+          signature = "Step",
+          definition = function(.Object){
+              return(.Object@paramList)
+          })
+
+
+
+setGeneric(name = "property<-",
+           def = function(.Object, item, value)
+               standardGeneric("property<-")
+)
+
+#' @rdname Step-class
+#' @return \item{property<-}{set property  for item}
+#' @aliases  property<-
+#' @export
+setReplaceMethod(f = "property",
+                 signature = "Step",
+                 definition = function(.Object, item, value){
+                     .Object@paramList[[item]] <- value
+                     .Object
+                 })
+
+
+
 
 #' @rdname Step-class
 #' @return \item{$}{get inputList, outputList, paramList, allList or any item value in these list}
