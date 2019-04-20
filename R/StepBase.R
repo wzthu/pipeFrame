@@ -728,6 +728,26 @@ setReplaceMethod(f = "param",
 
 
 
+#' @rdname Step-class
+#' @return \item{$}{get inputList, outputList, paramList, allList or any item value in these list}
+#' @aliases  $
+#' @export
+setMethod(f = "$",
+          signature = "Step",
+          definition = function(x, name){
+              if(name == "inputList"){
+                  return(input(x))
+              }else if(name == "outputList"){
+                  return(output(x))
+              }else if(name == "paramList"){
+                  return(param(x))
+              }else if(name == "allList"){
+                  return(c(input(x), output(x), param(x)))
+              }else{
+                  return(getParam(x,name))
+              }
+          })
+
 
 
 

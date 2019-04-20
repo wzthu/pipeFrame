@@ -22,6 +22,8 @@
 \alias{param}
 \alias{param<-,Step-method}
 \alias{param<-}
+\alias{$,Step-method}
+\alias{$}
 \alias{getParam,Step-method}
 \alias{getParam}
 \alias{getParamItems,Step-method}
@@ -72,6 +74,8 @@
 \S4method{param}{Step}(.Object)
 
 \S4method{param}{Step}(.Object, item) <- value
+
+\S4method{$}{Step}(x, name)
 
 \S4method{getParam}{Step}(.Object, item, type = c("input", "output",
   "other"), ...)
@@ -169,6 +173,8 @@ output and other parameters}
 \item{param}{parameters list}
 
 \item{param<-}{set parameters  for item}
+
+\item{$}{get inputList, outputList, paramList, allList or any item value in these list}
 
 \item{getParam}{Get parameter value set by process function.
 See \code{getParamItems} to obtain valid items for query.}
