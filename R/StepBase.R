@@ -26,6 +26,11 @@
 
 #' @param .Object \code{Step} object scalar.
 #' Step object is returned by functions in each step.
+#' @param x \code{Step} object scalar.
+#' Step object is returned by functions in each step.
+#' @param name \code{Character} scalar.
+#' Name can be one of inputList, outputList, paramList, allList or
+#' the item names of them.
 #' @param prevSteps \code{List} scalar of Step object
 #' @param type \code{Character} scalar.
 #' Valid types of parameters including "input", "output" and "other"
