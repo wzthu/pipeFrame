@@ -838,7 +838,9 @@ setMethod(f = "$",
               }else if(name == "propList"){
                   return(property(x))
               }else if(name == "reportList"){
-                  return(property(x))
+                  return(reportList(x))
+              }else if(name == "argv"){
+                  return(argv(x))
               }else{
                   return(getParam(x,name))
               }
