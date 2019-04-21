@@ -26,6 +26,12 @@
 \alias{property}
 \alias{property<-,Step-method}
 \alias{property<-}
+\alias{report,Step-method}
+\alias{report}
+\alias{report<-,Step-method}
+\alias{report<-}
+\alias{argv,Step-method}
+\alias{argv}
 \alias{$,Step-method}
 \alias{$}
 \alias{getParam,Step-method}
@@ -82,6 +88,12 @@
 \S4method{property}{Step}(.Object)
 
 \S4method{property}{Step}(.Object, item) <- value
+
+\S4method{report}{Step}(.Object)
+
+\S4method{report}{Step}(.Object, item) <- value
+
+\S4method{argv}{Step}(.Object)
 
 \S4method{$}{Step}(x, name)
 
@@ -192,6 +204,12 @@ output and other parameters}
 \item{property}{property list}
 
 \item{property<-}{set property  for item}
+
+\item{report}{report list}
+
+\item{report<-}{set report  for item}
+
+\item{argv}{arguments list}
 
 \item{$}{get inputList, outputList, paramList, allList, propList
 or any item value in inputList, outputList or paramList}

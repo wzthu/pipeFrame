@@ -293,12 +293,11 @@ Step <- setClass(Class = "Step",
                      inputList = "list",
                      outputList = "list",
                      propList = "list",
-                     reportVal = "list",
+                     reportList = "list",
                      stepName = "character",
                      finish = "logical",
                      timeStampStart="POSIXct",
                      timeStampEnd="POSIXct",
-                     maxThreads = "integer",
                      id = "integer",
                      groupName = "character",
                      loaded = "logical"
@@ -308,12 +307,11 @@ Step <- setClass(Class = "Step",
                                inputList = list(),
                                outputList = list(),
                                propList = list(),
-                               reportVal = list(),
+                               reportList = list(),
                                stepName = "Step",
                                finish = FALSE,
                                timeStampStart=Sys.time(),
                                timeStampEnd=Sys.time(),
-                               maxThreads = 1L,
                                id = 0L,
                                groupName = character(),
                                loaded = FALSE)
@@ -561,9 +559,9 @@ setMethod(f = "process",
                   .Object@timeStampStart<-Sys.time()
                   .Object <- processing(.Object)
                   .Object@timeStampEnd<-Sys.time()
-                  .Object@reportVal$timeStampStart <-
+                  .Object@reportList$timeStampStart <-
                       .Object@timeStampStart
-                  .Object@reportVal$timeStampEnd <-
+                  .Object@reportList$timeStampEnd <-
                       .Object@timeStampEnd
                   .Object <- setFinish(.Object)
                   pipeFrameObj <- .Object
@@ -744,7 +742,7 @@ setGeneric(name = "property",
 setMethod(f = "property",
           signature = "Step",
           definition = function(.Object){
-              return(.Object@paramList)
+              return(.Object@propList)
           })
 
 
@@ -761,10 +759,63 @@ setGeneric(name = "property<-",
 setReplaceMethod(f = "property",
                  signature = "Step",
                  definition = function(.Object, item, value){
-                     .Object@paramList[[item]] <- value
+                     .Object@propList[[item]] <- value
                      .Object
                  })
 
+
+
+
+
+setGeneric(name = "report",
+           def = function(.Object)
+               standardGeneric("report")
+)
+
+#' @rdname Step-class
+#' @return \item{report}{report list}
+#' @aliases  report
+#' @export
+setMethod(f = "report",
+          signature = "Step",
+          definition = function(.Object){
+              return(.Object@reportList)
+          })
+
+
+
+setGeneric(name = "report<-",
+           def = function(.Object, item, value)
+               standardGeneric("report<-")
+)
+
+#' @rdname Step-class
+#' @return \item{report<-}{set report  for item}
+#' @aliases  report<-
+#' @export
+setReplaceMethod(f = "report",
+                 signature = "Step",
+                 definition = function(.Object, item, value){
+                     .Object@reportList[[item]] <- value
+                     .Object
+                 })
+
+
+
+setGeneric(name = "argv",
+           def = function(.Object)
+               standardGeneric("argv")
+)
+
+#' @rdname Step-class
+#' @return \item{argv}{arguments list}
+#' @aliases  argv
+#' @export
+setMethod(f = "argv",
+          signature = "Step",
+          definition = function(.Object){
+              return(.Object@argv)
+          })
 
 
 
@@ -1378,7 +1429,7 @@ setGeneric(name = "getReportValImp",
 setMethod(f = "getReportValImp",
           signature = "Step",
           definition = function(.Object,item,...){
-              return(.Object@reportVal[[item]])
+              return(.Object@reportList[[item]])
           })
 
 
@@ -1394,7 +1445,7 @@ setGeneric(name = "getReportItemsImp",
 setMethod(f = "getReportItemsImp",
           signature = "Step",
           definition = function(.Object,item,...){
-              return(names(.Object@reportVal))
+              return(names(.Object@reportList))
           })
 
 
