@@ -139,8 +139,8 @@ The value to be set for corresponding item in a list.}
 Step object is returned by functions in each step.}
 
 \item{name}{\code{Character} scalar.
-Name can be one of inputList, outputList, paramList, allList or
-the item names of them.}
+Name can be one of inputList, outputList, paramList, allList, propList or
+the item names of inputList, outputList or  paramList}
 
 \item{type}{\code{Character} scalar.
 Valid types of parameters including "input", "output" and "other"}
@@ -193,7 +193,8 @@ output and other parameters}
 
 \item{property<-}{set property  for item}
 
-\item{$}{get inputList, outputList, paramList, allList or any item value in these list}
+\item{$}{get inputList, outputList, paramList, allList, propList
+or any item value in inputList, outputList or paramList}
 
 \item{getParam}{Get parameter value set by process function.
 See \code{getParamItems} to obtain valid items for query.}

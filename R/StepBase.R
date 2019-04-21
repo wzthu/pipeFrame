@@ -29,8 +29,8 @@
 #' @param x \code{Step} object scalar.
 #' Step object is returned by functions in each step.
 #' @param name \code{Character} scalar.
-#' Name can be one of inputList, outputList, paramList, allList or
-#' the item names of them.
+#' Name can be one of inputList, outputList, paramList, allList, propList or
+#' the item names of inputList, outputList or  paramList
 #' @param prevSteps \code{List} scalar of Step object
 #' @param type \code{Character} scalar.
 #' Valid types of parameters including "input", "output" and "other"
@@ -769,7 +769,8 @@ setReplaceMethod(f = "property",
 
 
 #' @rdname Step-class
-#' @return \item{$}{get inputList, outputList, paramList, allList or any item value in these list}
+#' @return \item{$}{get inputList, outputList, paramList, allList, propList
+#' or any item value in inputList, outputList or paramList}
 #' @aliases  $
 #' @export
 setMethod(f = "$",
@@ -783,6 +784,8 @@ setMethod(f = "$",
                   return(param(x))
               }else if(name == "allList"){
                   return(c(input(x), output(x), param(x)))
+              }else if(name == "propList"){
+                  return(property(x))
               }else{
                   return(getParam(x,name))
               }
