@@ -41,7 +41,7 @@ off or interrupted process.
 # Download and Installation
 
 The package pipeFrame is part of Bioconductor project starting from 
-Bioc 3.9 built on R 3.5. To install the latest version of pipeFrame, 
+Bioc 3.9 built on R 3.6. To install the latest version of pipeFrame, 
 please check your current Bioconductor version and R version first. 
 The latest version of R is recommended, then you can download and 
 install pipeFrame and all its dependencies as follows:
