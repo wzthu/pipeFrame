@@ -1,10 +1,17 @@
-CHANGES IN VERSION 1.0.0
------------------------
+Changes in version 0.99.0 (2019-03-21)
++ Submitted to Bioconductor
 
-INITIAL RELEASE
+
+
+
+Changes in version 1.0.0 (2019-04-30)
 + Bioinformatics R pipeline framework based on Bioconductor is released.
 + Initial release version contains pipeline framework function elements
 including base class for each pipeline step, genome related data
 setting, global configuration, configuration initialization and
 pipeline flow chart management.
-+ Currently this framework is applied to package esATAC and enrichTF.
++ Currently this framework is applied to package enrichTF.
+
+
+
+
