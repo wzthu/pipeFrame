@@ -727,10 +727,10 @@ setGeneric(name = "param<-",
 setReplaceMethod(f = "param",
                  signature = "Step",
                  definition = function(.Object, value){
-                     if(0!=length(intersect(names(input(.Object)),names(input(.Object))))){
+                     if(0!=length(intersect(names(param(.Object)),names(input(.Object))))){
                          stop(paste("new other parameter is in inputList "))
                      }
-                     if(0!=length(intersect(names(input(.Object)),names(output(.Object))))){
+                     if(0!=length(intersect(names(param(.Object)),names(output(.Object))))){
                          stop(paste("new other parameter is in outputList "))
                      }
                      .Object@paramList<- value
