@@ -32,6 +32,8 @@
 \alias{report<-}
 \alias{argv,Step-method}
 \alias{argv}
+\alias{argv<-,Step-method}
+\alias{argv<-}
 \alias{$,Step-method}
 \alias{$}
 \alias{getParam,Step-method}
@@ -75,25 +77,27 @@
 
 \S4method{input}{Step}(.Object)
 
-\S4method{input}{Step}(.Object, item) <- value
+\S4method{input}{Step}(.Object) <- value
 
 \S4method{output}{Step}(.Object)
 
-\S4method{output}{Step}(.Object, item) <- value
+\S4method{output}{Step}(.Object) <- value
 
 \S4method{param}{Step}(.Object)
 
-\S4method{param}{Step}(.Object, item) <- value
+\S4method{param}{Step}(.Object) <- value
 
 \S4method{property}{Step}(.Object)
 
-\S4method{property}{Step}(.Object, item) <- value
+\S4method{property}{Step}(.Object) <- value
 
 \S4method{report}{Step}(.Object)
 
-\S4method{report}{Step}(.Object, item) <- value
+\S4method{report}{Step}(.Object) <- value
 
 \S4method{argv}{Step}(.Object)
+
+\S4method{argv}{Step}(.Object) <- value
 
 \S4method{$}{Step}(x, name)
 
@@ -141,9 +145,6 @@ Step object is returned by functions in each step.}
 
 \item{...}{Additional arguments, currently unused.}
 
-\item{item}{\code{Character} scalar.
-The items in parameter list (input, output and other) or report list.}
-
 \item{value}{any type scalar.
 The value to be set for corresponding item in a list.}
 
@@ -153,6 +154,9 @@ Step object is returned by functions in each step.}
 \item{name}{\code{Character} scalar.
 Name can be one of inputList, outputList, paramList, allList, propList or
 the item names of inputList, outputList or  paramList}
+
+\item{item}{\code{Character} scalar.
+The items in parameter list (input, output and other) or report list.}
 
 \item{type}{\code{Character} scalar.
 Valid types of parameters including "input", "output" and "other"}
@@ -189,27 +193,29 @@ output and other parameters}
 
 \item{getDefName}{get Step object Character name}
 
-\item{input}{input list}
+\item{input}{get input list}
 
-\item{input<-}{set input directory for item}
+\item{input<-}{set input list}
 
-\item{output}{output list}
+\item{output}{get output list}
 
-\item{output<-}{set output directory for item}
+\item{output<-}{set output list}
 
-\item{param}{parameters list}
+\item{param}{get other parameters list}
 
-\item{param<-}{set parameters  for item}
+\item{param<-}{set other parameters list}
 
-\item{property}{property list}
+\item{property}{get property list}
 
-\item{property<-}{set property  for item}
+\item{property<-}{set property list}
 
-\item{report}{report list}
+\item{report}{get report list}
 
-\item{report<-}{set report  for item}
+\item{report<-}{set report list}
 
-\item{argv}{arguments list}
+\item{argv}{get arguments list}
+
+\item{argv<-}{set argumnets list}
 
 \item{$}{get inputList, outputList, paramList, allList, propList
 or any item value in inputList, outputList or paramList}
@@ -293,18 +299,18 @@ setMethod(
         # no input for this step
         # begin to set output parameters
         if(is.null(outputBed)){
-            output(.Object, "outputBed") <-
+            output(.Object)$outputBed <-
                 getStepWorkDir(.Object,"random.bed")
         }else{
-            output(.Object, "outputBed") <- outputBed
+            output(.Object)$outputBed <- outputBed
         }
         # begin to set other parameters
-        param(.Object, "regionLen") <-  regionLen
-        param(.Object, "sampleNumb") <- sampleNumb
+        param(.Object)$regionLen <-  regionLen
+        param(.Object)$sampleNumb <- sampleNumb
         if(is.null(genome)){
-            param(.Object, "bsgenome") <-  getBSgenome(getGenome())
+            param(.Object)$bsgenome <-  getBSgenome(getGenome())
         }else{
-            param(.Object, "bsgenome") <-  getBSgenome(genome)
+            param(.Object)$bsgenome <-  getBSgenome(genome)
         }
         # don't forget to return .Object
         .Object
@@ -374,26 +380,26 @@ setMethod(
         # runOerlappedRandomRegion
         if(length(prevSteps)>0){
             prevStep <- prevSteps[[1]]
-            input(.Object, "randomBed") <-  getParam(prevStep,"outputBed")
+            input(.Object)$randomBed <-  getParam(prevStep,"outputBed")
         }
         # begin to set input parameters
         if(!is.null(inputBed)){
-            input(.Object, "inputBed") <- inputBed
+            input(.Object)$inputBed <- inputBed
         }
         if(!is.null(randomBed)){
-            input(.Object, "randomBed") <- randomBed
+            input(.Object)$randomBed <- randomBed
         }
         # begin to set output parameters
         # the output is recemended to set under the step work directory
         if(!is.null(outputBed)){
-            output(.Object, "outputBed") <-  outputBed
+            output(.Object)$outputBed <-  outputBed
         }else{
-            output(.Object,"outputBed") <-
+            output(.Object)$outputBed <-
                 getAutoPath(.Object, getParam(.Object, "inputBed"),
                             "bed", suffix = "bed")
             # the path can also be generate in this way
             # ib <- getParam(.Object,"inputBed")
-            # output(.Object,"outputBed") <-
+            # output(.Object)$outputBed <-
             #    file.path(getStepWorkDir(.Object),
             #    paste0(substring(ib,1,nchar(ib)-3), "bed"))
         }

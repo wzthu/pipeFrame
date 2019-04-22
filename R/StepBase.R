@@ -83,18 +83,18 @@
 #'         # no input for this step
 #'         # begin to set output parameters
 #'         if(is.null(outputBed)){
-#'             output(.Object, "outputBed") <-
+#'             output(.Object)$outputBed <-
 #'                 getStepWorkDir(.Object,"random.bed")
 #'         }else{
-#'             output(.Object, "outputBed") <- outputBed
+#'             output(.Object)$outputBed <- outputBed
 #'         }
 #'         # begin to set other parameters
-#'         param(.Object, "regionLen") <-  regionLen
-#'         param(.Object, "sampleNumb") <- sampleNumb
+#'         param(.Object)$regionLen <-  regionLen
+#'         param(.Object)$sampleNumb <- sampleNumb
 #'         if(is.null(genome)){
-#'             param(.Object, "bsgenome") <-  getBSgenome(getGenome())
+#'             param(.Object)$bsgenome <-  getBSgenome(getGenome())
 #'         }else{
-#'             param(.Object, "bsgenome") <-  getBSgenome(genome)
+#'             param(.Object)$bsgenome <-  getBSgenome(genome)
 #'         }
 #'         # don't forget to return .Object
 #'         .Object
@@ -164,26 +164,26 @@
 #'         # runOerlappedRandomRegion
 #'         if(length(prevSteps)>0){
 #'             prevStep <- prevSteps[[1]]
-#'             input(.Object, "randomBed") <-  getParam(prevStep,"outputBed")
+#'             input(.Object)$randomBed <-  getParam(prevStep,"outputBed")
 #'         }
 #'         # begin to set input parameters
 #'         if(!is.null(inputBed)){
-#'             input(.Object, "inputBed") <- inputBed
+#'             input(.Object)$inputBed <- inputBed
 #'         }
 #'         if(!is.null(randomBed)){
-#'             input(.Object, "randomBed") <- randomBed
+#'             input(.Object)$randomBed <- randomBed
 #'         }
 #'         # begin to set output parameters
 #'         # the output is recemended to set under the step work directory
 #'         if(!is.null(outputBed)){
-#'             output(.Object, "outputBed") <-  outputBed
+#'             output(.Object)$outputBed <-  outputBed
 #'         }else{
-#'             output(.Object,"outputBed") <-
+#'             output(.Object)$outputBed <-
 #'                 getAutoPath(.Object, getParam(.Object, "inputBed"),
 #'                             "bed", suffix = "bed")
 #'             # the path can also be generate in this way
 #'             # ib <- getParam(.Object,"inputBed")
-#'             # output(.Object,"outputBed") <-
+#'             # output(.Object)$outputBed <-
 #'             #    file.path(getStepWorkDir(.Object),
 #'             #    paste0(substring(ib,1,nchar(ib)-3), "bed"))
 #'         }
@@ -407,10 +407,10 @@ setMethod(f = "initialize",
                       #            "is not valid input"))
                       # }
                       if(!is.null(prevSteps[[i]])){
-                            return(prevSteps[[i]]@propList)
+                            return(property(prevSteps[[i]]))
                       }
                   })
-                  .Object@propList <- c(.Object@propList,as.list(unlist(prop)))
+                  property(.Object) <- c(property(.Object), as.list(unlist(prop)))
 
                   gpn <- lapply(seq_len(argSize), function(i){
                       if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
@@ -609,12 +609,12 @@ setMethod(f = "getDefName",
 
 
 setGeneric(name = "input",
-           def = function(.Object)
+           def = function(.Object, ...)
                standardGeneric("input")
 )
 
 #' @rdname Step-class
-#' @return \item{input}{input list}
+#' @return \item{input}{get input list}
 #' @aliases  input
 #' @export
 setMethod(f = "input",
@@ -624,25 +624,28 @@ setMethod(f = "input",
           })
 
 
-
 setGeneric(name = "input<-",
-           def = function(.Object, item, value)
+           def = function(.Object, ..., value)
                standardGeneric("input<-")
 )
 
+
 #' @rdname Step-class
-#' @return \item{input<-}{set input directory for item}
+#' @return \item{input<-}{set input list}
 #' @aliases  input<-
 #' @export
 setReplaceMethod(f = "input",
-          signature = "Step",
-          definition = function(.Object, item, value){
-              if(item %in% c(names(.Object@outputList),names(.Object@paramList))){
-                  stop(paste("item `",item, "` is an output or other parameter"))
-              }
-              .Object@inputList[[item]] <- value
-              .Object
-          })
+                 signature = "Step",
+                 definition = function(.Object, value){
+                     if(0!=length(intersect(names(input(.Object)),names(output(.Object))))){
+                         stop(paste("new input is in outputList "))
+                     }
+                     if(0!=length(intersect(names(input(.Object)),names(param(.Object))))){
+                         stop(paste("new input is in paramList "))
+                     }
+                     .Object@inputList <- value
+                     .Object
+                 })
 
 
 
@@ -651,12 +654,12 @@ setReplaceMethod(f = "input",
 
 
 setGeneric(name = "output",
-           def = function(.Object)
+           def = function(.Object, ...)
                standardGeneric("output")
 )
 
 #' @rdname Step-class
-#' @return \item{output}{output list}
+#' @return \item{output}{get output list}
 #' @aliases  output
 #' @export
 setMethod(f = "output",
@@ -667,21 +670,24 @@ setMethod(f = "output",
 
 
 setGeneric(name = "output<-",
-           def = function(.Object, item, value)
+           def = function(.Object, ..., value)
                standardGeneric("output<-")
 )
 
 #' @rdname Step-class
-#' @return \item{output<-}{set output directory for item}
+#' @return \item{output<-}{set output list}
 #' @aliases  output<-
 #' @export
 setReplaceMethod(f = "output",
                  signature = "Step",
-                 definition = function(.Object, item, value){
-                     if(item %in% c(names(.Object@inputList),names(.Object@paramList))){
-                         stop(paste("item `",item, "` is an output or other parameter"))
+                 definition = function(.Object, value){
+                     if(0!=length(intersect(names(output(.Object)),names(input(.Object))))){
+                         stop(paste("new output is in inputList "))
                      }
-                     .Object@outputList[[item]] <- value
+                     if(0!=length(intersect(names(output(.Object)),names(param(.Object))))){
+                         stop(paste("new output is in paramList "))
+                     }
+                     .Object@outputList <- value
                      .Object
                  })
 
@@ -693,12 +699,12 @@ setReplaceMethod(f = "output",
 
 
 setGeneric(name = "param",
-           def = function(.Object)
+           def = function(.Object, ...)
                standardGeneric("param")
 )
 
 #' @rdname Step-class
-#' @return \item{param}{parameters list}
+#' @return \item{param}{get other parameters list}
 #' @aliases  param
 #' @export
 setMethod(f = "param",
@@ -710,33 +716,36 @@ setMethod(f = "param",
 
 
 setGeneric(name = "param<-",
-           def = function(.Object, item, value)
+           def = function(.Object, value)
                standardGeneric("param<-")
 )
 
 #' @rdname Step-class
-#' @return \item{param<-}{set parameters  for item}
+#' @return \item{param<-}{set other parameters list}
 #' @aliases  param<-
 #' @export
 setReplaceMethod(f = "param",
                  signature = "Step",
-                 definition = function(.Object, item, value){
-                     if(item %in% c(names(.Object@inputList),names(.Object@outputList))){
-                         stop(paste("item `",item, "` is an output or input"))
+                 definition = function(.Object, value){
+                     if(0!=length(intersect(names(input(.Object)),names(input(.Object))))){
+                         stop(paste("new other parameter is in inputList "))
                      }
-                     .Object@paramList[[item]] <- value
+                     if(0!=length(intersect(names(input(.Object)),names(output(.Object))))){
+                         stop(paste("new other parameter is in outputList "))
+                     }
+                     .Object@paramList<- value
                      .Object
                  })
 
 
 
 setGeneric(name = "property",
-           def = function(.Object)
+           def = function(.Object, ...)
                standardGeneric("property")
 )
 
 #' @rdname Step-class
-#' @return \item{property}{property list}
+#' @return \item{property}{get property list}
 #' @aliases  property
 #' @export
 setMethod(f = "property",
@@ -748,18 +757,18 @@ setMethod(f = "property",
 
 
 setGeneric(name = "property<-",
-           def = function(.Object, item, value)
+           def = function(.Object,..., value)
                standardGeneric("property<-")
 )
 
 #' @rdname Step-class
-#' @return \item{property<-}{set property  for item}
+#' @return \item{property<-}{set property list}
 #' @aliases  property<-
 #' @export
 setReplaceMethod(f = "property",
                  signature = "Step",
-                 definition = function(.Object, item, value){
-                     .Object@propList[[item]] <- value
+                 definition = function(.Object, value){
+                     .Object@propList <- value
                      .Object
                  })
 
@@ -768,12 +777,12 @@ setReplaceMethod(f = "property",
 
 
 setGeneric(name = "report",
-           def = function(.Object)
+           def = function(.Object, ...)
                standardGeneric("report")
 )
 
 #' @rdname Step-class
-#' @return \item{report}{report list}
+#' @return \item{report}{get report list}
 #' @aliases  report
 #' @export
 setMethod(f = "report",
@@ -785,30 +794,30 @@ setMethod(f = "report",
 
 
 setGeneric(name = "report<-",
-           def = function(.Object, item, value)
+           def = function(.Object, ..., value)
                standardGeneric("report<-")
 )
 
 #' @rdname Step-class
-#' @return \item{report<-}{set report  for item}
+#' @return \item{report<-}{set report list}
 #' @aliases  report<-
 #' @export
 setReplaceMethod(f = "report",
                  signature = "Step",
-                 definition = function(.Object, item, value){
-                     .Object@reportList[[item]] <- value
+                 definition = function(.Object, value){
+                     .Object@reportList <- value
                      .Object
                  })
 
 
 
 setGeneric(name = "argv",
-           def = function(.Object)
+           def = function(.Object, ...)
                standardGeneric("argv")
 )
 
 #' @rdname Step-class
-#' @return \item{argv}{arguments list}
+#' @return \item{argv}{get arguments list}
 #' @aliases  argv
 #' @export
 setMethod(f = "argv",
@@ -816,6 +825,22 @@ setMethod(f = "argv",
           definition = function(.Object){
               return(.Object@argv)
           })
+
+setGeneric(name = "argv<-",
+           def = function(.Object, ..., value)
+               standardGeneric("argv<-")
+)
+
+#' @rdname Step-class
+#' @return \item{argv<-}{set argumnets list}
+#' @aliases  argv<-
+#' @export
+setReplaceMethod(f = "argv",
+                 signature = "Step",
+                 definition = function(.Object, value){
+                     .Object@argv <- value
+                     .Object
+                 })
 
 
 
@@ -838,7 +863,7 @@ setMethod(f = "$",
               }else if(name == "propList"){
                   return(property(x))
               }else if(name == "reportList"){
-                  return(reportList(x))
+                  return(report(x))
               }else if(name == "argv"){
                   return(argv(x))
               }else{
@@ -867,16 +892,16 @@ setMethod(f = "getParam",
               # for(t in type){
               #     t1 <- match.arg(t,c("input","output","other"))
               #     if(t1 == "input"){
-              #         if(!is.null(.Object@inputList[[item]])){
-              #             return(.Object@inputList[[item]])
+              #         if(!is.null(input(.Object)[[item]])){
+              #             return(input(.Object)[[item]])
               #         }
               #     }else if(t1 == "output"){
-              #         if(!is.null(.Object@outputList[[item]])){
-              #             return(.Object@outputList[[item]])
+              #         if(!is.null(output(.Object)[[item]])){
+              #             return(output(.Object)[[item]])
               #         }
               #     }else{
-              #         if(!is.null(.Object@paramList[[item]])){
-              #             return(.Object@paramList[[item]])
+              #         if(!is.null(param(.Object)[[item]])){
+              #             return(param(.Object)[[item]])
               #         }
               #     }
               # }
@@ -885,18 +910,18 @@ setMethod(f = "getParam",
                   t1 <- match.arg(t,c("input","output","other"))
               })
               if("input" %in% type){
-                  if(!is.null(.Object@inputList[[item]])){
-                      return(.Object@inputList[[item]])
+                  if(!is.null(input(.Object)[[item]])){
+                      return(input(.Object)[[item]])
                   }
               }
               if("output" %in% type){
-                  if(!is.null(.Object@outputList[[item]])){
-                      return(.Object@outputList[[item]])
+                  if(!is.null(output(.Object)[[item]])){
+                      return(output(.Object)[[item]])
                   }
               }
               if("other" %in% type){
-                  if(!is.null(.Object@paramList[[item]])){
-                      return(.Object@paramList[[item]])
+                  if(!is.null(param(.Object)[[item]])){
+                      return(param(.Object)[[item]])
                   }
               }
               return(NULL)
@@ -920,11 +945,11 @@ setMethod(f = "getParamItems",
               # for(t in type){
               #     t1 <- match.arg(t,c("input","output","other"))
               #     if(t1 == "input"){
-              #         allitem <- c(allitem,names(.Object@inputList))
+              #         allitem <- c(allitem,names(input(.Object)))
               #     }else if(t1 == "output"){
-              #         allitem <- c(allitem,names(.Object@outputList))
+              #         allitem <- c(allitem,names(output(.Object)))
               #     }else{
-              #         allitem <- c(allitem,names(.Object@paramList))
+              #         allitem <- c(allitem,names(param(.Object)))
               #     }
               # }
               allitem <- c()
@@ -932,13 +957,13 @@ setMethod(f = "getParamItems",
                   t1 <- match.arg(t,c("input","output","other"))
               })
               if("input" %in% type){
-                  allitem <-c(allitem, names(.Object@inputList))
+                  allitem <-c(allitem, names(input(.Object)))
               }
               if("output" %in% type){
-                  allitem <-c(allitem,names(.Object@outputList))
+                  allitem <-c(allitem,names(output(.Object)))
               }
               if("other" %in% type){
-                  allitem <-c(allitem,names(.Object@paramList))
+                  allitem <-c(allitem,names(param(.Object)))
               }
               return(allitem)
           })
@@ -1105,7 +1130,7 @@ setMethod(f = "checkAllPath",
           definition = function(.Object,...){
               items <- getParamItems(.Object, type="input")
               # for(items in items){
-              #     paths<-.Object@inputList[[items]]
+              #     paths<-input(.Object)[[items]]
               #     if(!is.null(paths)){
               #         for(path in paths){
               #             if(!file.exists(path)){
@@ -1118,7 +1143,7 @@ setMethod(f = "checkAllPath",
               #     }
               # }
               lapply(items, function(item){
-                  paths<-.Object@inputList[[item]]
+                  paths<-input(.Object)[[item]]
                   if(!is.null(paths)){
                       # for(path in paths){
                       #     if(!file.exists(path)){
@@ -1140,7 +1165,7 @@ setMethod(f = "checkAllPath",
               })
               items <- getParamItems(.Object, type="output")
               # for(item in items){
-              #     paths<-.Object@inputList[[items]]
+              #     paths<-input(.Object)[[items]]
               #     if(!is.null(paths)){
               #         for(path in paths){
               #             if(!dir.exists(path)){
@@ -1151,7 +1176,7 @@ setMethod(f = "checkAllPath",
               #     }
               # }
               lapply(items, function(item){
-                  paths<-.Object@inputList[[item]]
+                  paths<-input(.Object)[[item]]
                   if(!is.null(paths)){
                       # for(path in paths){
                       #     if(!dir.exists(path)){
