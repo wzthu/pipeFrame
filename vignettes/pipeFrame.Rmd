@@ -67,15 +67,22 @@ Before building your pipeline, please initialize the configuration.
 For general users, calling the function `initPipeFrame` 
 is required after loading the package.
 
-```{r eval=FALSE}
-initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10"),
+```{r eval=TRUE}
+initPipeFrame(availableGenome = c("hg19", "hg38", "mm9", "mm10", 
+                                  "danRer10", "galGal5", "galGal4", 
+                                  "rheMac3", "rheMac8", "panTro4", 
+                                  "rn5", "rn6", "sacCer2","sacCer3", 
+                                  "susScr3", "testgenome"),
               defaultJobName = "test-pipeline"
 )
 
 ```
 
 In this function, several parameters need to be defined and configured, 
-including genome, job name, reference directory, temporary directory, 
+including genome (All of the genomes available for this pacakge are 
+shown in the code above. This is also the default value for `availableGenome`. 
+User can use a subset of them.), job name, reference directory, 
+temporary directory, 
 check and install function, threads number, reference list, etc. 
 In the following section, we will go through them in more details.
 
@@ -165,7 +172,7 @@ getGenome()
 
 ```
 
-If the genome is not available, a stop message will prumpt.
+If the genome is not available, a stop message will prompt.
 
 
 ### Reference Data Generation
@@ -174,15 +181,15 @@ Users usually select only one specific genome assembly,
 so it would be more efficient to generate the reference data 
 for this specific genome rather than all available genome assemblies. 
 
-There are two options for generating reference data.1) 
+There are two options for generating reference data. 1) 
 For any R objects reference data shared by all genome assemblies 
 (e.g. motif PWMs for vertebrate), 
 they can be set by the argument `defaultReference` 
 in the `initPipeFrame` function as a list member.
-Users can use `getRef("itemName")` to obtain the reference data.2) 
+Users can use `getRef("itemName")` to obtain the reference data. 2) 
 In other cases, please implement a 
 function and pass it to the argument `defaultCheckAndInstallFunc` 
-in the function `initPipeFrame`. There are two steps.
+in the function `initPipeFrame`. There are two steps:
 
 First, implement a function for argument `defaultReference`. 
 Here we show how to install BSgenome package for a specific 
