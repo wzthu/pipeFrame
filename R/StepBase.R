@@ -471,24 +471,23 @@ setMethod(f = "initialize",
               #         prevSteps<-c(prevSteps,list(tt))
               #     }
               # }
-              prevSteps <- lapply(seq_len(10), function(i){
-                  s <- getPrevSteps(stepName = getStepName(.Object),i)
-                  if(is.null(s)){
-                      return()
-                  }
-                  tt <- nameObjList[[
-                      paste0(s,"_",paste0(.Object@groupName,collapse = "_"))]]
-                  if(is.null(tt)){
-                      stop(paste("Step", s, " is required for", stepName,
-                                 "please calculate Step",s,"first"))
-                  }else{
-                      return(list(tt))
-                  }
-              })
-              prevSteps <- as.list(unlist(prevSteps))
-
-
-
+              if(argSize > 0){
+                  prevSteps <- lapply(seq_len(10), function(i){
+                      s <- getPrevSteps(stepName = getStepName(.Object),i)
+                      if(is.null(s)){
+                          return()
+                      }
+                      tt <- nameObjList[[
+                          paste0(s,"_",paste0(.Object@groupName,collapse = "_"))]]
+                      if(is.null(tt)){
+                          stop(paste("Step", s, " is required for", stepName,
+                                     "please calculate Step",s,"first"))
+                      }else{
+                          return(list(tt))
+                      }
+                  })
+                  prevSteps <- as.list(unlist(prevSteps))
+              }
 
               if(!dir.exists(getStepWorkDir(.Object))){
                   dir.create(getStepWorkDir(.Object))
