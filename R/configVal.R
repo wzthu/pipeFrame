@@ -242,7 +242,7 @@ setJobName <- function(jobName){
     #    }
     options(pipeFrameConfig.dir.jobname = jobName)
 }
-#' @return \item{setJobName}{Set a job name for following steps.}
+#' @return \item{getJobName}{Set a job name for following steps.}
 #' @aliases getJobName
 #' @rdname setJobName
 #' @export
@@ -251,7 +251,7 @@ getJobName <- function(){
     stopifnot(is.character(jobName))
     return(jobName)
 }
-#' @return \item{setJobName}{Set the job directory}
+#' @return \item{getJobDir}{get the job directory}
 #' @aliases getJobName
 #' @rdname setJobName
 #' @export
@@ -264,6 +264,42 @@ getJobDir <- function(){
     }
     return(jobDir)
 }
+
+
+
+
+#' @name setPipeName
+#' @rdname setPipeName
+#' @title Configure the pipe name for following steps.
+#' @param pipeName \code{Character} scalar. Job name for following steps.
+#' @return \item{setPipeName}{No value will be returned}
+#' @aliases setPipeName
+#' @rdname setPipeName
+#' @examples
+#' setPipeName("pipe")
+#' getPipeName()
+#' @export
+setPipeName <- function(pipeName){
+    stopifnot(is.character(pipeName))
+    options(pipeFrameConfig.pipeName = pipeName)
+    pipeNames <- getOption("pipeFrameConfig.pipeNames")
+    options(pipeFrameConfig.pipeName = unique(c(pipeNames,pipeName)))
+}
+#' @return \item{getPipeName}{Set a job name for following steps.}
+#' @aliases getPipeName
+#' @rdname setPipeName
+#' @export
+getPipeName <- function(all = FALSE){
+    if(is.null(getOption("pipeFrameConfig.pipeName"))){
+        setPipeName("pipe")
+    }
+    if(all){
+        return(getOption("pipeFrameConfig.pipeNames"))
+    }else{
+        return(getOption("pipeFrameConfig.pipeName"))
+    }
+}
+
 
 
 
