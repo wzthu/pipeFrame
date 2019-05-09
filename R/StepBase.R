@@ -359,6 +359,7 @@ setMethod(f = "initialize",
               .Object@argv <- argv
 
 # set pipeName
+              inputPipeNameList <- NULL
               stopifnot(is.list(prevSteps))
               if(is.null(stepPipeName)){
                   if(length(prevSteps)>0){
@@ -369,6 +370,7 @@ setMethod(f = "initialize",
                           }
                           return(pipeName(prevStep))
                       })
+                      inputPipeNameList <- pipeNameList
                       .Object@pipeName <- unlist(pipeNameList)
                   }else{
                       .Object@pipeName <- getPipeName()
@@ -437,8 +439,17 @@ setMethod(f = "initialize",
                       if(is.null(s)){
                           return(NULL)
                       }
-                      tt <- nameObjList[[
-                          paste0(s,"_",paste0(.Object@pipeName,collapse = "_"))]]
+                      tt <- lapply(seq_len(length(s)), function(i){
+                          rs <- (nameObjList[[
+                              paste0(s,"_",paste0(inputPipeNameList[[i]],collapse = "_"))]])
+                          return(rs)
+
+
+                      })
+                      tt <- unlist(tt)
+                      if(length(tt)==1){
+                          tt <- tt[[1]]
+                      }
 
                       if(is.null(tt)){
                    #       stop(paste("Step", s, " is required for", stepName,
@@ -446,21 +457,21 @@ setMethod(f = "initialize",
                           return(NULL)
 
                       }else{
-                          if(length(tt) > 1){
-                              ids <- lapply(1:length(tt), function(i){
-                                  return(tt[i]@id)
-                              })
-                              v <- max(ids[.Object@id>ids])
-                              return(tt[ids == v])
-                          }else{
-                              if(tt@id<.Object@id){
-                                  return(tt)
-                              }else{
-                                  stop("errortt@id<.Object@id")
-                              }
-                          }
+                          # if(length(tt) > 1){
+                          #     ids <- lapply(1:length(tt), function(i){
+                          #         return(tt[i]@id)
+                          #     })
+                          #     v <- max(ids[.Object@id>ids])
+                          #     return(tt[ids == v])
+                          # }else{
+                          #     if(tt@id<.Object@id){
+                          #         return(tt)
+                          #     }else{
+                          #         stop("errortt@id<.Object@id")
+                          #     }
+                          # }
 
-#                          return(tt)
+                          return(tt)
                       }
                   })
 #                  prevSteps <- as.list(unlist(prevSteps))
@@ -469,6 +480,7 @@ setMethod(f = "initialize",
               if(!dir.exists(getStepWorkDir(.Object))){
                   dir.create(getStepWorkDir(.Object))
               }
+
 
               argv <- c(list(.Object = .Object,prevSteps = prevSteps),argv)
               obj_return_from_init <- do.call(init,argv)
