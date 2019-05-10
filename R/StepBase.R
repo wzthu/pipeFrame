@@ -388,22 +388,40 @@ setMethod(f = "initialize",
 # set propery pass from previous pipeline(only the pipeline name regist in .Object@pipeName)
               argSize <- length(prevSteps)
               if(argSize>0){
-                  lapply(seq_len(argSize), function(i){
+                  # lapply(seq_len(argSize), function(i){
+                  #     if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
+                  #         stop(paste(stepName(prevSteps[[i]]),
+                  #                    "is not ready"))
+                  #     }
+                  #     if(!is.null(prevSteps[[i]])){
+                  #         lapply(seq_len(length(pipeName(.Object))), function(j){
+                  #             lapply(seq_len(length(pipeName(prevSteps[[i]]))), function(k){
+                  #                 if(pipeName(.Object)[j] == pipeName(prevSteps[[i]])[k]){
+                  #                     property(.Object,pipeNameIdx = j) <- property(prevSteps[[i]], pipeNameIdx = k)
+                  #                     message(property(.Object,pipeNameIdx = j))
+                  #                 }
+                  #             })
+                  #             print(.Object@propList)
+                  #         })
+                  #     }
+                  # })
+                  for(i in seq_len(argSize)){
                       if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
                           stop(paste(stepName(prevSteps[[i]]),
                                      "is not ready"))
                       }
                       if(!is.null(prevSteps[[i]])){
-                          lapply(seq_len(length(pipeName(.Object))), function(j){
-                              lapply(seq_len(length(pipeName(prevSteps[[i]]))), function(k){
+                          for(j in seq_len(length(pipeName(.Object)))){
+                              for(k in seq_len(length(pipeName(prevSteps[[i]])))){
                                   if(pipeName(.Object)[j] == pipeName(prevSteps[[i]])[k]){
                                       property(.Object,pipeNameIdx = j) <- property(prevSteps[[i]], pipeNameIdx = k)
                                   }
-                              })
-                          })
+                              }
+                          }
                       }
-                  })
+                  }
               }
+
 
 
               nameObjList <- getOption("pipeFrameConfig.nameObjList")
