@@ -39,7 +39,7 @@
 #' @aliases getBasenamePrefix
 #' @export
 getBasenamePrefix <- function(filepath,words,...){
-    return(basename(gsub(paste0("[.]",words,".*"),"",filepath,
+    return(basename(gsub(paste0("[.](",words,").*"),"",filepath,
                          ignore.case = TRUE)))
 }
 #' @return \item{getPathPrefix}{Get the filepath  with removed suffix}
@@ -121,6 +121,9 @@ checkFileCreatable <- function(filePath,...){
         }
     })
 }
+
+
+
 
 
 

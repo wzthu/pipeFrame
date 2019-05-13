@@ -457,13 +457,29 @@ setMethod(f = "initialize",
                       if(is.null(s)){
                           return(NULL)
                       }
-                      tt <- lapply(seq_len(length(s)), function(i){
-                          rs <- (nameObjList[[
-                              paste0(s,"_",paste0(inputPipeNameList[[i]],collapse = "_"))]])
-                          return(rs)
+                      tt <- lapply(seq_len(length(s)), function(j){
+                          if(length(inputPipeNameList)>1){
+                              print(paste0(s[j],"_",paste0(inputPipeNameList[[i]],collapse = "_")))
+                              rs <- (nameObjList[[
+                                  paste0(s[j],"_",paste0(inputPipeNameList[[i]],collapse = "_"))]])
+                              return(rs)
+                          }else{
+                              print(paste0(s[j],"_",paste0(inputPipeNameList[[1]],collapse = "_")))
+                              rs <- (nameObjList[[
+                                  paste0(s[j],"_",paste0(inputPipeNameList[[1]],collapse = "_"))]])
+                              return(rs)
+
+                          }
+
 
 
                       })
+                      print(length(rs))
+                      if(is.null(s)){
+                          message(paste(stepName(.Object), "need prior steps but these step(s) are not available", ":",paste(s,collapse = ", ")))
+                      }else{
+                          message(paste(stepName(.Object), "get its input from these steps(s)'s output", ":",paste(s,collapse = ", ")))
+                      }
                       tt <- unlist(tt)
                       if(length(tt)==1){
                           tt <- tt[[1]]
