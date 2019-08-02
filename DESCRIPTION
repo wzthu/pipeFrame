@@ -1,7 +1,7 @@
 Package: pipeFrame
 Type: Package
 Title: Pipeline framework for bioinformatics in R
-Version: 0.99.24
+Version: 1.1.0
 Author: Zheng Wei, Shining Ma
 Maintainer: Zheng Wei <wzweizheng@qq.com>
 Description: pipeFrame is an R package for building 
