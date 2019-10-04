@@ -566,9 +566,12 @@ setMethod(f = "process",
           definition = function(.Object,...){
               msgBoxBegin()
               if(file.exists(getStepWorkDir(.Object, "ignore.modify"))){
-                  writeLog(.Object, "File 'ignore.modify' in step directory is detected." )
+                  writeLog(.Object,paste0("The step:`",.Object@stepName,
+                                          "`do not check result files."))
+                  writeLog(.Object, "because file 'ignore.modify' in step directory is detected." )
                   writeLog(.Object, "Ignore checking modified result for this step.")
                   writeLog(.Object, paste0("Please confirm the format of each files match the original ones"))
+                  .Object <- setFinish(.Object)
               }else if(checkMD5Cache(.Object)){
                   writeLog(.Object,paste0("The step:`",.Object@stepName,
                                           "` was finished. Nothing to do."))
