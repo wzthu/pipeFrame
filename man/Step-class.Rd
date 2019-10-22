@@ -8,10 +8,10 @@
 \alias{init}
 \alias{stepName,Step-method}
 \alias{stepName}
+\alias{stepType,Step-method}
+\alias{stepType}
 \alias{pipeName,Step-method}
 \alias{pipeName}
-\alias{getDefName,Step-method}
-\alias{getDefName}
 \alias{input,Step-method}
 \alias{input}
 \alias{input<-,Step-method}
@@ -68,9 +68,9 @@
 
 \S4method{stepName}{Step}(.Object, ...)
 
-\S4method{pipeName}{Step}(.Object, ...)
+\S4method{stepType}{Step}(.Object, ...)
 
-\S4method{getDefName}{Step}(.Object, ...)
+\S4method{pipeName}{Step}(.Object, ...)
 
 \S4method{input}{Step}(.Object)
 
@@ -84,9 +84,9 @@
 
 \S4method{param}{Step}(.Object) <- value
 
-\S4method{property}{Step}(.Object, pipeNameIdx = 1)
+\S4method{property}{Step}(.Object, ..., pipeName = NULL)
 
-\S4method{property}{Step}(.Object, pipeNameIdx = 1) <- value
+\S4method{property}{Step}(.Object, pipeName = NULL) <- value
 
 \S4method{report}{Step}(.Object)
 
@@ -182,9 +182,9 @@ output and other parameters}
 
 \item{stepName}{get Step object Character name}
 
-\item{pipeName}{get Step object pipe name}
+\item{stepType}{get Step object Character type name (class name)}
 
-\item{getDefName}{get Step object Character name}
+\item{pipeName}{get Step object pipe name}
 
 \item{input}{get input list}
 
@@ -484,7 +484,7 @@ runOverlappedRandomRegion(inputBed = test_bed)
 
 stepName(rd)
 stepID(rd)
-getDefName(rd)
+
 
 isReady(rd)
 }

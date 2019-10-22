@@ -10,12 +10,15 @@ setPipeName(pipeName)
 getPipeName(all = FALSE)
 }
 \arguments{
-\item{pipeName}{\code{Character} scalar. Job name for following steps.}
+\item{pipeName}{\code{Character} scalar. Pipeline name for following steps.}
+
+\item{all}{\code{Logical} scalar. If TRUE, return all exist pipeName.
+Default FALSE, return current default pipeName.}
 }
 \value{
 \item{setPipeName}{No value will be returned}
 
-\item{getPipeName}{Set a job name for following steps.}
+\item{getPipeName}{Set a pipeline name for following steps.}
 }
 \description{
 Configure the pipe name for following steps.
