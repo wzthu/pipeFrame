@@ -518,11 +518,11 @@ setMethod(f = "initialize",
 
               argv <- c(list(.Object = .Object,prevSteps = prevSteps),argv)
               obj_return_from_init <- do.call(init,argv)
-              stopifnot(is(obj_return_from_init,stepName(.Object)))
+              stopifnot(is(obj_return_from_init,stepType(.Object)))
               .Object <- obj_return_from_init
               paramValidation(.Object)
               obj_return_from_porcessing<-process(.Object)
-              stopifnot(is(obj_return_from_porcessing,stepName(.Object)))
+              stopifnot(is(obj_return_from_porcessing,stepType(.Object)))
               .Object <- obj_return_from_porcessing
 
               if(is.null(nameObjList[[stepName(.Object)]])){
