@@ -271,7 +271,9 @@ getJobDir <- function(){
 #' @name setPipeName
 #' @rdname setPipeName
 #' @title Configure the pipe name for following steps.
-#' @param pipeName \code{Character} scalar. Job name for following steps.
+#' @param pipeName \code{Character} scalar. Pipeline name for following steps.
+#' @param all \code{Logical} scalar. If TRUE, return all exist pipeName.
+#' Default FALSE, return current default pipeName.
 #' @return \item{setPipeName}{No value will be returned}
 #' @aliases setPipeName
 #' @rdname setPipeName
@@ -283,9 +285,9 @@ setPipeName <- function(pipeName){
     stopifnot(is.character(pipeName))
     options(pipeFrameConfig.pipeName = pipeName)
     pipeNames <- getOption("pipeFrameConfig.pipeNames")
-    options(pipeFrameConfig.pipeName = unique(c(pipeNames,pipeName)))
+    options(pipeFrameConfig.pipeNames = unique(c(pipeNames,pipeName)))
 }
-#' @return \item{getPipeName}{Set a job name for following steps.}
+#' @return \item{getPipeName}{Set a pipeline name for following steps.}
 #' @aliases getPipeName
 #' @rdname setPipeName
 #' @export

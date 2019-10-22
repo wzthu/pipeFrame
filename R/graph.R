@@ -112,7 +112,7 @@ setMethod(f = "graphMngCheckRelation",
 #' "endpt2","startpt3","endpt3").
 #' @param argOrder \code{Numeric} scalar.
 #'  The argument order of the input Step object.
-#' @param stepName \code{Character} scalar.
+#' @param stepType \code{Character} scalar.
 #' Step class name of each step.
 #' @param display \code{Logical} scalar.
 #'  Whether show the picture on device or not.
@@ -154,25 +154,25 @@ checkRelation<-function(upstreamStep,downstreamStep,downstreamArgOrder){
 #' @return \item{getPrevSteps}{Names of previous steps}
 #' @aliases  getPrevSteps
 #' @export
-getPrevSteps <- function(stepName, argOrder){
+getPrevSteps <- function(stepType, argOrder){
     graphMng <- getGraphObj()
-    return(graphGetPrevSteps(graphMng,stepName, argOrder))
+    return(graphGetPrevSteps(graphMng,stepType, argOrder))
 
 }
 
 setGeneric(name = "graphGetPrevSteps",
-           def = function(graphMngObj,stepName, argOrder,...)
+           def = function(graphMngObj,stepType, argOrder,...)
                standardGeneric("graphGetPrevSteps")
 )
 
 setMethod(f = "graphGetPrevSteps",
           signature = "GraphMng",
-          definition = function(graphMngObj,stepName=NULL,argOrder,...){
+          definition = function(graphMngObj,stepType=NULL,argOrder,...){
               if(length(graphMngObj@edgeStarts) < argOrder){
                   return(NULL)
               }
               prev <- graphMngObj@edgeStarts[[argOrder]][
-                  stepName==graphMngObj@edgeEnds[[argOrder]]]
+                stepType==graphMngObj@edgeEnds[[argOrder]]]
               if (length(prev)==0){
                   return(NULL)
               }else{
@@ -185,25 +185,25 @@ setMethod(f = "graphGetPrevSteps",
 #' @return \item{getNextSteps}{Names of next steps}
 #' @aliases  getPrevSteps
 #' @export
-getNextSteps <- function(stepName, argOrder){
+getNextSteps <- function(stepType, argOrder){
     graphMng <- getGraphObj()
-    return(graphGetNextSteps(graphMng,stepName, argOrder))
+    return(graphGetNextSteps(graphMng,stepType, argOrder))
 
 }
 
 setGeneric(name = "graphGetNextSteps",
-           def = function(graphMngObj,stepName, argOrder,...)
+           def = function(graphMngObj,stepType, argOrder,...)
                standardGeneric("graphGetNextSteps")
 )
 
 setMethod(f = "graphGetNextSteps",
           signature = "GraphMng",
-          definition = function(graphMngObj,stepName=NULL,argOrder,...){
+          definition = function(graphMngObj,stepType=NULL,argOrder,...){
               if(length(graphMngObj@edgeEnds) < argOrder){
                   return(NULL)
               }
               nextpt <- graphMngObj@edgeEnds[[argOrder]][
-                  stepName==graphMngObj@edgeStarts[[argOrder]]]
+                stepType==graphMngObj@edgeStarts[[argOrder]]]
               if (length(nextpt)==0){
                   return(NULL)
               }else{
@@ -216,20 +216,20 @@ setMethod(f = "graphGetNextSteps",
 #' @return \item{printMap}{Print the flow map for the pipeline.}
 #' @aliases  printMap
 #' @export
-printMap <- function(stepName=NULL,display=TRUE,...){
+printMap <- function(stepType=NULL,display=TRUE,...){
     graphMng <- getGraphObj()
-    return(graphPrintMap(graphMng, stepName = stepName, display=display,...))
+    return(graphPrintMap(graphMng, stepType = stepType, display=display,...))
 
 }
 
 
 setGeneric(name = "graphPrintMap",
-           def = function(graphMngObj,stepName=NULL,display = TRUE,...){
+           def = function(graphMngObj,stepType=NULL,display = TRUE,...){
                standardGeneric("graphPrintMap")
            })
 setMethod(f = "graphPrintMap",
           signature = "GraphMng",
-          definition = function(graphMngObj,stepName=NULL,display=TRUE,...){
+          definition = function(graphMngObj,stepType=NULL,display=TRUE,...){
               nodes <- data.frame(id = graphMngObj@stepIds,
                 label = names(graphMngObj@stepIds), # add labels on nodes
       #         group = c("GrA", "GrB"),   # add groups on nodes
@@ -240,10 +240,10 @@ setMethod(f = "graphPrintMap",
     #           color = color, # color
                 shadow = FALSE                  # shadow
               )
-              if(!is.null(stepName)){
+              if(!is.null(stepType)){
                   color <- rep("lightblue",length(graphMngObj@stepIds))
-                  stopifnot(!is.na(graphMngObj@stepIds[stepName]))
-                  color[graphMngObj@stepIds[stepName]] <- "red"
+                  stopifnot(!is.na(graphMngObj@stepIds[stepType]))
+                  color[graphMngObj@stepIds[stepType]] <- "red"
                   nodes <- data.frame(id = graphMngObj@stepIds,
                       label = names(graphMngObj@stepIds), # add labels on nodes
             #         group = c("GrA", "GrB"),  # add groups on nodes
