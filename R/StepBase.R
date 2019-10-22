@@ -300,7 +300,7 @@ Step <- setClass(Class = "Step",
                      timeStampEnd="POSIXct",
                      id = "integer",
                      pipeName = "character",
-                     loaded = "logical",
+                     loaded = "logical"
                  ),
                  prototype = c(argv = list(),
                                paramList = list(),
