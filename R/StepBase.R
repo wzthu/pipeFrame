@@ -354,9 +354,9 @@ setMethod(f = "initialize",
                           return(pipeName(prevStep))
                       })
                       inputPipeNameList <- pipeNameList
-                      pipeName(.Object) <- sort(unique(unlist(pipeNameList)))
+                      .Object@pipeName <- sort(unique(unlist(pipeNameList)))
                   }else{
-                      pipeName(.Object) <- getPipeName()
+                      .Object@pipeName <- getPipeName()
                   }
               }else{
                   stopifnot(is.character(stepPipeName))
