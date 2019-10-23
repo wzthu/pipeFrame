@@ -139,6 +139,9 @@ Step object is returned by functions in each step.}
 \item{value}{any type scalar.
 The value to be set for corresponding item in a list.}
 
+\item{pipeName}{\code{Character} scalar.
+The pipeline name that this step belongs to. Default: NULL. It will be replace by the only pipeline name.}
+
 \item{x}{\code{Step} object scalar.
 Step object is returned by functions in each step.}
 
@@ -172,6 +175,12 @@ Default: TRUE}
 
 \item{showMsg}{\code{Logical} scalar. Show the message on screen.
 Default: TRUE}
+
+\item{stepPipeName}{\code{Character} scalar or vector.
+The pipeline name that this step belongs to. Defualt: NULL. It will be replace by getPipeName().}
+
+\item{stepDefName}{\code{Character} scalar. The name of the step.
+Default: NULL, it will be replaced by "step type name"_"pipeline name"}
 
 \item{isReportStep}{\code{Logical} scalar.
 If it is TRUE, all related pipeline's previous steps will listed in prevSteps.

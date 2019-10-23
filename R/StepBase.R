@@ -32,6 +32,12 @@
 #' Name can be one of inputList, outputList, paramList, allList, propList or
 #' the item names of inputList, outputList or  paramList
 #' @param prevSteps \code{List} list of Step objects
+#' @param stepPipeName \code{Character} scalar or vector.
+#' The pipeline name that this step belongs to. Defualt: NULL. It will be replace by getPipeName().
+#' @param pipeName \code{Character} scalar.
+#' The pipeline name that this step belongs to. Default: NULL. It will be replace by the only pipeline name.
+#' @param stepDefName \code{Character} scalar. The name of the step.
+#' Default: NULL, it will be replaced by "step type name"_"pipeline name"
 #' @param isReportStep \code{Logical} scalar.
 #' If it is TRUE, all related pipeline's previous steps will listed in prevSteps.
 #' Default: FALSE for general steps.
