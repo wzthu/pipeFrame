@@ -171,7 +171,7 @@
 #'         outputBed <- allparam[["outputBed"]]
 #'         # inputBed can obtain from previous step object when running
 #'         # runOerlappedRandomRegion
-#'         if(!is.null(prevSteps[[1]])){
+#'         if(length(prevSteps)>0){
 #'             prevStep <- prevSteps[[1]]
 #'             input(.Object)$randomBed <-  getParam(prevStep,"outputBed")
 #'         }
