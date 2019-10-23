@@ -458,57 +458,52 @@ setMethod(f = "initialize",
               #     }
               # }
               if(argSize > 0){
-                  if(length(pipeName(.Object))==1){
+                  if(length(pipeName(.Object))==1 && length(inputPrevSteps)==1){
                       # in the sample pipeline, auto add remaining prevSteps that follow the graph
                       prevSteps <- lapply(seq_len(10), function(i){
                           s <- getPrevSteps(stepType = stepType(.Object),i)
                           if(is.null(s)){
-                              if(i <= length(inputPrevSteps) && !is.null(inputPrevSteps[[i]])){
-                                  stop(paste(stepName(inputPrevSteps[[i]]),"is not valid for parameter",i,"of step ", stepType(.Object)))
-                              }
                               return(NULL)
                           }else{
-                              if(i > length(inputPrevSteps) || is.null(inputPrevSteps[[i]])){
-                                  candidateName <- lapply(nameObjList, function(x){
-                                      if((stepType(x) %in% s) &&
-                                         length(intersect(pipeName(.Object), pipeName(x)))>0){
-                                         return(stepName(x))
-                                      }else{
-                                          return(NULL)
-                                      }
-                                  })
-                                  candidateName <- unlist(candidateName)
-                                  candidateID <- lapply(candidateName, function(x){
-                                      return(stepID(nameObjList[[x]]))
-                                  })
-
-                                  sel <-  order(candidateID,decreasing = TRUE)[1]
-                                  latestname <- candidateName[sel]
-                                  return(nameObjList[[latestname]])
-
-                              }else{
-                                  if(s==stepType(inputPrevSteps[[i]])){
-                                      return(inputPrevSteps[[i]])
+                              candidateName <- lapply(nameObjList, function(x){
+                                  if((stepType(x) %in% s) &&
+                                     length(intersect(pipeName(.Object), pipeName(x)))>0){
+                                      return(stepName(x))
                                   }else{
-                                      stop(paste(stepName(inputPrevSteps[[i]]),"is not valid for parameter",i,"of step ", stepType(.Object)))
+                                      return(NULL)
                                   }
-                              }
+                              })
+                              candidateName <- unlist(candidateName)
+                              candidateID <- lapply(candidateName, function(x){
+                                  return(stepID(nameObjList[[x]]))
+                              })
+
+                              sel <-  order(candidateID,decreasing = TRUE)[1]
+                              latestname <- candidateName[sel]
+                              return(nameObjList[[latestname]])
                           }
                       })
-                     } else {
-                         # previous step come from different pipeline. check if it is the previous step
-                         for(i in 1:10){
-                             s <- getPrevSteps(stepType = stepType(.Object),i)
-                             if(!is.null(s)){
-                                 if(sum(stepType(inputPrevSteps[[i]]) %in% s)<0.5){
-                                     stop(paste(stepName(inputPrevSteps[[i]]),"'s step type is not the ",i, "parameter of", stepType(.Object)))
-                                 }
-                             }
-                         }
-                        prevSteps <- inputPrevSteps
+                      prevTypes <- lapply(prevSteps, function(x){
+                          return(stepType(x))
+                      })
+                      lapply(inputPrevSteps, function(x){
+                          if(!(stepType(x) %in% prevTypes)){
+                              stop(paste(stepName(x), "(step type:",stepType(x),") is not the upstream step of ",stepName(.Object),"(step type:",stepType(x),")"))
+                          }
+                      })
+                  } else {
+                      # previous step come from different pipeline or there are more than one previous step from same pipeline. check if it is the previous step
+                      for(i in 1:10){
+                          s <- getPrevSteps(stepType = stepType(.Object),i)
+                          if(!is.null(s)){
+                              if(sum(stepType(inputPrevSteps[[i]]) %in% s)<0.5){
+                                  stop(paste(stepName(inputPrevSteps[[i]]),"'s step type is not the ",i, "parameter of", stepType(.Object)))
+                              }
+                          }
+                      }
+                      prevSteps <- inputPrevSteps
 
                   }
-
               }
 
               if(!dir.exists(getStepWorkDir(.Object))){
