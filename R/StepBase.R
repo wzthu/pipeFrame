@@ -484,10 +484,12 @@ setMethod(f = "initialize",
                           }
                       })
                       prevTypes <- lapply(prevSteps, function(x){
-                          return(stepType(x))
+                          if(!is.null(x)){
+                              return(stepType(x))
+                          }
                       })
                       lapply(inputPrevSteps, function(x){
-                          if(!(stepType(x) %in% prevTypes)){
+                          if(!is.null(x) && !(stepType(x) %in% prevTypes)){
                               stop(paste(stepName(x), "(step type:",stepType(x),") is not the upstream step of ",stepName(.Object),"(step type:",stepType(x),")"))
                           }
                       })
