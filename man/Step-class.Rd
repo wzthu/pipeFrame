@@ -175,16 +175,6 @@ Default: TRUE}
 
 \item{showMsg}{\code{Logical} scalar. Show the message on screen.
 Default: TRUE}
-
-\item{stepPipeName}{\code{Character} scalar or vector.
-The pipeline name that this step belongs to. Defualt: NULL. It will be replace by getPipeName().}
-
-\item{stepDefName}{\code{Character} scalar. The name of the step.
-Default: NULL, it will be replaced by "step type name"_"pipeline name"}
-
-\item{isReportStep}{\code{Logical} scalar.
-If it is TRUE, all related pipeline's previous steps will listed in prevSteps.
-Default: FALSE for general steps.}
 }
 \value{
 the function and result of functions:
