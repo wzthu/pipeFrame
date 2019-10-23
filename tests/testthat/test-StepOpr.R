@@ -241,7 +241,7 @@ test_that("test basic operation of class Step ",{
 
 
 
-    expect_equal(getStepName(rd),"OverlappedRandomRegion")
+    expect_equal(stepName(rd),"OverlappedRandomRegion")
 
     getStepId(rd)
 
