@@ -132,7 +132,7 @@ genReport(.Object, ...)
 \item{.Object}{\code{Step} object scalar.
 Step object is returned by functions in each step.}
 
-\item{prevSteps}{\code{List} scalar of Step object}
+\item{prevSteps}{\code{List} list of Step objects}
 
 \item{...}{Additional arguments, currently unused.}
 
@@ -172,6 +172,10 @@ Default: TRUE}
 
 \item{showMsg}{\code{Logical} scalar. Show the message on screen.
 Default: TRUE}
+
+\item{isReportStep}{\code{Logical} scalar.
+If it is TRUE, all related pipeline's previous steps will listed in prevSteps.
+Default: FALSE for general steps.}
 }
 \value{
 the function and result of functions:

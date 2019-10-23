@@ -31,7 +31,10 @@
 #' @param name \code{Character} scalar.
 #' Name can be one of inputList, outputList, paramList, allList, propList or
 #' the item names of inputList, outputList or  paramList
-#' @param prevSteps \code{List} scalar of Step object
+#' @param prevSteps \code{List} list of Step objects
+#' @param isReportStep \code{Logical} scalar.
+#' If it is TRUE, all related pipeline's previous steps will listed in prevSteps.
+#' Default: FALSE for general steps.
 #' @param type \code{Character} scalar.
 #' Valid types of parameters including "input", "output" and "other"
 #' @param item \code{Character} scalar.
@@ -319,7 +322,7 @@ Step <- setClass(Class = "Step",
 setMethod(f = "initialize",
           signature = "Step",
           definition = function(.Object,prevSteps = list(), stepDefName = NULL,
-                                stepPipeName = NULL, ...){
+                                stepPipeName = NULL, isReportStep = FALSE, ...){
 
 
 
@@ -457,7 +460,7 @@ setMethod(f = "initialize",
               #         prevSteps<-c(prevSteps,list(tt))
               #     }
               # }
-              if(argSize > 0){
+              if(argSize > 0 && !isReportStep){
                   if(length(pipeName(.Object))==1 && length(inputPrevSteps)==1){
                       # in the sample pipeline, auto add remaining prevSteps that follow the graph
                       prevSteps <- lapply(seq_len(10), function(i){
@@ -506,6 +509,12 @@ setMethod(f = "initialize",
                       prevSteps <- inputPrevSteps
 
                   }
+              }else if(isReportStep){
+                  prevSteps <- lapply(nameObjList, function(x){
+                      if(length(intersect(pipeName(x),pipeName(.Object)))>0){
+                          return(x)
+                      }
+                  })
               }
 
               if(!dir.exists(getStepWorkDir(.Object))){
