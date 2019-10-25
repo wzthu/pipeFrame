@@ -492,7 +492,7 @@ setMethod(f = "initialize",
                       })
                       lapply(inputPrevSteps, function(x){
                           if(!is.null(x) && !(stepType(x) %in% prevTypes)){
-                              stop(paste(stepName(x), "(step type:",stepType(x),") is not the upstream step of ",stepName(.Object),"(step type:",stepType(x),")"))
+                              stop(paste(paste(prevTypes,collapse = "_"),stepName(x), "(step type:",stepType(x),") is not the upstream step of ",stepName(.Object),"(step type:",stepType(x),")"))
                           }
                       })
                   } else {
