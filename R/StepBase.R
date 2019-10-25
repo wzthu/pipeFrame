@@ -476,6 +476,9 @@ setMethod(f = "initialize",
                                   }
                               })
                               candidateName <- unlist(candidateName)
+                              if(length(candidateName) == 0) {
+                                  stop(paste("There is not any finish step like",paste(s,collapse = " or "),"in this pipeline"))
+                              }
                               candidateID <- lapply(candidateName, function(x){
                                   return(stepID(nameObjList[[x]]))
                               })
@@ -485,19 +488,16 @@ setMethod(f = "initialize",
                               return(nameObjList[[latestname]])
                           }
                       })
-                      prevTypes <- lapply(prevSteps, function(x){
-                          if(!is.null(x)){
-                              return(stepType(x))
+                      for(i in sort(seq_len(9),decreasing = TRUE)){
+                          if(is.null(prevSteps[[i]])){
+                              prevSteps[[i]] <- NULL
+                          }else{
+                              break
                           }
-                      })
-                      lapply(inputPrevSteps, function(x){
-                          if(!is.null(x) && !(stepType(x) %in% prevTypes)){
-                              stop(paste(paste(prevTypes,collapse = "_"),stepName(x), "(step type:",stepType(x),") is not the upstream step of ",stepName(.Object),"(step type:",stepType(x),")"))
-                          }
-                      })
+                      }
                   } else {
                       # previous step come from different pipeline or there are more than one previous step from same pipeline. check if it is the previous step
-                      for(i in 1:10){
+                      for(i in seq_len(10)){
                           s <- getPrevSteps(stepType = stepType(.Object),i)
                           if(!is.null(s)){
                               if(sum(stepType(inputPrevSteps[[i]]) %in% s)<0.5){
