@@ -38,8 +38,8 @@ setMethod(f = "graphMngAddEdges",
                       stop("numbers in argOrder should be same with edges")
                   }
               }
-              fromStepType <- edges[seq_len(length(edges))%2==1]
-              toStepType <- edges[seq_len(length(edges))%2==0]
+              fromStepType <- edges[seq_len(length(edges))%%2==1]
+              toStepType <- edges[seq_len(length(edges))%%2==0]
               options(stringsAsFactors = FALSE)
               newEdges <- data.frame(fromStepType, toStepType, argOrder)
               options(stringsAsFactors = TRUE)
