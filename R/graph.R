@@ -199,8 +199,8 @@ setMethod(f = "graphPrintMap",
               edges <- edges[edges[,1]!="BASE",]
               allStepNames <- graphMngObj@allStepNames
               allStepNames <- allStepNames[allStepNames!='BASE']
-              stepId <- seq_len(allStepNames)
-              names(stepId) <- seq_len(allStepNames)
+              stepId <- seq_len(length(allStepNames))
+              names(stepId) <- allStepNames
               nodes <- data.frame(id = stepId,
                 label = allStepNames, # add labels on nodes
       #         group = c("GrA", "GrB"),   # add groups on nodes
