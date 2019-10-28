@@ -20,6 +20,7 @@ setMethod(f = "initialize",
               .Object@edges <- data.frame(fromStepType= "BASE",toStepType = "BASE", argOrder = 1)
               options(stringsAsFactors = TRUE)
               allStepNames <- "BASE"
+              .Object
           })
 
 
