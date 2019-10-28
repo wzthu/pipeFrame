@@ -8,14 +8,18 @@
 #' @importFrom stats as.formula
 
 setClass(Class = "GraphMng",
-         slots = list(edgeStarts = "list",
-                      edgeEnds = "list",
-                      allStepNames = "character",
-                      stepIds = "numeric"),
-         prototype = list(edgeStarts = list(),
-                          edgeEnds = list(),
-                          allStepNames = NULL,
-                          stepIds = numeric()))
+         slots = list(edges = "data.frame",
+                      allStepNames = "character"),
+         prototype = list(edges = NULL,
+                          allStepNames = NULL))
+
+setMethod(f = "initialize",
+          signature = "Step",
+          definition = function(.Object, ...){
+              options(stringsAsFactors = FALSE)
+              .Object@edges <- data.frame(fromStepType= "BASE",toStepType = "BASE", argOrder = 1)
+              options(stringsAsFactors = TRUE)
+          })
 
 
 
@@ -26,58 +30,24 @@ setGeneric(name = "graphMngAddEdges",
 setMethod(f = "graphMngAddEdges",
           signature = "GraphMng",
           definition = function(graphMngObj,edges, argOrder,...){
-              if(length(graphMngObj@edgeStarts) < argOrder){
-                  # for (i in (length(graphMngObj@edgeStarts)+1):argOrder) {
-                  #     graphMngObj@edgeStarts[[paste0("edge",i)]]<-"BASE"
-                  #     graphMngObj@edgeEnds[[paste0("edge",i)]]<-"BASE"
-                  # }
-                  graphMngObj@edgeStarts[
-                      paste("edge",
-                        (length(graphMngObj@edgeStarts)+1):argOrder)] <- "BASE"
-                  graphMngObj@edgeEnds[
-                      paste("edge",
-                          (length(graphMngObj@edgeEnds)+1):argOrder)] <- "BASE"
+              if(length(edges)%%2 == 1){
+                  stop("the number of step type in edges should be even")
               }
-              stopifnot(length(edges)%%2!=1)
-              s <- seq_len(length(edges))
-              startPoints <- edges[s%%2 == 1]
-              endPoints <- edges[s%%2 == 0]
-              graphMngObj@allStepNames <-
-                  unique(c(graphMngObj@allStepNames, edges))
-              count <- length(graphMngObj@stepIds)
-              if(count < length(graphMngObj@allStepNames)){
-                  newid <- (count+1):length(graphMngObj@allStepNames)
-                  names(newid) <- graphMngObj@allStepNames[
-                      is.na(graphMngObj@stepIds[graphMngObj@allStepNames])]
-                  graphMngObj@stepIds <- c(graphMngObj@stepIds,newid)
+              if( length(argOrder)> 1){
+                  if(length(edges)/2 != length(argOrder)){
+                      stop("numbers in argOrder should be same with edges")
+                  }
               }
+              fromStepType <- edges[seq_len(length(edges))%2==1]
+              toStepType <- edges[seq_len(length(edges))%2==0]
+              options(stringsAsFactors = FALSE)
+              newEdges <- data.frame(fromStepType, toStepType, argOrder)
+              options(stringsAsFactors = TRUE)
+              newEdges <- rbind(graphMngObj@edges, newEdges)
 
-              # for(i in 1:length(startPoints)){
-              #   if(sum(graphMngObj@edgeStarts[[argOrder]] == startPoints[i] &
-              #          graphMngObj@edgeEnds[[argOrder]] == endPoints[i])==0){
-              #         #print(graphMngObj)
-              #         graphMngObj@edgeStarts[[argOrder]] <-
-              #           c(graphMngObj@edgeStarts[[argOrder]],startPoints[i])
-              #         graphMngObj@edgeEnds[[argOrder]] <-
-              #             c(graphMngObj@edgeEnds[[argOrder]],endPoints[i])
-              #     }
-              #}
-              st <- lapply(seq_len(length(startPoints)), function(i){
-                  if(sum(graphMngObj@edgeStarts[[argOrder]] == startPoints[i] &
-                         graphMngObj@edgeEnds[[argOrder]] == endPoints[i])==0){
-                      return(startPoints[i])
-                  }
-              })
-              graphMngObj@edgeStarts[[argOrder]] <-
-                  c(graphMngObj@edgeStarts[[argOrder]],unlist(st))
-              ed <- lapply(seq_len(length(startPoints)), function(i){
-                  if(sum(graphMngObj@edgeStarts[[argOrder]] == startPoints[i] &
-                         graphMngObj@edgeEnds[[argOrder]] == endPoints[i])==0){
-                      return(endPoints[i])
-                  }
-              })
-              graphMngObj@edgeEnds[[argOrder]] <-
-                  c(graphMngObj@edgeEnds[[argOrder]], unlist(ed))
+              graphMngObj@edges <- newEdges
+
+              graphMngObj@allStepNames <- unique(c(newEdges$fromStepType, newEdges$toStepType))
 
               graphMngObj
           })
@@ -93,11 +63,11 @@ setGeneric(name = "graphMngCheckRelation",
 setMethod(f = "graphMngCheckRelation",
           signature = "GraphMng",
           definition = function(graphMngObj, upstreamStep,
-                                downstreamStep,downstreamArgOrder,...){
-              return(sum(graphMngObj@edgeStarts[[downstreamArgOrder]] ==
-                             upstreamStep &
-                             graphMngObj@edgeEnds[[downstreamArgOrder]] ==
-                             downstreamStep) > 0)
+                                downstreamStep, downstreamArgOrder,...){
+              return(sum(graphMngObj@edges$fromStepType == upstreamStep &
+                             graphMngObj@edges$toStepType == downstreamStep &
+                             graphMngObj@edges$argOrder == downstreamArgOrder) > 0)
+
           })
 #' @name graphMng
 #' @title Step graph management
@@ -167,16 +137,13 @@ setGeneric(name = "graphGetPrevSteps",
 
 setMethod(f = "graphGetPrevSteps",
           signature = "GraphMng",
-          definition = function(graphMngObj,stepType=NULL,argOrder,...){
-              if(length(graphMngObj@edgeStarts) < argOrder){
-                  return(NULL)
-              }
-              prev <- graphMngObj@edgeStarts[[argOrder]][
-                stepType==graphMngObj@edgeEnds[[argOrder]]]
-              if (length(prev)==0){
-                  return(NULL)
-              }else{
+          definition = function(graphMngObj,stepType, argOrder,...){
+              prev <- graphMngObj@edges$fromStepType[graphMngObj@edges$toStepType == stepType &
+                                                 graphMngObj@edges$argOrder == argOrder ]
+              if(length(prev)>0){
                   return(prev)
+              }else{
+                  return(NULL)
               }
           })
 
@@ -198,16 +165,13 @@ setGeneric(name = "graphGetNextSteps",
 
 setMethod(f = "graphGetNextSteps",
           signature = "GraphMng",
-          definition = function(graphMngObj,stepType=NULL,argOrder,...){
-              if(length(graphMngObj@edgeEnds) < argOrder){
-                  return(NULL)
-              }
-              nextpt <- graphMngObj@edgeEnds[[argOrder]][
-                stepType==graphMngObj@edgeStarts[[argOrder]]]
-              if (length(nextpt)==0){
-                  return(NULL)
+          definition = function(graphMngObj,stepType, argOrder,...){
+              nexttype <- graphMngObj@edges$toStepType[graphMngObj@edges$fromStepType == stepType &
+                                                         graphMngObj@edges$argOrder == argOrder ]
+              if(length(nexttype)>0){
+                  return(nexttype)
               }else{
-                  return(nextpt)
+                  return(NULL)
               }
           })
 
@@ -230,8 +194,14 @@ setGeneric(name = "graphPrintMap",
 setMethod(f = "graphPrintMap",
           signature = "GraphMng",
           definition = function(graphMngObj,stepType=NULL,display=TRUE,...){
-              nodes <- data.frame(id = graphMngObj@stepIds,
-                label = names(graphMngObj@stepIds), # add labels on nodes
+              edges <- graphMngObj@edges
+              edges <- edges[edges[,1]!="BASE",]
+              allStepNames <- graphMngObj@allStepNames
+              allStepNames <- allStepNames[allStepNames!='BASE']
+              stepId <- seq_len(allStepNames)
+              names(stepId) <- seq_len(allStepNames)
+              nodes <- data.frame(id = stepId,
+                label = allStepNames, # add labels on nodes
       #         group = c("GrA", "GrB"),   # add groups on nodes
       #         value = 1:10,              # size adding value
                 shape = "ellipse",                   # control shape of nodes
@@ -241,11 +211,11 @@ setMethod(f = "graphPrintMap",
                 shadow = FALSE                  # shadow
               )
               if(!is.null(stepType)){
-                  color <- rep("lightblue",length(graphMngObj@stepIds))
-                  stopifnot(!is.na(graphMngObj@stepIds[stepType]))
-                  color[graphMngObj@stepIds[stepType]] <- "red"
-                  nodes <- data.frame(id = graphMngObj@stepIds,
-                      label = names(graphMngObj@stepIds), # add labels on nodes
+                  color <- rep("lightblue",length(stepId))
+                  stopifnot(!is.na(stepId[stepType]))
+                  color[stepId[stepType]] <- "red"
+                  nodes <- data.frame(id = tepId,
+                      label = names(stepId), # add labels on nodes
             #         group = c("GrA", "GrB"),  # add groups on nodes
             #         value = 1:10,  # size adding value
                       shape = "ellipse",  # control shape of nodes
@@ -258,10 +228,8 @@ setMethod(f = "graphPrintMap",
               }
 
 
-              edges <- data.frame(from = na.omit(graphMngObj@stepIds[
-                  na.omit(unlist(graphMngObj@edgeStarts))]),
-                                  to = na.omit(graphMngObj@stepIds[
-                                      na.omit(unlist(graphMngObj@edgeEnds))]),
+              edges <- data.frame(from = stepId[edges$fromStepType],
+                                  to = stepId[edges$toStepType],
                 #label = paste("Edge", 1:8),    # add labels on edges
                 #length = c(100,500),          # length
                                   arrows = "to",            # arrows
