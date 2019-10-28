@@ -526,7 +526,12 @@ setMethod(f = "initialize",
               stopifnot(is(obj_return_from_init,stepType(.Object)))
               .Object <- obj_return_from_init
               paramValidation(.Object)
-              obj_return_from_porcessing<-process(.Object)
+              if(isReportStep){
+                  obj_return_from_porcessing<-process(.Object, prevSteps = prevSteps)
+              }else{
+                  obj_return_from_porcessing<-process(.Object)
+              }
+
               stopifnot(is(obj_return_from_porcessing,stepType(.Object)))
               .Object <- obj_return_from_porcessing
 
