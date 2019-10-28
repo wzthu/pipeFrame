@@ -14,7 +14,7 @@ setClass(Class = "GraphMng",
                           allStepNames = NULL))
 
 setMethod(f = "initialize",
-          signature = "Step",
+          signature = "GraphMng",
           definition = function(.Object, ...){
               options(stringsAsFactors = FALSE)
               .Object@edges <- data.frame(fromStepType= "BASE",toStepType = "BASE", argOrder = 1)
