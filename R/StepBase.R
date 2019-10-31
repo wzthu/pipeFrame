@@ -370,7 +370,7 @@ setMethod(f = "initialize",
 
               # initialize step name
               if(is.null(stepDefName)){
-                  .Object@stepName <- paste0(stepType(.Object),"_",paste0(pipeName(.Object),collapse = "_"))
+                  .Object@stepName <- paste0(paste0(pipeName(.Object),collapse = "_"),"_",stepType(.Object))
               }else{
                   .Object@stepName <- stepDefName
               }
@@ -509,6 +509,7 @@ setMethod(f = "initialize",
 
                   }
               }else if(isReportStep){
+                  print
                   prevSteps <- lapply(nameObjList, function(x){
                       if(length(intersect(pipeName(x),pipeName(.Object)))>0){
                           return(x)
@@ -596,7 +597,7 @@ setMethod(f = "process",
                   writeLog(.Object,paste0("start processing data: ",
                                           .Object@stepName))
                   .Object@timeStampStart<-Sys.time()
-                  .Object <- processing(.Object)
+                  .Object <- processing(.Object, ...)
                   .Object@timeStampEnd<-Sys.time()
                   .Object@reportList$timeStampStart <-
                       .Object@timeStampStart
