@@ -532,7 +532,17 @@ setMethod(f = "initialize",
               if(isReportStep){
                   obj_return_from_porcessing<-process(.Object, prevSteps = prevSteps)
               }else{
-                  obj_return_from_porcessing<-process(.Object)
+                  if(!is.null(argv[["cmdline"]])){
+                      message(paste("Running command line:"))
+                      message(argv[["cmdline"]])
+                      system(argv[["cmdline"]])
+                  }else if(is.null(argv[["callback"]])){
+                      func<-argv[["callback"]]
+                      func()
+                  }else{
+                      obj_return_from_porcessing<-process(.Object)
+                  }
+
               }
 
               stopifnot(is(obj_return_from_porcessing,stepType(.Object)))
@@ -1207,7 +1217,7 @@ setMethod(f = "checkAllPath",
           definition = function(.Object,...){
               message("Input:")
               inputValue <- input(.Object)
-              for(n in names(.Object)){
+              for(n in names(inputValue)){
                   if(!is.character(inputValue[[n]])){
                       stop(paste("input file value of", n, "is not is not character"))
                   }
@@ -1221,7 +1231,7 @@ setMethod(f = "checkAllPath",
               }
               message("Output:")
               ouputValue <- output(.Object)
-              for(n in names(.Object)){
+              for(n in names(ouputValue)){
                   if(!is.character(ouputValue[[n]])){
                       stop(paste("ouput file value of", n, "is not is not character:"))
                   }
