@@ -1184,7 +1184,7 @@ setMethod(f = "checkRequireParam",
 
               lapply(names(paramValue), function(n){
                   x <- paramValue[[n]]
-                  message(paste0("    ", n))
+                  message(paste0("|    ", n))
                   if(is.character(x)||
                      is.numeric(x)||
                      is.logical(x)||
