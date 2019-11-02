@@ -327,6 +327,8 @@ setMethod(f = "initialize",
 
               argv <- c(as.list(environment()),list(...))
 
+              msgBoxBegin()
+
               argv[["prevSteps"]] <- NULL
 
 # check if it is an Step object
@@ -542,6 +544,8 @@ setMethod(f = "initialize",
               }
               nameObjList[[stepName(.Object)]] <- .Object
               options(pipeFrameConfig.nameObjList = nameObjList)
+
+              msgBoxDone()
               .Object
           })
 
@@ -575,7 +579,6 @@ setGeneric(name = "process",
 setMethod(f = "process",
           signature = "Step",
           definition = function(.Object,...){
-              msgBoxBegin()
               if(file.exists(getStepWorkDir(.Object, "ignore.modify"))){
                   writeLog(.Object,paste0("The step:`",.Object@stepName,
                                           "`do not check result files."))
@@ -607,7 +610,7 @@ setMethod(f = "process",
                   pipeFrameObj <- .Object
                   save(pipeFrameObj, file = getParamMD5Path(.Object))
               }
-              msgBoxDone()
+
               .Object
           })
 
@@ -1166,6 +1169,26 @@ setMethod(f = "checkRequireParam",
           signature = "Step",
           definition = function(.Object,...){
               # override this function if necessary
+              message("Other Parameters:")
+              paramValue <- param(.Object)
+
+              lapply(names(paramValue), function(n){
+                  x <- paramValue[[n]]
+                  message(paste0("    ", n))
+                  if(is.character(x)||
+                     is.numeric(x)||
+                     is.logical(x)||
+                     is.factor(x)||
+                     is.null(x)){
+                      val <- x
+                      if(length(x)>1){
+                          val <- paste("a vector started with",x[1])
+                      }
+                      message(paste0("        ", val))
+                  }else{
+                      message(paste("        An object of",class(x)))
+                  }
+              })
               return(TRUE)
           })
 
@@ -1184,70 +1207,34 @@ setGeneric(name = "checkAllPath",
 setMethod(f = "checkAllPath",
           signature = "Step",
           definition = function(.Object,...){
-              items <- getParamItems(.Object, type="input")
-              # for(items in items){
-              #     paths<-input(.Object)[[items]]
-              #     if(!is.null(paths)){
-              #         for(path in paths){
-              #             if(!file.exists(path)){
-              #                 stop(paste0("input ",
-              #                             items,
-              #                             "'s directory '",
-              #                             path,"' does not exist."))
-              #             }
-              #         }
-              #     }
-              # }
-              lapply(items, function(item){
-                  paths<-input(.Object)[[item]]
-                  if(!is.null(paths)){
-                      # for(path in paths){
-                      #     if(!file.exists(path)){
-                      #         stop(paste0("input ",
-                      #                     item,
-                      #                     "'s directory '",
-                      #                     path,"' does not exist."))
-                      #     }
-                      # }
-                      lapply(paths, function(path){
-                          if(!file.exists(path)){
-                              stop(paste0("input ",
-                                          item,
-                                          "'s directory '",
-                                          path,"' does not exist."))
-                          }
-                      })
+              message("Input:")
+              inputValue <- input(.Object)
+              for(n in names(.Object)){
+                  if(!is.character(inputValue[[n]])){
+                      stop(paste("input file value of", n, "is not is not character"))
                   }
-              })
-              items <- getParamItems(.Object, type="output")
-              # for(item in items){
-              #     paths<-input(.Object)[[items]]
-              #     if(!is.null(paths)){
-              #         for(path in paths){
-              #             if(!dir.exists(path)){
-              #                 file.create(path)
-              #                 unlink(path)
-              #             }
-              #         }
-              #     }
-              # }
-              lapply(items, function(item){
-                  paths<-input(.Object)[[item]]
-                  if(!is.null(paths)){
-                      # for(path in paths){
-                      #     if(!dir.exists(path)){
-                      #         file.create(path)
-                      #         unlink(path)
-                      #     }
-                      # }
-                      lapply(paths, function(path){
-                          if(!dir.exists(path)){
-                              file.create(path)
-                              unlink(path)
-                          }
-                      })
+                  message(paste0("    ", n))
+                  lapply(inputValue[[n]], function(x){
+                      if(!file.exists(x)){
+                          stop(paste("input file directory", n, "is not exist:", x))
+                      }
+                      message(paste0("        ", x))
+                  })
+              }
+              message("Output:")
+              ouputValue <- output(.Object)
+              for(n in names(.Object)){
+                  if(!is.character(ouputValue[[n]])){
+                      stop(paste("ouput file value of", n, "is not is not character:"))
                   }
-              })
+                  message(paste0("    ", n))
+                  lapply(inputValue[[n]], function(x){
+                      if(!file.exists(dirname(x))){
+                          stop(paste("ouput file/folder's directory", n, "is not exist:",x ))
+                      }
+                      message(paste0("        ", x))
+                  })
+              }
           })
 
 setGeneric(name = "getParamMD5Path",
