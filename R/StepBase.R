@@ -1148,10 +1148,8 @@ setGeneric(name = "paramValidation",
 setMethod(f = "paramValidation",
           signature = "Step",
           definition = function(.Object,...){
-              if(!checkMD5Cache(.Object)){
-                  checkAllPath(.Object)
-              }
-              checkRequireParam(.Object);
+              checkAllPath(.Object)
+              checkRequireParam(.Object)
           })
 
 
