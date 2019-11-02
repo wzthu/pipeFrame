@@ -525,6 +525,8 @@ setMethod(f = "initialize",
 
 
               argv <- c(list(.Object = .Object,prevSteps = prevSteps),argv)
+              writeLog(.Object, paste0("Step Name:",.Object@stepName))
+
               obj_return_from_init <- do.call(init,argv)
               stopifnot(is(obj_return_from_init,stepType(.Object)))
               .Object <- obj_return_from_init
@@ -533,8 +535,8 @@ setMethod(f = "initialize",
                   obj_return_from_porcessing<-process(.Object, prevSteps = prevSteps)
               }else{
                   if(!is.null(argv[["cmdline"]])){
-                      message(paste("Running command line:"))
-                      message(argv[["cmdline"]])
+                      writeLog(.Object, paste("Running command line:"))
+                      writeLog(.Object, argv[["cmdline"]])
                       system(argv[["cmdline"]])
                   }else if(!is.null(argv[["callback"]])){
                       func <- argv[["callback"]]
@@ -607,8 +609,7 @@ setMethod(f = "process",
                   .Object@loaded <- TRUE
               }else{
                   writeLog(.Object,as.character(Sys.time()))
-                  writeLog(.Object,paste0("start processing data: ",
-                                          .Object@stepName))
+                  writeLog(.Object, "start processing data: ")
                   .Object@timeStampStart<-Sys.time()
                   .Object <- processing(.Object, ...)
                   .Object@timeStampEnd<-Sys.time()
@@ -1158,10 +1159,10 @@ setGeneric(name = "paramValidation",
 setMethod(f = "paramValidation",
           signature = "Step",
           definition = function(.Object,...){
-              message("All Parameters for This Step:")
+              writeLog(.Object, "All Parameters for This Step:")
               checkAllPath(.Object)
               checkRequireParam(.Object)
-              message("__________________________________________")
+              writeLog(.Object, "__________________________________________")
           })
 
 
@@ -1179,12 +1180,12 @@ setMethod(f = "checkRequireParam",
           signature = "Step",
           definition = function(.Object,...){
               # override this function if necessary
-              message("|Other Parameters:")
+              writeLog(.Object, "|Other Parameters:")
               paramValue <- param(.Object)
 
               lapply(names(paramValue), function(n){
                   x <- paramValue[[n]]
-                  message(paste0("|    ", n))
+                  writeLog(.Object, paste0("|    ", n))
                   if(is.character(x)||
                      is.numeric(x)||
                      is.logical(x)||
@@ -1194,9 +1195,9 @@ setMethod(f = "checkRequireParam",
                       if(length(x)>1){
                           val <- paste("a vector started with",x[1])
                       }
-                      message(paste0("|        ", val))
+                      writeLog(.Object, paste0("|        ", val))
                   }else{
-                      message(paste("|        An object of",class(x)))
+                      writeLog(.Object, paste("|        An object of",class(x)))
                   }
               })
               return(TRUE)
@@ -1217,32 +1218,32 @@ setGeneric(name = "checkAllPath",
 setMethod(f = "checkAllPath",
           signature = "Step",
           definition = function(.Object,...){
-              message("|Input:")
+              writeLog(.Object, "|Input:")
               inputValue <- input(.Object)
               for(n in names(inputValue)){
                   if(!is.character(inputValue[[n]])){
                       stop(paste("input file value of", n, "is not is not character"))
                   }
-                  message(paste0("|    ", n,":"))
+                  writeLog(.Object, paste0("|    ", n,":"))
                   lapply(inputValue[[n]], function(x){
                       if(!file.exists(x)){
                           stop(paste("input file directory", n, "is not exist:", x))
                       }
-                      message(paste0("|        \"", x,"\""))
+                      writeLog(.Object, paste0("|        \"", x,"\""))
                   })
               }
-              message("|Output:")
+              writeLog(.Object, "|Output:")
               ouputValue <- output(.Object)
               for(n in names(ouputValue)){
                   if(!is.character(ouputValue[[n]])){
                       stop(paste("ouput file value of", n, "is not is not character:"))
                   }
-                  message(paste0("|    ", n,":"))
+                  writeLog(.Object, paste0("|    ", n,":"))
                   lapply(ouputValue[[n]], function(x){
                       if(!file.exists(dirname(x))){
                           stop(paste("ouput file/folder's directory", n, "is not exist:",x ))
                       }
-                      message(paste0("|        \"", x,"\""))
+                      writeLog(.Object, paste0("|        \"", x,"\""))
                   })
               }
           })
