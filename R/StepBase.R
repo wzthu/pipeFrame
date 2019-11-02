@@ -536,8 +536,8 @@ setMethod(f = "initialize",
                       message(paste("Running command line:"))
                       message(argv[["cmdline"]])
                       system(argv[["cmdline"]])
-                  }else if(is.null(argv[["callback"]])){
-                      func<-argv[["callback"]]
+                  }else if(!is.null(argv[["callback"]])){
+                      func <- argv[["callback"]]
                       func()
                   }else{
                       obj_return_from_porcessing<-process(.Object)
