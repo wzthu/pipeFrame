@@ -1179,7 +1179,7 @@ setMethod(f = "checkRequireParam",
           signature = "Step",
           definition = function(.Object,...){
               # override this function if necessary
-              message("Other Parameters:")
+              message("|Other Parameters:")
               paramValue <- param(.Object)
 
               lapply(names(paramValue), function(n){
@@ -1217,13 +1217,13 @@ setGeneric(name = "checkAllPath",
 setMethod(f = "checkAllPath",
           signature = "Step",
           definition = function(.Object,...){
-              message("Input:")
+              message("|Input:")
               inputValue <- input(.Object)
               for(n in names(inputValue)){
                   if(!is.character(inputValue[[n]])){
                       stop(paste("input file value of", n, "is not is not character"))
                   }
-                  message(paste0("    ", n,":"))
+                  message(paste0("|    ", n,":"))
                   lapply(inputValue[[n]], function(x){
                       if(!file.exists(x)){
                           stop(paste("input file directory", n, "is not exist:", x))
@@ -1231,7 +1231,7 @@ setMethod(f = "checkAllPath",
                       message(paste0("|        \"", x,"\""))
                   })
               }
-              message("Output:")
+              message("|Output:")
               ouputValue <- output(.Object)
               for(n in names(ouputValue)){
                   if(!is.character(ouputValue[[n]])){
