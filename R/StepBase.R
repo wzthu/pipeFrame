@@ -1158,8 +1158,10 @@ setGeneric(name = "paramValidation",
 setMethod(f = "paramValidation",
           signature = "Step",
           definition = function(.Object,...){
+              message("All Parameters for This Step:")
               checkAllPath(.Object)
               checkRequireParam(.Object)
+              message("__________________________________________")
           })
 
 
@@ -1192,9 +1194,9 @@ setMethod(f = "checkRequireParam",
                       if(length(x)>1){
                           val <- paste("a vector started with",x[1])
                       }
-                      message(paste0("        ", val))
+                      message(paste0("|        ", val))
                   }else{
-                      message(paste("        An object of",class(x)))
+                      message(paste("|        An object of",class(x)))
                   }
               })
               return(TRUE)
@@ -1226,7 +1228,7 @@ setMethod(f = "checkAllPath",
                       if(!file.exists(x)){
                           stop(paste("input file directory", n, "is not exist:", x))
                       }
-                      message(paste0("        \"", x,"\""))
+                      message(paste0("|        \"", x,"\""))
                   })
               }
               message("Output:")
@@ -1235,12 +1237,12 @@ setMethod(f = "checkAllPath",
                   if(!is.character(ouputValue[[n]])){
                       stop(paste("ouput file value of", n, "is not is not character:"))
                   }
-                  message(paste0("    ", n,":"))
+                  message(paste0("|    ", n,":"))
                   lapply(ouputValue[[n]], function(x){
                       if(!file.exists(dirname(x))){
                           stop(paste("ouput file/folder's directory", n, "is not exist:",x ))
                       }
-                      message(paste0("        \"", x,"\""))
+                      message(paste0("|        \"", x,"\""))
                   })
               }
           })
