@@ -216,7 +216,7 @@ setMethod(f = "graphPrintMap",
                   color <- rep("lightblue",length(stepId))
                   stopifnot(!is.na(stepId[stepType]))
                   color[stepId[stepType]] <- "red"
-                  nodes <- data.frame(id = tepId,
+                  nodes <- data.frame(id = stepId,
                       label = names(stepId), # add labels on nodes
             #         group = c("GrA", "GrB"),  # add groups on nodes
             #         value = 1:10,  # size adding value
