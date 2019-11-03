@@ -31,7 +31,9 @@
 #' @param name \code{Character} scalar.
 #' Name can be one of inputList, outputList, paramList, allList, propList or
 #' the item names of inputList, outputList or  paramList
-#' @param prevSteps \code{List} scalar of Step object
+#' @param prevSteps \code{List} list of Step objects
+#' @param pipeName \code{Character} scalar.
+#' The pipeline name that this step belongs to. Default: NULL. It will be replace by the only pipeline name.
 #' @param type \code{Character} scalar.
 #' Valid types of parameters including "input", "output" and "other"
 #' @param item \code{Character} scalar.
@@ -279,9 +281,9 @@
 #' rd <- randomRegionOnGenome(10000) %>%
 #' runOverlappedRandomRegion(inputBed = test_bed)
 #'
-#' getStepName(rd)
-#' getStepId(rd)
-#' getDefName(rd)
+#' stepName(rd)
+#' stepID(rd)
+#'
 #'
 #' isReady(rd)
 
@@ -299,7 +301,7 @@ Step <- setClass(Class = "Step",
                      timeStampStart="POSIXct",
                      timeStampEnd="POSIXct",
                      id = "integer",
-                     groupName = "character",
+                     pipeName = "character",
                      loaded = "logical"
                  ),
                  prototype = c(argv = list(),
@@ -313,60 +315,79 @@ Step <- setClass(Class = "Step",
                                timeStampStart=Sys.time(),
                                timeStampEnd=Sys.time(),
                                id = 0L,
-                               groupName = character(),
+                               pipeName = character(),
                                loaded = FALSE)
 )
 setMethod(f = "initialize",
           signature = "Step",
-          definition = function(.Object,prevSteps = list(),
-                                groupName = NULL, ...){
+          definition = function(.Object,prevSteps = list(), stepDefName = NULL,
+                                stepPipeName = NULL, isReportStep = FALSE, ...){
 
 
 
               argv <- c(as.list(environment()),list(...))
 
+              msgBoxBegin()
+
               argv[["prevSteps"]] <- NULL
 
-
+# check if it is an Step object
               stopifnot(is(prevSteps,"list"))
-              if(length(prevSteps)>0){
-                  objs<-unlist(prevSteps)
-                  # for(obj in objs){
-                  #     if(is.null(obj)){
-                  #         next
-                  #     }
-                  #     stopifnot(inherits(obj,"Step"))
-                  # }
-                  lapply(objs, function(obj){
-                      if(is.null(obj)){
-                          return()
-                      }
+              lapply(prevSteps, function(obj){
+                  if(!is.null(obj)){
                       stopifnot(inherits(obj,"Step"))
-                  })
+                  }
+              })
+
+
+
+
+
+# set pipeName
+              inputPipeNameList <- NULL
+              stopifnot(is.list(prevSteps))
+              if(is.null(stepPipeName)){
+                  if(length(prevSteps)>0){
+                      pipeNameList <- lapply(prevSteps, function(prevStep){
+                          if(!is.null(prevStep) && !isReady(prevStep)){
+                              stop(paste(stepName(prevStep),
+                                         "is not ready"))
+                          }else if(is.null(prevStep)){
+                              stop("previous step can not be NULL")
+                          }
+                          return(pipeName(prevStep))
+                      })
+                      inputPipeNameList <- pipeNameList
+                      .Object@pipeName <- sort(unique(unlist(pipeNameList)))
+                  }else{
+                      .Object@pipeName <- getPipeName()
+                  }
+              }else{
+                  stopifnot(is.character(stepPipeName))
+#                  tmp<-getPipeName()
+                  setPipeName(stepPipeName)
+                  .Object@pipeName <- stepPipeName
+#                  setPipeName(tmp)
               }
 
-              stepName <- as.character(class(.Object))
+              # initialize step name
+              if(is.null(stepDefName)){
+                  .Object@stepName <- paste0(paste0(pipeName(.Object),collapse = "_"),"_",stepType(.Object))
+              }else{
+                  .Object@stepName <- stepDefName
+              }
 
-              .Object@stepName <- stepName
 
 
-
+              # use parameters from ... to overwrite the fix parameters
               argvother <- argv[startsWith(names(argv),
-                                           paste0(getDefName(.Object), "."))]
-              # for(a in names(argvother)){
-              #     a0 <- substring(a,1 + nchar(paste0(getDefName(.Object),".")))
-              #     if(sum(names(argv)==a0)>0){
-              #         argv[[a0]] <- argvother[[a]]
-              #     }else{
-              #         stop(paste0(a," is not parameter of Step ", stepName))
-              #     }
-              # }
+                                           paste0(stepName(.Object), "."))]
               rs <- lapply(names(argvother), function(a){
-                  a0 <- substring(a,1 + nchar(paste0(getDefName(.Object),".")))
+                  a0 <- substring(a,1 + nchar(paste0(stepName(.Object),".")))
                   if(sum(names(argv)==a0)>0){
                       return(argvother[[a]])
                   }else{
-                      stop(paste0(a," is not parameter of Step ", stepName))
+                      stop(paste(a," is not parameter of Step ", stepType(.Object),stepName(.Object)))
                   }
               })
               names(rs) <- names(argvother)
@@ -375,72 +396,40 @@ setMethod(f = "initialize",
               .Object@argv <- argv
 
 
+
+
+# set propery pass from previous pipeline(only the pipeline name regist in .Object@pipeName)
               argSize <- length(prevSteps)
-
-
               if(argSize>0){
-                  # for(i in 1:argSize){
+                  # lapply(seq_len(argSize), function(i){
                   #     if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
-                  #         stop(paste(getStepName(prevSteps[[i]]),
+                  #         stop(paste(stepName(prevSteps[[i]]),
                   #                    "is not ready"))
                   #     }
-                  #     # if(!checkRelation(getStepName(prevSteps[[i]]),
-                  #     #getStepName(.Object),i)){
-                  #     #     stop(paste(getStepName(prevSteps[[i]]),
-                  #     #            "is not valid input"))
-                  #     # }
                   #     if(!is.null(prevSteps[[i]])){
-                  #         .Object@propList <- c(.Object@propList,
-                  #                               prevSteps[[i]]@propList)
-                  #         .Object@groupName <- c(.Object@groupName,
-                  #                                prevSteps[[i]]@groupName)
+                  #         lapply(seq_len(length(pipeName(.Object))), function(j){
+                  #             lapply(seq_len(length(pipeName(prevSteps[[i]]))), function(k){
+                  #                 if(pipeName(.Object)[j] == pipeName(prevSteps[[i]])[k]){
+                  #                     property(.Object,pipeNameIdx = j) <- property(prevSteps[[i]], pipeNameIdx = k)
+                  #                     message(property(.Object,pipeNameIdx = j))
+                  #                 }
+                  #             })
+                  #             print(.Object@propList)
+                  #         })
                   #     }
-                  # }
-                  prop <- lapply(seq_len(argSize), function(i){
-                      if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
-                          stop(paste(getStepName(prevSteps[[i]]),
-                                     "is not ready"))
-                      }
-                      # if(!checkRelation(getStepName(prevSteps[[i]]),
-                      #getStepName(.Object),i)){
-                      #     stop(paste(getStepName(prevSteps[[i]]),
-                      #            "is not valid input"))
-                      # }
+                  # })
+                  for(i in seq_len(argSize)){
                       if(!is.null(prevSteps[[i]])){
-                            return(property(prevSteps[[i]]))
+                          for(j in seq_len(length(pipeName(.Object)))){
+                              for(k in seq_len(length(pipeName(prevSteps[[i]])))){
+                                  if(pipeName(.Object)[j] == pipeName(prevSteps[[i]])[k]){
+                                      property(.Object,pipeName = pipeName(.Object)[j]) <- property(prevSteps[[i]], pipeName = pipeName(prevSteps[[i]])[k])
+                                  }
+                              }
+                          }
                       }
-                  })
-                  property(.Object) <- c(property(.Object), as.list(unlist(prop)))
-
-                  gpn <- lapply(seq_len(argSize), function(i){
-                      if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
-                          stop(paste(getStepName(prevSteps[[i]]),
-                                     "is not ready"))
-                      }
-                      # if(!checkRelation(getStepName(prevSteps[[i]]),
-                      #getStepName(.Object),i)){
-                      #     stop(paste(getStepName(prevSteps[[i]]),
-                      #            "is not valid input"))
-                      # }
-                      if(!is.null(prevSteps[[i]])){
-                           return(prevSteps[[i]]@groupName)
-                      }
-                  })
-                  .Object@groupName <- c(.Object@groupName, unlist(gpn))
-                  .Object@groupName <- sort(unique(.Object@groupName))
+                  }
               }
-
-              if(!is.null(groupName)){
-                  stopifnot(!is.character(groupName))
-                  .Object@groupName <- sort(unique(groupName))
-              }
-
-              if(is.null(groupName) && length(.Object@groupName)==0){
-                  .Object@groupName <- "pipe"
-              }
-
-
-
 
 
 
@@ -448,22 +437,23 @@ setMethod(f = "initialize",
               if(is.null(nameObjList)){
                   nameObjList <- list()
               }
-              if(!is.null(nameObjList[[getDefName(.Object)]])){
-                  .Object@id <- nameObjList[[getDefName(.Object)]]@id
+              if(!is.null(nameObjList[[stepName(.Object)]])){
+                  .Object@id <- nameObjList[[stepName(.Object)]]@id
               }else{
                   count <- getOption("pipeFrameConfig.count")
                   .Object@id <- count
               }
               options(pipeFrameConfig.allowChangeJobDir = FALSE)
 
+              inputPrevSteps <- prevSteps
               prevSteps <- list()
               # for(i in 1:10){
-              #     s <- getPrevSteps(stepName = getStepName(.Object),i)
+              #     s <- getPrevSteps(stepName = stepName(.Object),i)
               #     if(is.null(s)){
               #         break
               #     }
               #     tt <- nameObjList[[
-              #         paste0(s,"_",paste0(.Object@groupName,collapse = "_"))]]
+              #         paste0(s,"_",paste0(.Object@pipeName,collapse = "_"))]]
               #     if(is.null(tt)){
               #         stop(paste("Step", s, " is required for", stepName,
               #                    "please calculate Step",s,"first"))
@@ -471,43 +461,103 @@ setMethod(f = "initialize",
               #         prevSteps<-c(prevSteps,list(tt))
               #     }
               # }
-              if(argSize > 0){
-                  prevSteps <- lapply(seq_len(10), function(i){
-                      s <- getPrevSteps(stepName = getStepName(.Object),i)
-                      if(is.null(s)){
-                          return()
+              if(argSize > 0 && !isReportStep){
+                  if(length(pipeName(.Object))==1 && length(inputPrevSteps)==1){
+                      # in the sample pipeline, auto add remaining prevSteps that follow the graph
+                      prevSteps <- lapply(seq_len(10), function(i){
+                          s <- getPrevSteps(stepType = stepType(.Object),i)
+                          if(is.null(s)){
+                              return(NULL)
+                          }else{
+                              candidateName <- lapply(nameObjList, function(x){
+                                  if((stepType(x) %in% s) &&
+                                     length(intersect(pipeName(.Object), pipeName(x)))>0){
+                                      return(stepName(x))
+                                  }else{
+                                      return(NULL)
+                                  }
+                              })
+                              candidateName <- unlist(candidateName)
+                              if(length(candidateName) == 0) {
+                                  stop(paste("There is not any finish step like",paste(s,collapse = " or "),"in this pipeline"))
+                              }
+                              candidateID <- lapply(candidateName, function(x){
+                                  return(stepID(nameObjList[[x]]))
+                              })
+
+                              sel <-  order(candidateID,decreasing = TRUE)[1]
+                              latestname <- candidateName[sel]
+                              return(nameObjList[[latestname]])
+                          }
+                      })
+                      for(i in sort(seq_len(9),decreasing = TRUE)){
+                          if(is.null(prevSteps[[i]])){
+                              prevSteps[[i]] <- NULL
+                          }else{
+                              break
+                          }
                       }
-                      tt <- nameObjList[[
-                          paste0(s,"_",paste0(.Object@groupName,collapse = "_"))]]
-                      if(is.null(tt)){
-                          stop(paste("Step", s, " is required for", stepName,
-                                     "please calculate Step",s,"first"))
-                      }else{
-                          return(list(tt))
+                  } else {
+                      # previous step come from different pipeline or there are more than one previous step from same pipeline. check if it is the previous step
+                      for(i in seq_len(10)){
+                          s <- getPrevSteps(stepType = stepType(.Object),i)
+                          if(!is.null(s)){
+                              if(sum(stepType(inputPrevSteps[[i]]) %in% s)<0.5){
+                                  stop(paste(stepName(inputPrevSteps[[i]]),"'s step type is not the ",i, "parameter of", stepType(.Object)))
+                              }
+                          }
+                      }
+                      prevSteps <- inputPrevSteps
+
+                  }
+              }else if(isReportStep){
+                  print
+                  prevSteps <- lapply(nameObjList, function(x){
+                      if(length(intersect(pipeName(x),pipeName(.Object)))>0){
+                          return(x)
                       }
                   })
-                  prevSteps <- as.list(unlist(prevSteps))
               }
 
               if(!dir.exists(getStepWorkDir(.Object))){
                   dir.create(getStepWorkDir(.Object))
               }
 
+
               argv <- c(list(.Object = .Object,prevSteps = prevSteps),argv)
+              writeLog(.Object, paste0("Step Name:",.Object@stepName))
+
               obj_return_from_init <- do.call(init,argv)
-              stopifnot(is(obj_return_from_init,getStepName(.Object)))
+              stopifnot(is(obj_return_from_init,stepType(.Object)))
               .Object <- obj_return_from_init
               paramValidation(.Object)
-              obj_return_from_porcessing<-process(.Object)
-              stopifnot(is(obj_return_from_porcessing,getStepName(.Object)))
+              if(isReportStep){
+                  obj_return_from_porcessing<-process(.Object, prevSteps = prevSteps)
+              }else{
+                  if(!is.null(argv[["cmdline"]])){
+                      writeLog(.Object, paste("Running command line:"))
+                      writeLog(.Object, argv[["cmdline"]])
+                      system(argv[["cmdline"]])
+                  }else if(!is.null(argv[["callback"]])){
+                      func <- argv[["callback"]]
+                      func()
+                  }else{
+                      obj_return_from_porcessing<-process(.Object)
+                  }
+
+              }
+
+              stopifnot(is(obj_return_from_porcessing,stepType(.Object)))
               .Object <- obj_return_from_porcessing
 
-              if(is.null(nameObjList[[getDefName(.Object)]])){
+              if(is.null(nameObjList[[stepName(.Object)]])){
                   count <- getOption("pipeFrameConfig.count")
                   options(pipeFrameConfig.count = count+1L)
               }
-              nameObjList[[getDefName(.Object)]] <- .Object
+              nameObjList[[stepName(.Object)]] <- .Object
               options(pipeFrameConfig.nameObjList = nameObjList)
+
+              msgBoxDone()
               .Object
           })
 
@@ -541,8 +591,14 @@ setGeneric(name = "process",
 setMethod(f = "process",
           signature = "Step",
           definition = function(.Object,...){
-              msgBoxBegin()
-              if(checkMD5Cache(.Object)){
+              if(file.exists(getStepWorkDir(.Object, "ignore.modify"))){
+                  writeLog(.Object,paste0("The step:`",.Object@stepName,
+                                          "`do not check result files."))
+                  writeLog(.Object, "because file 'ignore.modify' in step directory is detected." )
+                  writeLog(.Object, "Ignore checking modified result for this step.")
+                  writeLog(.Object, paste0("Please confirm the format of each files match the original ones"))
+                  .Object <- setFinish(.Object)
+              }else if(checkMD5Cache(.Object)){
                   writeLog(.Object,paste0("The step:`",.Object@stepName,
                                           "` was finished. Nothing to do."))
                   writeLog(.Object,
@@ -553,10 +609,9 @@ setMethod(f = "process",
                   .Object@loaded <- TRUE
               }else{
                   writeLog(.Object,as.character(Sys.time()))
-                  writeLog(.Object,paste0("start processing data: ",
-                                          .Object@stepName))
+                  writeLog(.Object, "start processing data: ")
                   .Object@timeStampStart<-Sys.time()
-                  .Object <- processing(.Object)
+                  .Object <- processing(.Object, ...)
                   .Object@timeStampEnd<-Sys.time()
                   .Object@reportList$timeStampStart <-
                       .Object@timeStampStart
@@ -566,45 +621,61 @@ setMethod(f = "process",
                   pipeFrameObj <- .Object
                   save(pipeFrameObj, file = getParamMD5Path(.Object))
               }
-              msgBoxDone()
+
               .Object
           })
 
 
 
-setGeneric(name = "getStepName",
+setGeneric(name = "stepName",
            def = function(.Object,...){
-               standardGeneric("getStepName")
+               standardGeneric("stepName")
            })
 
-#' @return \item{getStepName}{get Step object Character name}
+#' @return \item{stepName}{get Step object Character name}
 #' @rdname Step-class
-#' @aliases getStepName
+#' @aliases stepName
 #' @export
-setMethod(f = "getStepName",
+setMethod(f = "stepName",
           signature = "Step",
           definition = function(.Object,...){
               return(.Object@stepName)
           })
 
 
-
-
-setGeneric(name = "getDefName",
+setGeneric(name = "stepType",
            def = function(.Object,...){
-               standardGeneric("getDefName")
+               standardGeneric("stepType")
            })
 
-#' @return \item{getDefName}{get Step object Character name}
+#' @return \item{stepType}{get Step object Character type name (class name)}
 #' @rdname Step-class
-#' @aliases getDefName
+#' @aliases stepType
 #' @export
-setMethod(f = "getDefName",
+setMethod(f = "stepType",
           signature = "Step",
           definition = function(.Object,...){
-              return(paste0(.Object@stepName,"_",paste0(.Object@groupName,
-                                                        collapse = "_")))
+              return(as.character(class(.Object)))
           })
+
+setGeneric(name = "pipeName",
+           def = function(.Object,...){
+               standardGeneric("pipeName")
+           })
+
+#' @return \item{pipeName}{get Step object pipe name}
+#' @rdname Step-class
+#' @aliases pipeName
+#' @export
+setMethod(f = "pipeName",
+          signature = "Step",
+          definition = function(.Object,...){
+              return(.Object@pipeName)
+          })
+
+
+
+
 
 
 setGeneric(name = "input",
@@ -739,7 +810,7 @@ setReplaceMethod(f = "param",
 
 
 setGeneric(name = "property",
-           def = function(.Object, ...)
+           def = function(.Object, ..., pipeName = NULL)
                standardGeneric("property")
 )
 
@@ -749,14 +820,22 @@ setGeneric(name = "property",
 #' @export
 setMethod(f = "property",
           signature = "Step",
-          definition = function(.Object){
-              return(.Object@propList)
+          definition = function(.Object, ..., pipeName = NULL){
+              if(is.null(pipeName)){
+                  if(length(.Object$pipeName)==1){
+                      pipeName <- .Object$pipeName
+                  }else{
+                      stop("object with multi-pipeName, pipeName need to be specified")
+                  }
+              }
+              stopifnot(is.character(pipeName))
+              return(.Object@propList[[pipeName]])
           })
 
 
 
 setGeneric(name = "property<-",
-           def = function(.Object,..., value)
+           def = function(.Object,..., pipeName = NULL, value)
                standardGeneric("property<-")
 )
 
@@ -766,8 +845,15 @@ setGeneric(name = "property<-",
 #' @export
 setReplaceMethod(f = "property",
                  signature = "Step",
-                 definition = function(.Object, value){
-                     .Object@propList <- value
+                 definition = function(.Object,pipeName = NULL, value){
+                     if(is.null(pipeName)){
+                         if(length(.Object$pipeName)==1){
+                             pipeName <- .Object$pipeName
+                         }else{
+                             stop("object with multi-pipeName, pipeName need to be specified")
+                         }
+                     }
+                     .Object@propList[[pipeName]] <- value
                      .Object
                  })
 
@@ -830,10 +916,11 @@ setGeneric(name = "argv<-",
                standardGeneric("argv<-")
 )
 
-#' @rdname Step-class
-#' @return \item{argv<-}{set argumnets list}
-#' @aliases  argv<-
-#' @export
+# not export
+# @rdname Step-class
+# @return \item{argv<-}{set argumnets list}
+# @aliases  argv<-
+# @export
 setReplaceMethod(f = "argv",
                  signature = "Step",
                  definition = function(.Object, value){
@@ -871,6 +958,34 @@ setMethod(f = "$",
           })
 
 
+
+#' @rdname Step-class
+#' @return \item{$<-}{set inputList, outputList, paramList, allList, propList
+#' or any item value in inputList, outputList or paramList}
+#' @aliases  $<-
+#' @export
+setReplaceMethod(f = "$",
+          signature = "Step",
+          definition = function(x, name, value){
+              if(name == "inputList"){
+                  input(x) <- value
+              }else if(name == "outputList"){
+                  output(x) <- value
+              }else if(name == "paramList"){
+                  param(x) <- value
+              }else if(name == "allList"){
+                  stop("`allList` can not be set")
+              }else if(name == "propList"){
+                  property(x) <- value
+              }else if(name == "reportList"){
+                  report(x) <- value
+              }else if(name == "argv"){
+                  argv(x) <- value
+              }else{
+                  stop(paste(name,"is not available for $<-"))
+              }
+              x
+          })
 
 
 setGeneric(name = "getParam",
@@ -1018,50 +1133,6 @@ setMethod(f = "clearStepCache",
           })
 
 
-
-setGeneric(name = "getReportVal",
-           def = function(.Object,item,...){
-               standardGeneric("getReportVal")
-           })
-
-#' @rdname Step-class
-#' @return \item{getReportVal}{Get report value of item.
-#' See \code{getReportItems} to obtain valid items for query.}
-#' @aliases   getReportVal
-#' @export
-setMethod(f = "getReportVal",
-          signature = "Step",
-          definition = function(.Object,item,...){
-              if(.Object@finish){
-                  if(sum(item == getReportItemsImp(.Object))>0){
-                      return(getReportValImp(.Object,item))
-                  }else{
-                      stop(paste0(item," is not an item of report value."))
-                  }
-              }else{
-                  stop("Unfinished process is not available for report value.")
-              }
-          })
-
-
-setGeneric(name = "getReportItems",
-           def = function(.Object,...){
-               standardGeneric("getReportItems")
-           })
-
-#' @rdname Step-class
-#' @return \item{getReportItems}{Get all items that can be reported}
-#' @aliases getReportItems
-#' @export
-setMethod(f = "getReportItems",
-          signature = "Step",
-          definition = function(.Object,...){
-              if(.Object@finish){
-                  return(getReportItemsImp(.Object))
-              }else{
-                  stop("Unfinished process is not available for report items.")
-              }
-          })
 setGeneric(name = "getAutoPath",
            def = function(.Object,originPath,regexSuffixName,suffix,...){
                standardGeneric("getAutoPath")
@@ -1088,10 +1159,10 @@ setGeneric(name = "paramValidation",
 setMethod(f = "paramValidation",
           signature = "Step",
           definition = function(.Object,...){
-              if(!checkMD5Cache(.Object)){
-                  checkAllPath(.Object)
-              }
-              checkRequireParam(.Object);
+              writeLog(.Object, "All Parameters for This Step:")
+              checkAllPath(.Object)
+              checkRequireParam(.Object)
+              writeLog(.Object, "__________________________________________")
           })
 
 
@@ -1109,6 +1180,26 @@ setMethod(f = "checkRequireParam",
           signature = "Step",
           definition = function(.Object,...){
               # override this function if necessary
+              writeLog(.Object, "|Other Parameters:")
+              paramValue <- param(.Object)
+
+              lapply(names(paramValue), function(n){
+                  x <- paramValue[[n]]
+                  writeLog(.Object, paste0("|    ", n))
+                  if(is.character(x)||
+                     is.numeric(x)||
+                     is.logical(x)||
+                     is.factor(x)||
+                     is.null(x)){
+                      val <- x
+                      if(length(x)>1){
+                          val <- paste("a vector started with",x[1])
+                      }
+                      writeLog(.Object, paste0("|        ", val))
+                  }else{
+                      writeLog(.Object, paste("|        An object of",class(x)))
+                  }
+              })
               return(TRUE)
           })
 
@@ -1127,70 +1218,34 @@ setGeneric(name = "checkAllPath",
 setMethod(f = "checkAllPath",
           signature = "Step",
           definition = function(.Object,...){
-              items <- getParamItems(.Object, type="input")
-              # for(items in items){
-              #     paths<-input(.Object)[[items]]
-              #     if(!is.null(paths)){
-              #         for(path in paths){
-              #             if(!file.exists(path)){
-              #                 stop(paste0("input ",
-              #                             items,
-              #                             "'s directory '",
-              #                             path,"' does not exist."))
-              #             }
-              #         }
-              #     }
-              # }
-              lapply(items, function(item){
-                  paths<-input(.Object)[[item]]
-                  if(!is.null(paths)){
-                      # for(path in paths){
-                      #     if(!file.exists(path)){
-                      #         stop(paste0("input ",
-                      #                     item,
-                      #                     "'s directory '",
-                      #                     path,"' does not exist."))
-                      #     }
-                      # }
-                      lapply(paths, function(path){
-                          if(!file.exists(path)){
-                              stop(paste0("input ",
-                                          item,
-                                          "'s directory '",
-                                          path,"' does not exist."))
-                          }
-                      })
+              writeLog(.Object, "|Input:")
+              inputValue <- input(.Object)
+              for(n in names(inputValue)){
+                  if(!is.character(inputValue[[n]])){
+                      stop(paste("input file value of", n, "is not is not character"))
                   }
-              })
-              items <- getParamItems(.Object, type="output")
-              # for(item in items){
-              #     paths<-input(.Object)[[items]]
-              #     if(!is.null(paths)){
-              #         for(path in paths){
-              #             if(!dir.exists(path)){
-              #                 file.create(path)
-              #                 unlink(path)
-              #             }
-              #         }
-              #     }
-              # }
-              lapply(items, function(item){
-                  paths<-input(.Object)[[item]]
-                  if(!is.null(paths)){
-                      # for(path in paths){
-                      #     if(!dir.exists(path)){
-                      #         file.create(path)
-                      #         unlink(path)
-                      #     }
-                      # }
-                      lapply(paths, function(path){
-                          if(!dir.exists(path)){
-                              file.create(path)
-                              unlink(path)
-                          }
-                      })
+                  writeLog(.Object, paste0("|    ", n,":"))
+                  lapply(inputValue[[n]], function(x){
+                      if(!file.exists(x)){
+                          stop(paste("input file directory", n, "is not exist:", x))
+                      }
+                      writeLog(.Object, paste0("|        \"", x,"\""))
+                  })
+              }
+              writeLog(.Object, "|Output:")
+              ouputValue <- output(.Object)
+              for(n in names(ouputValue)){
+                  if(!is.character(ouputValue[[n]])){
+                      stop(paste("ouput file value of", n, "is not is not character:"))
                   }
-              })
+                  writeLog(.Object, paste0("|    ", n,":"))
+                  lapply(ouputValue[[n]], function(x){
+                      if(!file.exists(dirname(x))){
+                          stop(paste("ouput file/folder's directory", n, "is not exist:",x ))
+                      }
+                      writeLog(.Object, paste0("|        \"", x,"\""))
+                  })
+              }
           })
 
 setGeneric(name = "getParamMD5Path",
@@ -1204,7 +1259,7 @@ setGeneric(name = "getParamMD5Path",
 setMethod(f = "getParamMD5Path",
           signature = "Step",
           definition = function(.Object,...){
-              paramstr <- c(getStepName(.Object))
+              paramstr <- c(stepName(.Object))
               itNames <- getParamItems(.Object,type="other")
               # for(n in sort(itNames)){
               #     paramstr<-c(paramstr,n)
@@ -1377,27 +1432,27 @@ setMethod(f = "getStepWorkDir",
                   return(file.path(getJobDir(),
                                    paste0("Step_",
                                           sprintf("%02d",
-                                                  getStepId(.Object)),
-                                          "_",getDefName(.Object))))
+                                                  stepID(.Object)),
+                                          "_",stepName(.Object))))
               }else{
                   return(file.path(getJobDir(),
                                    paste0("Step_",
-                                          sprintf("%02d",getStepId(.Object)),
-                                          "_",getDefName(.Object)),filename))
+                                          sprintf("%02d",stepID(.Object)),
+                                          "_",stepName(.Object)),filename))
               }
 
           })
 
-setGeneric(name = "getStepId",
+setGeneric(name = "stepID",
            def = function(.Object,...){
-               standardGeneric("getStepId")
+               standardGeneric("stepID")
            })
 
-#' @return \item{getStepId}{Get the step ID}
+#' @return \item{stepID}{Get the step ID}
 #' @rdname Step-class
-#' @aliases getStepId
+#' @aliases stepID
 #' @export
-setMethod(f = "getStepId",
+setMethod(f = "stepID",
           signature = "Step",
           definition = function(.Object,...){
               return(.Object@id)
@@ -1428,7 +1483,6 @@ setMethod(f = "writeLog",
                   msg,file.path(getStepWorkDir(.Object),
                                 "pipeFrame.obj.log"),quote = FALSE,
                   row.names = FALSE,col.names = FALSE,append = appendLog)
-              .Object
           })
 
 #' @return \item{processing}{(For package developer) Run pipeline step}
@@ -1441,41 +1495,11 @@ setGeneric(name = "processing",
            })
 
 
-
-
-
-setGeneric(name = "getReportValImp",
-           def = function(.Object,item,...){
-               standardGeneric("getReportValImp")
-           })
-
-
-#' @return \item{getReportValImp}{(For package developer) get Report Value}
+#' @return \item{genReport}{(For package developer) Generate report list}
 #' @rdname Step-class
-#' @aliases getReportValImp
+#' @aliases genReport
 #' @export
-setMethod(f = "getReportValImp",
-          signature = "Step",
-          definition = function(.Object,item,...){
-              return(.Object@reportList[[item]])
-          })
-
-
-setGeneric(name = "getReportItemsImp",
-           def = function(.Object,item,...){
-               standardGeneric("getReportItemsImp")
+setGeneric(name = "genReport",
+           def = function(.Object,...){
+               standardGeneric("genReport")
            })
-
-#' @return \item{getReportItemsImp}{(For package developer) getReportItemsImp}
-#' @rdname Step-class
-#' @aliases getReportItemsImp
-#' @export
-setMethod(f = "getReportItemsImp",
-          signature = "Step",
-          definition = function(.Object,item,...){
-              return(names(.Object@reportList))
-          })
-
-
-
-

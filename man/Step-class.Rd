@@ -6,10 +6,12 @@
 \alias{Step}
 \alias{init,Step-method}
 \alias{init}
-\alias{getStepName,Step-method}
-\alias{getStepName}
-\alias{getDefName,Step-method}
-\alias{getDefName}
+\alias{stepName,Step-method}
+\alias{stepName}
+\alias{stepType,Step-method}
+\alias{stepType}
+\alias{pipeName,Step-method}
+\alias{pipeName}
 \alias{input,Step-method}
 \alias{input}
 \alias{input<-,Step-method}
@@ -32,10 +34,10 @@
 \alias{report<-}
 \alias{argv,Step-method}
 \alias{argv}
-\alias{argv<-,Step-method}
-\alias{argv<-}
 \alias{$,Step-method}
 \alias{$}
+\alias{$<-,Step-method}
+\alias{$<-}
 \alias{getParam,Step-method}
 \alias{getParam}
 \alias{getParamItems,Step-method}
@@ -44,10 +46,6 @@
 \alias{isReady}
 \alias{clearStepCache,Step-method}
 \alias{clearStepCache}
-\alias{getReportVal,Step-method}
-\alias{getReportVal}
-\alias{getReportItems,Step-method}
-\alias{getReportItems}
 \alias{getAutoPath,Step-method}
 \alias{getAutoPath}
 \alias{checkRequireParam,Step-method}
@@ -58,22 +56,21 @@
 \alias{getParamMD5Path}
 \alias{getStepWorkDir,Step-method}
 \alias{getStepWorkDir}
-\alias{getStepId,Step-method}
-\alias{getStepId}
+\alias{stepID,Step-method}
+\alias{stepID}
 \alias{writeLog,Step-method}
 \alias{writeLog}
 \alias{processing}
-\alias{getReportValImp,Step-method}
-\alias{getReportValImp}
-\alias{getReportItemsImp,Step-method}
-\alias{getReportItemsImp}
+\alias{genReport}
 \title{Methods for Step objects}
 \usage{
 \S4method{init}{Step}(.Object, prevSteps = list(), ...)
 
-\S4method{getStepName}{Step}(.Object, ...)
+\S4method{stepName}{Step}(.Object, ...)
 
-\S4method{getDefName}{Step}(.Object, ...)
+\S4method{stepType}{Step}(.Object, ...)
+
+\S4method{pipeName}{Step}(.Object, ...)
 
 \S4method{input}{Step}(.Object)
 
@@ -87,9 +84,9 @@
 
 \S4method{param}{Step}(.Object) <- value
 
-\S4method{property}{Step}(.Object)
+\S4method{property}{Step}(.Object, ..., pipeName = NULL)
 
-\S4method{property}{Step}(.Object) <- value
+\S4method{property}{Step}(.Object, pipeName = NULL) <- value
 
 \S4method{report}{Step}(.Object)
 
@@ -97,9 +94,9 @@
 
 \S4method{argv}{Step}(.Object)
 
-\S4method{argv}{Step}(.Object) <- value
-
 \S4method{$}{Step}(x, name)
+
+\S4method{$}{Step}(x, name) <- value
 
 \S4method{getParam}{Step}(.Object, item, type = c("input", "output",
   "other"), ...)
@@ -110,10 +107,6 @@
 \S4method{isReady}{Step}(.Object, ...)
 
 \S4method{clearStepCache}{Step}(.Object, ...)
-
-\S4method{getReportVal}{Step}(.Object, item, ...)
-
-\S4method{getReportItems}{Step}(.Object, ...)
 
 \S4method{getAutoPath}{Step}(.Object, originPath, regexSuffixName, suffix,
   ...)
@@ -126,27 +119,28 @@
 
 \S4method{getStepWorkDir}{Step}(.Object, filename = NULL, ...)
 
-\S4method{getStepId}{Step}(.Object, ...)
+\S4method{stepID}{Step}(.Object, ...)
 
 \S4method{writeLog}{Step}(.Object, msg, ..., isWarnning = FALSE,
   appendLog = TRUE, showMsg = TRUE)
 
 processing(.Object, ...)
 
-\S4method{getReportValImp}{Step}(.Object, item, ...)
-
-\S4method{getReportItemsImp}{Step}(.Object, item, ...)
+genReport(.Object, ...)
 }
 \arguments{
 \item{.Object}{\code{Step} object scalar.
 Step object is returned by functions in each step.}
 
-\item{prevSteps}{\code{List} scalar of Step object}
+\item{prevSteps}{\code{List} list of Step objects}
 
 \item{...}{Additional arguments, currently unused.}
 
 \item{value}{any type scalar.
 The value to be set for corresponding item in a list.}
+
+\item{pipeName}{\code{Character} scalar.
+The pipeline name that this step belongs to. Default: NULL. It will be replace by the only pipeline name.}
 
 \item{x}{\code{Step} object scalar.
 Step object is returned by functions in each step.}
@@ -189,9 +183,11 @@ the function and result of functions:
 A Step child class object with initialized input,
 output and other parameters}
 
-\item{getStepName}{get Step object Character name}
+\item{stepName}{get Step object Character name}
 
-\item{getDefName}{get Step object Character name}
+\item{stepType}{get Step object Character type name (class name)}
+
+\item{pipeName}{get Step object pipe name}
 
 \item{input}{get input list}
 
@@ -215,9 +211,10 @@ output and other parameters}
 
 \item{argv}{get arguments list}
 
-\item{argv<-}{set argumnets list}
-
 \item{$}{get inputList, outputList, paramList, allList, propList
+or any item value in inputList, outputList or paramList}
+
+\item{$<-}{set inputList, outputList, paramList, allList, propList
 or any item value in inputList, outputList or paramList}
 
 \item{getParam}{Get parameter value set by process function.
@@ -228,11 +225,6 @@ See \code{getParamItems} to obtain valid items for query.}
 \item{isReady}{Is the process ready for downstream process}
 
 \item{clearStepCache}{Clear cache of Step object}
-
-\item{getReportVal}{Get report value of item.
-See \code{getReportItems} to obtain valid items for query.}
-
-\item{getReportItems}{Get all items that can be reported}
 
 \item{getAutoPath}{(For package developer)
 Developer can use this method to generate new file name
@@ -248,15 +240,13 @@ Check required inputs or parameters are filled.}
 
 \item{getStepWorkDir}{Get the step work directory of this object}
 
-\item{getStepId}{Get the step ID}
+\item{stepID}{Get the step ID}
 
 \item{writeLog}{(For package developer) write log.}
 
 \item{processing}{(For package developer) Run pipeline step}
 
-\item{getReportValImp}{(For package developer) get Report Value}
-
-\item{getReportItemsImp}{(For package developer) getReportItemsImp}
+\item{genReport}{(For package developer) Generate report list}
 }
 \description{
 Users can call Step object operation methods below
@@ -495,9 +485,9 @@ clearStepCache(overlap1)
 rd <- randomRegionOnGenome(10000) \%>\%
 runOverlappedRandomRegion(inputBed = test_bed)
 
-getStepName(rd)
-getStepId(rd)
-getDefName(rd)
+stepName(rd)
+stepID(rd)
+
 
 isReady(rd)
 }

@@ -199,8 +199,6 @@ test_that("test basic operation of class Step ",{
     addEdges(edges = c("RandomRegionOnGenome","OverlappedRandomRegion"),
              argOrder = 1)
     graphObj <- getOption("pipeFrameConfig.graph")
-    expect_equal(graphObj@edgeStarts[[1]][2],"RandomRegionOnGenome")
-    expect_equal(graphObj@edgeEnds[[1]][2],"OverlappedRandomRegion")
     # begin to test pipeline
     setGenome("hg19")
     expect_equal(getGenome(),"hg19")
@@ -241,10 +239,9 @@ test_that("test basic operation of class Step ",{
 
 
 
-    expect_equal(getStepName(rd),"OverlappedRandomRegion")
+    expect_equal(stepType(rd),"OverlappedRandomRegion")
 
-    getStepId(rd)
-    getDefName(rd)
+    stepID(rd)
 
     expect_true(isReady(rd))
 

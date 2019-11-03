@@ -10,11 +10,11 @@
 \usage{
 addEdges(edges, argOrder)
 
-getPrevSteps(stepName, argOrder)
+getPrevSteps(stepType, argOrder)
 
-getNextSteps(stepName, argOrder)
+getNextSteps(stepType, argOrder)
 
-printMap(stepName = NULL, display = TRUE, ...)
+printMap(stepType = NULL, display = TRUE, ...)
 }
 \arguments{
 \item{edges}{\code{Character} vector.
@@ -25,7 +25,7 @@ It needs to follow the format like c("startpt1","endpt1","startpt2",
 \item{argOrder}{\code{Numeric} scalar.
 The argument order of the input Step object.}
 
-\item{stepName}{\code{Character} scalar.
+\item{stepType}{\code{Character} scalar.
 Step class name of each step.}
 
 \item{display}{\code{Logical} scalar.

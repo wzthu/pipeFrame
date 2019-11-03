@@ -18,9 +18,9 @@ getJobDir()
 \value{
 \item{setJobName}{No value will be returned}
 
-\item{setJobName}{Set a job name for following steps.}
+\item{getJobName}{Set a job name for following steps.}
 
-\item{setJobName}{Set the job directory}
+\item{getJobDir}{get the job directory}
 }
 \description{
 Configure the job name for following steps.
