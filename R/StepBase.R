@@ -302,7 +302,8 @@ Step <- setClass(Class = "Step",
                      timeStampEnd="POSIXct",
                      id = "integer",
                      pipeName = "character",
-                     loaded = "logical"
+                     loaded = "logical",
+                     isReportStep = "logical"
                  ),
                  prototype = c(argv = list(),
                                paramList = list(),
@@ -316,7 +317,8 @@ Step <- setClass(Class = "Step",
                                timeStampEnd=Sys.time(),
                                id = 0L,
                                pipeName = character(),
-                               loaded = FALSE)
+                               loaded = FALSE,
+                               isReportStep = FALSE)
 )
 setMethod(f = "initialize",
           signature = "Step",
@@ -328,6 +330,9 @@ setMethod(f = "initialize",
               argv <- c(as.list(environment()),list(...))
 
               msgBoxBegin()
+
+              stopifnot(is.logical(isReportStep))
+              .Object@isReportStep <- isReportStep
 
               argv[["prevSteps"]] <- NULL
 
@@ -557,6 +562,117 @@ setMethod(f = "initialize",
               nameObjList[[stepName(.Object)]] <- .Object
               options(pipeFrameConfig.nameObjList = nameObjList)
 
+
+              pipelineReport <- file.path(getJobDir(),"Report.Rmd")
+              print(pipelineReport)
+              file.copy(from = system.file(package = "pipeFrame", "extdata","Report.Rmd"), to  = pipelineReport,overwrite = TRUE)
+
+              isrp <- lapply(nameObjList, function(obj){
+                  return(obj@isReportStep)
+              })
+              isrp <- unlist(isrp)
+              isrp <- sum(isrp)
+              cat("\n\n", "# Pipeline Reports", file = pipelineReport, append=TRUE, sep = "\n\n")
+              if(isrp == 0){
+                  cat("\n\n", "There is no report steps in this pipeline.", file = pipelineReport, append=TRUE, sep = "\n\n")
+              }
+              lapply(nameObjList, function(obj){
+                  if(obj@isReportStep){
+                      cat("\n\n",
+                          paste("##",stepName(obj)),
+                          "Click link to visit report:",
+                          file = pipelineReport, append=TRUE, sep = "\n\n")
+                      reportIdx <- grep("Report|report",names(output(obj)))
+                      count <- 1
+                      lapply(reportIdx, function(idx){
+                          reportname <-names(output(obj))[idx]
+                          reportFile <- output(obj)[[idx]]
+                          if(startsWith(reportFile,getJobDir())){
+                              reportFile <- file.path("./",substring(reportFile, 1+nchar(getJobDir())))
+                          }
+                          cat("\n\n", paste0("[Report",count,"](",reportFile,")"),
+                              file = pipelineReport, append=TRUE, sep = "\n\n")
+                          count <- count + 1
+                      })
+                  }
+              })
+              cat("\n\n", "# Steps Information", file = pipelineReport, append=TRUE, sep = "\n\n")
+              lapply(nameObjList, function(obj){
+                  cat("\n\n",
+                      paste("## ",stepName(obj)),
+                      "### Inputs",
+                      file = pipelineReport, append=TRUE, sep = "\n\n")
+                  inputValue <- input(obj)
+                  if(length(inputValue)==0){
+                      cat("\n\n",
+                          "There are no input directories for this step.",
+                          file = pipelineReport, append=TRUE, sep = "\n\n")
+                  }else{
+                      lapply(names(inputValue), function(x){
+                          cat("\n\n",
+                              paste("-- ", x),
+                              paste(inputValue[[x]],collapse = "\n\n"),
+                              file = pipelineReport, append=TRUE, sep = "\n\n")
+                      })
+                  }
+
+
+                  cat("\n\n",
+                      "### Outputs",
+                      file = pipelineReport, append=TRUE, sep = "\n\n")
+                  outputValue <- output(obj)
+                  if(length(outputValue) == 0){
+                      cat("\n\n",
+                          "There are no ouput directories for this step.",
+                          file = pipelineReport, append=TRUE, sep = "\n\n")
+                  }else{
+                      lapply(names(outputValue), function(x){
+                          cat("\n\n",
+                              paste("-- ", x),
+                              paste(outputValue[[x]],collapse = "\n\n"),
+                              file = pipelineReport, append=TRUE, sep = "\n\n")
+                      })
+                  }
+
+                  cat("\n\n",
+                      "### Other Parameters",
+                      file = pipelineReport, append=TRUE, sep = "\n\n")
+                  paramValue <- param(obj)
+                  if(length(paramValue) == 0){
+                      cat("\n\n",
+                          "There are no other parameters for this step.",
+                          file = pipelineReport, append=TRUE, sep = "\n\n")
+                  }else{
+                      lapply(names(paramValue), function(n){
+                          x <- paramValue[[n]]
+
+                          if(is.character(x)||
+                             is.numeric(x)||
+                             is.logical(x)||
+                             is.factor(x)||
+                             is.null(x)){
+                              val <- x
+                              if(length(x)>1){
+                                  val <- paste("a vector started with",x[1])
+                              }
+                              if(is.character(val)){
+                                  val <- paste0("\"", val, "\"")
+                              }
+                              x <- val
+                          }else{
+                              x <- paste("An object of",class(x))
+                          }
+
+                          cat("\n\n",
+                              paste("-- ", n),
+                              paste(x, collapse = "\n\n"),
+                              file = pipelineReport, append=TRUE, sep = "\n\n")
+                      })
+                  }
+
+              })
+              save(stepobj = nameObjList, file = file.path(getJobDir(),".stepobj.Rdata"))
+              rmarkdown::render(input = pipelineReport, output_file = "Report.html")
               msgBoxDone()
               .Object
           })

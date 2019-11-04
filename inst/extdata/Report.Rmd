@@ -1,0 +1,27 @@
+---
+title: "Final Report"
+author: "Zheng Wei, Shining Ma, Duren Zhana"
+date: "`r Sys.Date()`"
+output: 
+    html_document:
+        toc: true
+        toc_float: true
+        number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Final Report}
+  %\VignetteEncoding{UTF-8}
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+load(".stepobj.Rdata")
+
+#stepobj
+```
+
+
