@@ -1185,7 +1185,7 @@ setMethod(f = "checkRequireParam",
 
               lapply(names(paramValue), function(n){
                   x <- paramValue[[n]]
-                  writeLog(.Object, paste0("|    ", n))
+                  writeLog(.Object, paste0("|    ", n, ":"))
                   if(is.character(x)||
                      is.numeric(x)||
                      is.logical(x)||
@@ -1194,6 +1194,9 @@ setMethod(f = "checkRequireParam",
                       val <- x
                       if(length(x)>1){
                           val <- paste("a vector started with",x[1])
+                      }
+                      if(is.character(val)){
+                          val <- paste0("\"", val, "\"")
                       }
                       writeLog(.Object, paste0("|        ", val))
                   }else{
