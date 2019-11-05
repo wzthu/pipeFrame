@@ -130,6 +130,8 @@ initPipeFrame <- function(defaultJobName,
         options(pipeFrameConfig.count = 0L)
     }
 
+    options(pipeFrameConfig.nameObjList = list())
+
 
 }
 

@@ -322,6 +322,7 @@ getObjsInPipe <- function(pipeName = "pipe"){
         return(list())
     }
 
+}
 
 
 
