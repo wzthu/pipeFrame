@@ -302,7 +302,27 @@ getPipeName <- function(all = FALSE){
     }
 }
 
+#' @name getObjsInPipe
+#' @rdname getObjsInPipe
+#' @title Obtain all of objects in the specific pipeline
+#' @param pipeName \code{Character} scalar or vector. Pipeline name(s) of objects to be selected.
+#' @return \code{List} scalar. A list containing all objects that belongs to the pipe name.
+#' @examples
+#' getObjsInPipe(pipe)
+#' @export
+getObjsInPipe <- function(pipeName = "pipe"){
+    allobj <- getOption("pipeFrameConfig.nameObjList")
+    if(is.null(allobj)){
+        allobj <- list()
+    }
+    idx <- grep(paste0(pipeName,collapse = "|"),names(allobj))
+    if(length(idx)>0){
+        return(allobj[idx])
+    }else{
+        return(list())
+    }
 
+}
 
 
 
