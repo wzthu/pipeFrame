@@ -16,5 +16,5 @@ getObjsInPipe(pipeName = "pipe")
 Obtain all of objects in the specific pipeline
 }
 \examples{
-getObjsInPipe(pipe)
+getObjsInPipe("pipe")
 }

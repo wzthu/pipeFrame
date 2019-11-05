@@ -308,7 +308,7 @@ getPipeName <- function(all = FALSE){
 #' @param pipeName \code{Character} scalar or vector. Pipeline name(s) of objects to be selected.
 #' @return \code{List} scalar. A list containing all objects that belongs to the pipe name.
 #' @examples
-#' getObjsInPipe(pipe)
+#' getObjsInPipe("pipe")
 #' @export
 getObjsInPipe <- function(pipeName = "pipe"){
     allobj <- getOption("pipeFrameConfig.nameObjList")
