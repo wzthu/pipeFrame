@@ -303,7 +303,9 @@ Step <- setClass(Class = "Step",
                      id = "integer",
                      pipeName = "character",
                      loaded = "logical",
-                     isReportStep = "logical"
+                     isReportStep = "logical",
+                     initParam = "list",
+                     processingParam = "list"
                  ),
                  prototype = c(argv = list(),
                                paramList = list(),
@@ -318,7 +320,9 @@ Step <- setClass(Class = "Step",
                                id = 0L,
                                pipeName = character(),
                                loaded = FALSE,
-                               isReportStep = FALSE)
+                               isReportStep = FALSE,
+                               initParam = list(),
+                               processingParam = list())
 )
 setMethod(f = "initialize",
           signature = "Step",
@@ -415,6 +419,10 @@ setMethod(f = "initialize",
 
 # set propery pass from previous pipeline(only the pipeline name regist in .Object@pipeName)
               argSize <- length(prevSteps)
+              if(length(.Object@propList)==0){
+                  .Object@propList <- list()
+                  .Object@propList[[pipeName(.Object)]] <- list()
+              }
               if(argSize>0){
                   # lapply(seq_len(argSize), function(i){
                   #     if(!is.null(prevSteps[[i]]) && !isReady(prevSteps[[i]])){
@@ -499,7 +507,8 @@ setMethod(f = "initialize",
                               candidateID <- lapply(candidateName, function(x){
                                   return(stepID(nameObjList[[x]]))
                               })
-
+                              candidateID <- unlist(candidateID)
+                              print(candidateID)
                               sel <-  order(candidateID,decreasing = TRUE)[1]
                               latestname <- candidateName[sel]
                               return(nameObjList[[latestname]])
@@ -542,13 +551,22 @@ setMethod(f = "initialize",
               argv <- c(list(.Object = .Object,prevSteps = prevSteps),argv)
               writeLog(.Object, paste0("Step Name:",.Object@stepName))
 
-              if(beforeInit){return(.Object)}
+              if(beforeInit){
+                  .Object@initParam <- argv
+                  return(.Object)
+              }
               obj_return_from_init <- do.call(init,argv)
               stopifnot(is(obj_return_from_init,stepType(.Object)))
               .Object <- obj_return_from_init
-              if(afterInit){return(.Object)}
+              if(afterInit){
+                  .Object@initParam <- argv
+                  return(.Object)
+              }
               paramValidation(.Object)
-              if(beforeProcessing){return(.Object)}
+              if(beforeProcessing){
+                  .Object@processingParam <- prevSteps
+                  return(.Object)
+              }
               if(isReportStep){
                   obj_return_from_porcessing<-process(.Object, prevSteps = prevSteps)
               }else{
@@ -568,7 +586,10 @@ setMethod(f = "initialize",
 
               stopifnot(is(obj_return_from_porcessing,stepType(.Object)))
               .Object <- obj_return_from_porcessing
-              if(afterProcessing){return(.Object)}
+              if(afterProcessing){
+                  .Object@processingParam <- prevSteps
+                  return(.Object)
+              }
 
               if(is.null(nameObjList[[stepName(.Object)]])){
                   count <- getOption("pipeFrameConfig.count")
