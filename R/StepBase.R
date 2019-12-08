@@ -329,6 +329,16 @@ setMethod(f = "initialize",
 
               argv <- c(as.list(environment()),list(...))
 
+              beforeInit <- !is.null(argv[["beforeInit"]])
+              afterInit <- !is.null(argv[["afterInit"]])
+              beforeProcessing <- !is.null(argv[["beforeProcessing"]])
+              afterProcessing <- !is.null(argv[["afterProcessing"]])
+
+              argv[["beforeInit"]] <- NULL
+              argv[["afterInit"]] <- NULL
+              argv[["beforeProcessing"]] <- NULL
+              argv[["afterProcessing"]] <- NULL
+
               msgBoxBegin()
 
               stopifnot(is.logical(isReportStep))
@@ -532,10 +542,13 @@ setMethod(f = "initialize",
               argv <- c(list(.Object = .Object,prevSteps = prevSteps),argv)
               writeLog(.Object, paste0("Step Name:",.Object@stepName))
 
+              if(beforeInit){return(.Object)}
               obj_return_from_init <- do.call(init,argv)
               stopifnot(is(obj_return_from_init,stepType(.Object)))
               .Object <- obj_return_from_init
+              if(afterInit){return(.Object)}
               paramValidation(.Object)
+              if(beforeProcessing){return(.Object)}
               if(isReportStep){
                   obj_return_from_porcessing<-process(.Object, prevSteps = prevSteps)
               }else{
@@ -552,8 +565,10 @@ setMethod(f = "initialize",
 
               }
 
+
               stopifnot(is(obj_return_from_porcessing,stepType(.Object)))
               .Object <- obj_return_from_porcessing
+              if(afterProcessing){return(.Object)}
 
               if(is.null(nameObjList[[stepName(.Object)]])){
                   count <- getOption("pipeFrameConfig.count")
@@ -946,8 +961,8 @@ setMethod(f = "property",
           signature = "Step",
           definition = function(.Object, ..., pipeName = NULL){
               if(is.null(pipeName)){
-                  if(length(.Object$pipeName)==1){
-                      pipeName <- .Object$pipeName
+                  if(length(.Object@pipeName)==1){
+                      pipeName <- .Object@pipeName
                   }else{
                       stop("object with multi-pipeName, pipeName need to be specified")
                   }
@@ -971,8 +986,8 @@ setReplaceMethod(f = "property",
                  signature = "Step",
                  definition = function(.Object,pipeName = NULL, value){
                      if(is.null(pipeName)){
-                         if(length(.Object$pipeName)==1){
-                             pipeName <- .Object$pipeName
+                         if(length(.Object@pipeName)==1){
+                             pipeName <- .Object@pipeName
                          }else{
                              stop("object with multi-pipeName, pipeName need to be specified")
                          }
