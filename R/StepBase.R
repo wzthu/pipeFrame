@@ -1308,9 +1308,15 @@ setMethod(f = "getAutoPath",
           signature = "Step",
           definition = function(.Object,originPath,regexSuffixName,suffix,...){
               stopifnot(is.character(originPath))
+              if(!startsWith(suffix,".")){
+                  suffix <- paste0(".", suffix)
+              }
+              if(suffix == "."){
+                  suffix <- ""
+              }
               prefix<-getBasenamePrefix(originPath,regexSuffixName)
               return(file.path(getStepWorkDir(.Object),
-                               paste0(prefix,".",suffix)))
+                               paste0(prefix,suffix)))
           })
 setGeneric(name = "paramValidation",
            def = function(.Object,...){

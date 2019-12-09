@@ -127,9 +127,14 @@ checkFileCreatable <- function(filePath,...){
 #' @export
 addFileSuffix <- function(filePath, suffix, ...){
     stopifnot(!is.null(filePath))
+    if(!startsWith(suffix,".")){
+        suffix <- paste0(".", suffix)
+    }
+    if(suffix == "."){
+        suffix <- ""
+    }
     rs <- lapply(filePath, function(p){
-        name_split <- unlist(base::strsplit(x = p, split = ".", fixed = TRUE))
-        if(tail(name_split, 1) == suffix){
+        if(endsWith(filePath, suffix)){
             return(p)
         }else{
             return(paste0(p, suffix))
