@@ -89,7 +89,6 @@ setMethod(f = "graphMngCheckRelation",
 #' @param display \code{Logical} scalar.
 #'  Whether show the picture on device or not.
 #' @param ... Additional arguments, currently used.
-#' @rdname graphMng
 #' @return \item{addEdges}{No value will be returned.}
 #' @aliases  graphMng
 #' @examples

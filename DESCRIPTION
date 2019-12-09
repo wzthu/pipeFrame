@@ -40,9 +40,8 @@ Suggests:
     knitr,
     rtracklayer,
     testthat
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 VignetteBuilder: knitr
 biocViews: Software, Infrastructure, WorkflowStep
 URL: https://github.com/wzthu/pipeFrame
 BugReports: https://github.com/wzthu/pipeFrame/issues
-

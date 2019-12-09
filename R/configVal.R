@@ -15,7 +15,6 @@
 #' @return \item{getValidGenome}{\code{Character} scalar.
 #' All valid genome assemblies for this package.}
 #' @aliases getValidGenome
-#' @rdname setGenome
 #' @examples
 #' getValidGenome()
 #' setGenome("hg19")
@@ -80,7 +79,6 @@ getGenome <- function(){
 #' threads that can be allocated  to each step.
 #' @return \item{setThreads}{No value will be returned}
 #' @aliases setThreads
-#' @rdname setThreads
 #' @examples
 #' setThreads()
 #' getThreads()
@@ -112,7 +110,6 @@ getThreads <- function(){
 #' Create the directory if the directory does not exist. Default: TRUE
 #' @return \item{setRefDir}{No value will be returned}
 #' @aliases setRefDir
-#' @rdname setRefDir
 #' @examples
 #' setRefDir("./refdir")
 #' getRefDir()
@@ -197,7 +194,6 @@ getRefRc <- function(refName){
 #' Default: Current directory.
 #' @return \item{setTmpDir}{No value will be returned}
 #' @aliases setTmpDir
-#' @rdname setTmpDir
 #' @examples
 #' setTmpDir()
 #' getTmpDir()
@@ -228,7 +224,6 @@ getTmpDir <- function(){
 #' @param jobName \code{Character} scalar. Job name for following steps.
 #' @return \item{setJobName}{No value will be returned}
 #' @aliases setJobName
-#' @rdname setJobName
 #' @examples
 #' setJobName("testJobName")
 #' getJobName()
@@ -276,7 +271,6 @@ getJobDir <- function(){
 #' Default FALSE, return current default pipeName.
 #' @return \item{setPipeName}{No value will be returned}
 #' @aliases setPipeName
-#' @rdname setPipeName
 #' @examples
 #' setPipeName("pipe")
 #' getPipeName()
@@ -341,7 +335,6 @@ getObjsInPipe <- function(pipeName = "pipe"){
 #'  The genome like "hg19". Default: getGenome()
 #' @return \item{runWithFinishCheck}{No value will be returned}
 #' @aliases runWithFinishCheck
-#' @rdname runWithFinishCheck
 #' @examples
 #'
 #' checkAndInstall <- function(){

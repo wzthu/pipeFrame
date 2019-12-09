@@ -7,6 +7,7 @@
 \alias{checkFileExist}
 \alias{checkPathExist}
 \alias{checkFileCreatable}
+\alias{addFileSuffix}
 \title{Functions for directory operations}
 \usage{
 getBasenamePrefix(filepath, words, ...)
@@ -18,6 +19,8 @@ checkFileExist(filePath, ...)
 checkPathExist(filePath, ...)
 
 checkFileCreatable(filePath, ...)
+
+addFileSuffix(filePath, suffix, ...)
 }
 \arguments{
 \item{filepath}{\code{character} scalar or vector.}
@@ -42,6 +45,8 @@ Check directory is exist.}
 
 \item{checkFileCreatable}{(For package developer)
 Check file creatable.}
+
+\item{addFileSuffix}{(For package developer) Check if file suffix existed and add suffix}
 }
 \description{
 Functions for directory operations
@@ -71,6 +76,4 @@ tryCatch({checkPathExist(file.path(dirname(getwd()),
 checkFileCreatable("aaa.bed")
 
 tryCatch({checkFileCreatable("testdir1/aaa.bed")},error = function(e) e)
-
-
 }

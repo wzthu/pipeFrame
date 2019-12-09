@@ -31,11 +31,8 @@
 #' checkFileCreatable("aaa.bed")
 #'
 #' tryCatch({checkFileCreatable("testdir1/aaa.bed")},error = function(e) e)
-#'
-#'
 #' @return \item{getBasenamePrefix}{Get the filepath
 #' basename with removed suffix}
-#' @rdname Utils
 #' @aliases getBasenamePrefix
 #' @export
 getBasenamePrefix <- function(filepath,words,...){
@@ -123,6 +120,27 @@ checkFileCreatable <- function(filePath,...){
 }
 
 
+
+#' @return \item{addFileSuffix}{(For package developer) Check if file suffix existed and add suffix}
+#' @rdname Utils
+#' @aliases addFileSuffix
+#' @export
+addFileSuffix <- function(filePath, suffix, ...){
+    stopifnot(!is.null(filePath))
+    rs <- lapply(filePath, function(p){
+        name_split <- unlist(base::strsplit(x = p, split = ".", fixed = TRUE))
+        if(tail(name_split, 1) == suffix){
+            return(p)
+        }else{
+            return(paste0(p, suffix))
+        }
+    })
+    if(is.list(filePath)){
+        return(rs)
+    }else{
+        return(unlist(rs))
+    }
+}
 
 
 

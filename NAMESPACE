@@ -2,6 +2,7 @@
 
 export(Step)
 export(addEdges)
+export(addFileSuffix)
 export(checkAndInstallBSgenome)
 export(checkAndInstallGenomeFa)
 export(checkAndInstallOrgDb)

@@ -98,18 +98,15 @@
 
 \S4method{$}{Step}(x, name) <- value
 
-\S4method{getParam}{Step}(.Object, item, type = c("input", "output",
-  "other"), ...)
+\S4method{getParam}{Step}(.Object, item, type = c("input", "output", "other"), ...)
 
-\S4method{getParamItems}{Step}(.Object, type = c("input", "output",
-  "other"), ...)
+\S4method{getParamItems}{Step}(.Object, type = c("input", "output", "other"), ...)
 
 \S4method{isReady}{Step}(.Object, ...)
 
 \S4method{clearStepCache}{Step}(.Object, ...)
 
-\S4method{getAutoPath}{Step}(.Object, originPath, regexSuffixName, suffix,
-  ...)
+\S4method{getAutoPath}{Step}(.Object, originPath, regexSuffixName, suffix, ...)
 
 \S4method{checkRequireParam}{Step}(.Object, ...)
 
@@ -121,8 +118,14 @@
 
 \S4method{stepID}{Step}(.Object, ...)
 
-\S4method{writeLog}{Step}(.Object, msg, ..., isWarnning = FALSE,
-  appendLog = TRUE, showMsg = TRUE)
+\S4method{writeLog}{Step}(
+  .Object,
+  msg,
+  ...,
+  isWarnning = FALSE,
+  appendLog = TRUE,
+  showMsg = TRUE
+)
 
 processing(.Object, ...)
 
