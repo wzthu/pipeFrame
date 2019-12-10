@@ -4,6 +4,8 @@
 \alias{graphMng}
 \alias{addEdges}
 \alias{getPrevSteps}
+\alias{getAttachedStep}
+\alias{regAttachedStep}
 \alias{getNextSteps}
 \alias{printMap}
 \title{Step graph management}
@@ -11,6 +13,10 @@
 addEdges(edges, argOrder)
 
 getPrevSteps(stepType, argOrder)
+
+getAttachedStep(stepType)
+
+regAttachedStep(newStepType, stepType)
 
 getNextSteps(stepType, argOrder)
 
@@ -37,6 +43,10 @@ Whether show the picture on device or not.}
 \item{addEdges}{No value will be returned.}
 
 \item{getPrevSteps}{Names of previous steps}
+
+\item{getAttachedStep}{get the step that is generated from}
+
+\item{regAttachedStep}{Add different step type for exist step}
 
 \item{getNextSteps}{Names of next steps}
 

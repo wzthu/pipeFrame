@@ -9,9 +9,11 @@
 
 setClass(Class = "GraphMng",
          slots = list(edges = "data.frame",
-                      allStepNames = "character"),
+                      allStepNames = "character",
+                      attachedNode = "list"),
          prototype = list(edges = NULL,
-                          allStepNames = NULL))
+                          allStepNames = NULL,
+                          attachedNode = list()))
 
 setMethod(f = "initialize",
           signature = "GraphMng",
@@ -54,7 +56,31 @@ setMethod(f = "graphMngAddEdges",
               graphMngObj
           })
 
+setGeneric(name = "graphAttachedNode",
+           def = function(graphMngObj, stepType, ...)
+             standardGeneric("graphAttachedNode")
+)
 
+setMethod(f = "graphAttachedNode",
+          signature = "GraphMng",
+          definition = function(graphMngObj, stepType, ...){
+              if(!is.null(graphMngObj@attachedNode[[stepType]])){
+                 stepType <- graphMngObj@attachedNode[[stepType]]
+              }
+            return(stepType)
+          })
+
+setGeneric(name = "graphAddAttachedNode",
+           def = function(graphMngObj, newStepType, attachedNode, ...)
+             standardGeneric("graphAddAttachedNode")
+)
+
+setMethod(f = "graphAddAttachedNode",
+          signature = "GraphMng",
+          definition = function(graphMngObj, newStepType, attachedNode, ...){
+            graphMngObj@attachedNode[[newStepType]] <- attachedNode
+            graphMngObj
+          })
 
 
 setGeneric(name = "graphMngCheckRelation",
@@ -66,7 +92,10 @@ setMethod(f = "graphMngCheckRelation",
           signature = "GraphMng",
           definition = function(graphMngObj, upstreamStep,
                                 downstreamStep, downstreamArgOrder,...){
-              return(sum(graphMngObj@edges$fromStepType == upstreamStep &
+            upstreamStep <- graphAttachedNode(graphMngObj, upstreamStep)
+            downstreamStep <- graphAttachedNode(graphMngObj, downstreamStep)
+
+            return(sum(graphMngObj@edges$fromStepType == upstreamStep &
                              graphMngObj@edges$toStepType == downstreamStep &
                              graphMngObj@edges$argOrder == downstreamArgOrder) > 0)
 
@@ -131,6 +160,47 @@ getPrevSteps <- function(stepType, argOrder){
 
 }
 
+
+#' @rdname graphMng
+#' @return \item{getAttachedStep}{get the step that is generated from}
+#' @aliases  getAttachedStep
+#' @export
+getAttachedStep <- function(stepType){
+    graphMng <- getGraphObj()
+    return(graphAttachedNode(graphMng,stepType))
+
+}
+
+#' @rdname graphMng
+#' @return \item{regAttachedStep}{Add different step type for exist step}
+#' @aliases  regAttachedStep
+#' @export
+regAttachedStep <- function(newStepType, stepType){
+    if(newStepType == stepType){
+        return(stepType)
+    }
+    stopifnot(is.character(newStepType))
+    stopifnot(is.character(stepType))
+    graphMng <- getGraphObj()
+    if(newStepType %in% graphMng@allStepNames){
+        stop(paste("new step type name '",newStepType,
+                   "' can not be exist stey type name"))
+    }
+    if(!(stepType %in% graphMng@allStepNames)){
+        stop(paste("step type name '",stepType,
+                   "' should be one of exsit step type"))
+    }
+    setClass(Class = newStepType,
+             contains = stepType,
+             where = topenv(sys.frame(which = 0))
+    )
+    graphMng <- graphAddAttachedNode(graphMng,newStepType, stepType)
+    options(pipeFrameConfig.graph = graphMng)
+    return(newStepType)
+}
+
+
+
 setGeneric(name = "graphGetPrevSteps",
            def = function(graphMngObj,stepType, argOrder,...)
                standardGeneric("graphGetPrevSteps")
@@ -139,6 +209,8 @@ setGeneric(name = "graphGetPrevSteps",
 setMethod(f = "graphGetPrevSteps",
           signature = "GraphMng",
           definition = function(graphMngObj,stepType, argOrder,...){
+              stepType <- graphAttachedNode(graphMngObj, stepType)
+
               prev <- graphMngObj@edges$fromStepType[graphMngObj@edges$toStepType == stepType &
                                                  graphMngObj@edges$argOrder == argOrder ]
               if(length(prev)>0){
@@ -167,6 +239,7 @@ setGeneric(name = "graphGetNextSteps",
 setMethod(f = "graphGetNextSteps",
           signature = "GraphMng",
           definition = function(graphMngObj,stepType, argOrder,...){
+              stepType <- graphAttachedNode(graphMngObj, stepType)
               nexttype <- graphMngObj@edges$toStepType[graphMngObj@edges$fromStepType == stepType &
                                                          graphMngObj@edges$argOrder == argOrder ]
               if(length(nexttype)>0){
@@ -195,6 +268,10 @@ setGeneric(name = "graphPrintMap",
 setMethod(f = "graphPrintMap",
           signature = "GraphMng",
           definition = function(graphMngObj,stepType=NULL,display=TRUE,...){
+              if(!is.null(stepType)){
+                  stepType <- graphAttachedNode(graphMngObj, stepType)
+              }
+
               edges <- graphMngObj@edges
               edges <- edges[edges[,1]!="BASE",]
               allStepNames <- graphMngObj@allStepNames

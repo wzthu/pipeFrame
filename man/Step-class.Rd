@@ -68,7 +68,7 @@
 
 \S4method{stepName}{Step}(.Object, ...)
 
-\S4method{stepType}{Step}(.Object, ...)
+\S4method{stepType}{Step}(.Object, attachedTypes = TRUE, ...)
 
 \S4method{pipeName}{Step}(.Object, ...)
 

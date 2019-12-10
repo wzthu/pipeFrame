@@ -485,7 +485,7 @@ setMethod(f = "initialize",
               #     }
               # }
               if(argSize > 0 && !isReportStep){
-                  if(length(pipeName(.Object))==1 && length(inputPrevSteps)==1){
+                  if(length(pipeName(.Object))==1 && length(inputPrevSteps) > 0){
                       # in the sample pipeline, auto add remaining prevSteps that follow the graph
                       prevSteps <- lapply(seq_len(10), function(i){
                           s <- getPrevSteps(stepType = stepType(.Object),i)
@@ -493,7 +493,7 @@ setMethod(f = "initialize",
                               return(NULL)
                           }else{
                               candidateName <- lapply(nameObjList, function(x){
-                                  if((stepType(x) %in% s) &&
+                                  if((stepType(x, attachedTypes = FALSE) %in% s) &&
                                      length(intersect(pipeName(.Object), pipeName(x)))>0){
                                       return(stepName(x))
                                   }else{
@@ -504,14 +504,24 @@ setMethod(f = "initialize",
                               if(length(candidateName) == 0) {
                                   stop(paste("There is not any finish step like",paste(s,collapse = " or "),"in this pipeline"))
                               }
-                              candidateID <- lapply(candidateName, function(x){
-                                  return(stepID(nameObjList[[x]]))
-                              })
-                              candidateID <- unlist(candidateID)
-                              print(candidateID)
-                              sel <-  order(candidateID,decreasing = TRUE)[1]
-                              latestname <- candidateName[sel]
-                              return(nameObjList[[latestname]])
+
+                              if(length(inputPrevSteps)>=i){
+                                  candidateType <- lapply(candidateName, function(x){
+                                      return(stepType(nameObjList[[x]]))
+                                  })
+                                  if(stepType(inputPrevSteps[[i]]) %in% candidateType){
+                                      return(inputPrevSteps[[i]])
+                                  }
+                              }else{
+                                  candidateID <- lapply(candidateName, function(x){
+                                      return(stepID(nameObjList[[x]]))
+                                  })
+                                  candidateID <- unlist(candidateID)
+                                  print(candidateID)
+                                  sel <-  order(candidateID,decreasing = TRUE)[1]
+                                  latestname <- candidateName[sel]
+                                  return(nameObjList[[latestname]])
+                              }
                           }
                       })
                       for(i in sort(seq_len(9),decreasing = TRUE)){
@@ -526,7 +536,7 @@ setMethod(f = "initialize",
                       for(i in seq_len(10)){
                           s <- getPrevSteps(stepType = stepType(.Object),i)
                           if(!is.null(s)){
-                              if(sum(stepType(inputPrevSteps[[i]]) %in% s)<0.5){
+                              if(sum(stepType(inputPrevSteps[[i]],attachedTypes = FALSE) %in% s)<0.5){
                                   stop(paste(stepName(inputPrevSteps[[i]]),"'s step type is not the ",i, "parameter of", stepType(.Object)))
                               }
                           }
@@ -534,8 +544,7 @@ setMethod(f = "initialize",
                       prevSteps <- inputPrevSteps
 
                   }
-              }else if(isReportStep){
-                  print
+               }else if(isReportStep){
                   prevSteps <- lapply(nameObjList, function(x){
                       if(length(intersect(pipeName(x),pipeName(.Object)))>0){
                           return(x)
@@ -804,7 +813,7 @@ setMethod(f = "stepName",
 
 
 setGeneric(name = "stepType",
-           def = function(.Object,...){
+           def = function(.Object, attachedTypes = TRUE, ...){
                standardGeneric("stepType")
            })
 
@@ -814,8 +823,13 @@ setGeneric(name = "stepType",
 #' @export
 setMethod(f = "stepType",
           signature = "Step",
-          definition = function(.Object,...){
-              return(as.character(class(.Object)))
+          definition = function(.Object, attachedTypes = TRUE, ...){
+              typers <- (as.character(class(.Object)))
+              if(attachedTypes){
+                  return(typers)
+              }else{
+                  return(getAttachedStep(typers))
+              }
           })
 
 setGeneric(name = "pipeName",
