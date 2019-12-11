@@ -354,6 +354,7 @@ setMethod(f = "initialize",
               stopifnot(is(prevSteps,"list"))
               lapply(prevSteps, function(obj){
                   if(!is.null(obj)){
+                      print(class(obj))
                       stopifnot(inherits(obj,"Step"))
                   }
               })
@@ -371,8 +372,10 @@ setMethod(f = "initialize",
                           if(!is.null(prevStep) && !isReady(prevStep)){
                               stop(paste(stepName(prevStep),
                                          "is not ready"))
-                          }else if(is.null(prevStep)){
-                              stop("previous step can not be NULL")
+                          }
+                          else if(is.null(prevStep)){
+                              #stop("previous step can not be NULL")
+                              return(NULL)
                           }
                           return(pipeName(prevStep))
                       })
@@ -505,23 +508,23 @@ setMethod(f = "initialize",
                                   stop(paste("There is not any finish step like",paste(s,collapse = " or "),"in this pipeline"))
                               }
 
-                              if(length(inputPrevSteps)>=i){
+                              if(length(inputPrevSteps)>=i && !is.null(inputPrevSteps[[i]])){
                                   candidateType <- lapply(candidateName, function(x){
                                       return(stepType(nameObjList[[x]]))
                                   })
                                   if(stepType(inputPrevSteps[[i]]) %in% candidateType){
                                       return(inputPrevSteps[[i]])
                                   }
-                              }else{
-                                  candidateID <- lapply(candidateName, function(x){
-                                      return(stepID(nameObjList[[x]]))
-                                  })
-                                  candidateID <- unlist(candidateID)
-                                  print(candidateID)
-                                  sel <-  order(candidateID,decreasing = TRUE)[1]
-                                  latestname <- candidateName[sel]
-                                  return(nameObjList[[latestname]])
                               }
+                              candidateID <- lapply(candidateName, function(x){
+                                  return(stepID(nameObjList[[x]]))
+                              })
+                              candidateID <- unlist(candidateID)
+                              print(candidateID)
+                              sel <-  order(candidateID,decreasing = TRUE)[1]
+                              latestname <- candidateName[sel]
+                              return(nameObjList[[latestname]])
+
                           }
                       })
                       for(i in sort(seq_len(9),decreasing = TRUE)){
