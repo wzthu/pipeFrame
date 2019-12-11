@@ -338,6 +338,9 @@ setMethod(f = "initialize",
               beforeProcessing <- !is.null(argv[["beforeProcessing"]])
               afterProcessing <- !is.null(argv[["afterProcessing"]])
 
+              .Object@initParam <- list("test")
+              .Object@processingParam <- list("test")
+
               argv[["beforeInit"]] <- NULL
               argv[["afterInit"]] <- NULL
               argv[["beforeProcessing"]] <- NULL
