@@ -408,7 +408,6 @@ checkAndInstallBSgenome <- function(refFilePath, genome =  getGenome()){
         BSgenome::available.genomes()[grepl(paste0(genome,"$"),
                                             BSgenome::available.genomes())]
     if(length(bsgenomename)==0){
-        message()
         stop("There is no BSgenome support for this genome")
     }
     bsgenomeinstall <-
@@ -419,6 +418,7 @@ checkAndInstallBSgenome <- function(refFilePath, genome =  getGenome()){
         message("begin to install ...")
         BiocManager::install(bsgenomename)
     }
+    return(getBSgenome(genome))
 }
 
 
@@ -513,7 +513,7 @@ checkAndInstallTxDb <- function(refFilePath, genome =  getGenome()){
         BiocManager::install(curTxDb)
         library(curTxDb,character.only = TRUE)
     })
-    return(curTxDb)
+    return(get0(curTxDb))
 }
 
 
@@ -542,9 +542,9 @@ checkAndInstallGenomeFa <- function(refFilePath){
     sqn <- seqnames(bsgenome)
     lapply(seq_len(length(seqnames(bsgenome))), function(i){
         chrT <- sqn[i]
-        append <- FALSE
+        append <- TRUE
         if(i == 1){
-            append <- TRUE
+            append <- FALSE
         }
         if(is.null(masks(bsgenome[[chrT]])))
             chrSeq <- DNAStringSet(bsgenome[[chrT]])
