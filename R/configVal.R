@@ -513,7 +513,7 @@ checkAndInstallTxDb <- function(refFilePath, genome =  getGenome()){
         BiocManager::install(curTxDb)
         library(curTxDb,character.only = TRUE)
     })
-    return(get0(curTxDb))
+    return(curTxDb)
 }
 
 
