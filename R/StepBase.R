@@ -1684,11 +1684,3 @@ setGeneric(name = "processing",
            })
 
 
-#' @return \item{genReport}{(For package developer) Generate report list}
-#' @rdname Step-class
-#' @aliases genReport
-#' @export
-setGeneric(name = "genReport",
-           def = function(.Object,...){
-               standardGeneric("genReport")
-           })
