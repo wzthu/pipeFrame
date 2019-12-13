@@ -297,6 +297,7 @@ Step <- setClass(Class = "Step",
                      propList = "list",
                      reportList = "list",
                      stepName = "character",
+                     stepBaseClass = "character",
                      finish = "logical",
                      timeStampStart="POSIXct",
                      timeStampEnd="POSIXct",
@@ -314,6 +315,7 @@ Step <- setClass(Class = "Step",
                                propList = list(),
                                reportList = list(),
                                stepName = "Step",
+                               stepBaseClass = "Step",
                                finish = FALSE,
                                timeStampStart=Sys.time(),
                                timeStampEnd=Sys.time(),
@@ -333,6 +335,7 @@ setMethod(f = "initialize",
 
               argv <- c(as.list(environment()),list(...))
 
+              .Object@stepBaseClass <- stepType(.Object, attachedTypes = FALSE)
               beforeInit <- !is.null(argv[["beforeInit"]])
               afterInit <- !is.null(argv[["afterInit"]])
               beforeProcessing <- !is.null(argv[["beforeProcessing"]])
@@ -357,7 +360,6 @@ setMethod(f = "initialize",
               stopifnot(is(prevSteps,"list"))
               lapply(prevSteps, function(obj){
                   if(!is.null(obj)){
-                      print(class(obj))
                       stopifnot(inherits(obj,"Step"))
                   }
               })
@@ -523,7 +525,6 @@ setMethod(f = "initialize",
                                   return(stepID(nameObjList[[x]]))
                               })
                               candidateID <- unlist(candidateID)
-                              print(candidateID)
                               sel <-  order(candidateID,decreasing = TRUE)[1]
                               latestname <- candidateName[sel]
                               return(nameObjList[[latestname]])
@@ -728,7 +729,7 @@ setMethod(f = "initialize",
                       }
 
                   })
-                  save(stepobj = nameObjList, file = file.path(getJobDir(),".stepobj.Rdata"))
+                  saveRDS(object = nameObjList, file = file.path(getJobDir(),".stepobj.rds"))
                   rmarkdown::render(input = pipelineReport, output_file = "Report.html")
 
               }
@@ -779,7 +780,7 @@ setMethod(f = "process",
                   writeLog(.Object,
                            paste0("If you need to redo,",
                                   "please call 'clearStepCache(YourObject)'"))
-                  load(getParamMD5Path(.Object))
+                  pipeFrameObj <- loadStep(getParamMD5Path(.Object),regClass = FALSE)
                   .Object <- pipeFrameObj
                   .Object@loaded <- TRUE
               }else{
@@ -794,7 +795,7 @@ setMethod(f = "process",
                       .Object@timeStampEnd
                   .Object <- setFinish(.Object)
                   pipeFrameObj <- .Object
-                  save(pipeFrameObj, file = getParamMD5Path(.Object))
+                  saveRDS(pipeFrameObj, file = getParamMD5Path(.Object))
               }
 
               .Object
@@ -1577,7 +1578,7 @@ setMethod(f = "getParamMD5Path",
               md5code<-substr(digest(object = paramstr,algo = "md5"),1,8)
               md5filepath<-file.path(getStepWorkDir(.Object),
                                      paste("pipeFrame.obj",md5code,
-                                          "RData",sep = "."))
+                                          "rds",sep = "."))
               return(md5filepath)
           })
 setGeneric(name = "setFinish",

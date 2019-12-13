@@ -149,6 +149,27 @@ addFileSuffix <- function(filePath, suffix, ...){
 
 
 
+#' @name loadStep
+#' @rdname loadStep
+#' @title load step object from rds file
+#' @description load PipeFrame Step (or its inherit class) object from rds file
+#' @param rdsfile \code{Character} scalar. The rds file directory for Step  (or its inherit class) Object
+#' @param regClass \code{Logical} scalar. Register the Class of object to inherit from Step Class.
+#' Default: TRUE. Note: make sure corresponding packages depending on pipeFrame is loaded
+#' @return Step (or its inherit class) object
+#' @examples
+#' objrds <- system.file(package = "pipeFrame", "extdata","pipeFrame.obj.rds")
+#' obj <- loadStep(objrds)
+#'
+#' @export
+loadStep <- function(rdsfile, regClass = TRUE){
+    obj <- readRDS(rdsfile)
+    if(regClass){
+        regAttachedStep(class(obj)[1],obj@stepBaseClass)
+    }
+    return(obj)
+
+}
 
 
 msgBoxBegin<-function(){

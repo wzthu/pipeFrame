@@ -351,9 +351,11 @@ getObjsInPipe <- function(pipeName = "pipe"){
 #' @export
 runWithFinishCheck <- function(func, refName, refFilePath = NULL){
     message(paste("Configure",refName,"..."))
-    objPath <- file.path(getRefDir(),getGenome(),paste0(refName,".obj.Rdata"))
+    objPath <- file.path(getRefDir(),getGenome(),paste0(refName,".obj.rds"))
+    refFilePathBase <- refFilePath
     if(is.null(refFilePath)){
         refFilePath <- objPath
+        refFilePathBase <- refFilePath
     }else{
         stopifnot(is.character(refFilePath))
         refFilePath <- file.path(getRefDir(),getGenome(),refFilePath)
@@ -375,12 +377,13 @@ runWithFinishCheck <- function(func, refName, refFilePath = NULL){
         }else{
             rc <- func(refFilePath)
         }
-        save(rc = rc, file = objPath)
+        saveRDS(list(rc=rc,refFilePathBase = refFilePathBase), file = objPath)
         if(getGenome()!="testgenome"){
             Sys.sleep(3)
         }
     }else{
-        load(objPath)
+        rclist <- readRDS(objPath)
+        rc <- rclist$rc
     }
     stopifnot(file.exists(refFilePath))
     stopifnot(file.exists(objPath))

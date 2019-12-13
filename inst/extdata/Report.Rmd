@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-load(".stepobj.Rdata")
+load(".stepobj.rds")
 
 #stepobj
 ```
