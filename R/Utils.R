@@ -5,6 +5,7 @@
 #' @param words \code{character} scalar.
 #' Remove substring of the path characters starting to match the word
 #' @param filePath \code{Character} scalar.
+#' @param suffix \code{Character} scalar. File suffix.
 #' @param ... Additional arguments, currently unused
 #' @examples
 #' getBasenamePrefix("aaa/bbb.ccc.ddd","cCc")

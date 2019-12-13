@@ -31,6 +31,8 @@ Remove substring of the path characters starting to match the word}
 \item{...}{Additional arguments, currently unused}
 
 \item{filePath}{\code{Character} scalar.}
+
+\item{suffix}{\code{Character} scalar. File suffix.}
 }
 \value{
 \item{getBasenamePrefix}{Get the filepath
