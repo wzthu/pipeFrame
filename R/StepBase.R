@@ -340,6 +340,7 @@ setMethod(f = "initialize",
               afterInit <- !is.null(argv[["afterInit"]])
               beforeProcessing <- !is.null(argv[["beforeProcessing"]])
               afterProcessing <- !is.null(argv[["afterProcessing"]])
+              testGenReport <- !is.null(argv[["testGenReport"]])
 
               .Object@initParam <- list("test")
               .Object@processingParam <- list("test")
@@ -348,6 +349,7 @@ setMethod(f = "initialize",
               argv[["afterInit"]] <- NULL
               argv[["beforeProcessing"]] <- NULL
               argv[["afterProcessing"]] <- NULL
+              argv[["testGenReport"]] <- NULL
 
               msgBoxBegin()
 
@@ -584,7 +586,7 @@ setMethod(f = "initialize",
                   return(.Object)
               }
               if(isReportStep){
-                  obj_return_from_porcessing<-process(.Object, prevSteps = prevSteps)
+                  obj_return_from_process<-process(.Object, prevSteps = prevSteps)
               }else{
                   if(!is.null(argv[["cmdline"]])){
                       writeLog(.Object, paste("Running command line:"))
@@ -594,18 +596,25 @@ setMethod(f = "initialize",
                       func <- argv[["callback"]]
                       func()
                   }else{
-                      obj_return_from_porcessing<-process(.Object)
+                      obj_return_from_process<-process(.Object)
                   }
 
               }
 
 
-              stopifnot(is(obj_return_from_porcessing,stepType(.Object)))
-              .Object <- obj_return_from_porcessing
+              stopifnot(is(obj_return_from_process,stepType(.Object)))
+              .Object <- obj_return_from_process
               if(afterProcessing){
                   .Object@processingParam <- prevSteps
                   return(.Object)
               }
+
+              if(testGenReport){
+                  obj_return_from_genReport <- genReport(.Object, ...)
+                  stopifnot(is(obj_return_from_genReport,stepType(.Object)))
+                  .Object <- obj_return_from_genReport
+              }
+
 
               if(is.null(nameObjList[[stepName(.Object)]])){
                   count <- getOption("pipeFrameConfig.count")
@@ -773,6 +782,9 @@ setMethod(f = "process",
                   writeLog(.Object, "because file 'ignore.modify' in step directory is detected." )
                   writeLog(.Object, "Ignore checking modified result for this step.")
                   writeLog(.Object, paste0("Please confirm the format of each files match the original ones"))
+                  obj_return_from_genReport <- genReport(.Object, ...)
+                  stopifnot(is(obj_return_from_genReport,stepType(.Object)))
+                  .Object <- obj_return_from_genReport
                   .Object <- setFinish(.Object)
               }else if(checkMD5Cache(.Object)){
                   writeLog(.Object,paste0("The step:`",.Object@stepName,
@@ -787,7 +799,9 @@ setMethod(f = "process",
                   writeLog(.Object,as.character(Sys.time()))
                   writeLog(.Object, "start processing data: ")
                   .Object@timeStampStart<-Sys.time()
-                  .Object <- processing(.Object, ...)
+                  obj_return_from_processing <- processing(.Object, ...)
+                  stopifnot(is(obj_return_from_processing, stepType(.Object)))
+                  .Object <- obj_return_from_processing
                   .Object@timeStampEnd<-Sys.time()
                   .Object@reportList$timeStampStart <-
                       .Object@timeStampStart
@@ -795,6 +809,9 @@ setMethod(f = "process",
                       .Object@timeStampEnd
                   .Object <- setFinish(.Object)
                   pipeFrameObj <- .Object
+                  obj_return_from_genReport <- genReport(.Object, ...)
+                  stopifnot(is(obj_return_from_genReport,stepType(.Object)))
+                  .Object <- obj_return_from_genReport
                   saveRDS(pipeFrameObj, file = getParamMD5Path(.Object))
               }
 
