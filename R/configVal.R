@@ -570,3 +570,60 @@ checkAndInstall <- function(){
 #}
 
 
+
+
+#' @name loadConfig
+#' @rdname loadConfig
+#' @title load configure from file
+#' @param configFile \code{Character} scalar.
+#' The directory to configuration file.
+#' @return \item{loadConfig}{No value will be returned}
+#' @aliases loadConfig
+#' @examples
+#' configRegName()
+#' saveConfig("test.rds")
+#' loadConfig("test.rds")
+#'
+#' @export
+loadConfig <- function(configFile){
+   config <- readRDS(configFile)
+   do.call(options,config)
+}
+
+
+#' @return \item{saveConfig}{save the configuration into a RDS file}
+#' @aliases saveConfig
+#' @rdname loadConfig
+#' @export
+saveConfig <- function(configFile){
+    configFile <- addFileSuffix(configFile, "rds")
+    cn <- configRegName()
+    config<- lapply(cn, function(x){
+        return(getOption(x))
+    })
+    names(config) <- cn
+    saveRDS(config, file = configFile)
+}
+
+
+#' @return \item{configRegName}{charactor vector, registered configuration name}
+#' @aliases configRegName
+#' @rdname loadConfig
+#' @export
+configRegName <- function(){
+    return(c("pipeFrameConfig.graph",
+             "pipeFrameConfig.nameObjList",
+             "pipeFrameConfig.count",
+             "pipeFrameConfig.allowChangeJobDir",
+             "pipeFrameConfig.report",
+             "pipeFrameConfig.genome",
+             "pipeFrameConfig.genome.valid",
+             "pipeFrameConfig.genome.refs",
+             "pipeFrameConfig.genome.checkAndInstallFunc",
+             "pipeFrameConfig.threads",
+             "pipeFrameConfig.refdir",
+             "pipeFrameConfig.dir.tmpdir",
+             "pipeFrameConfig.dir.jobname",
+             "pipeFrameConfig.pipeNames"
+    ))
+}
