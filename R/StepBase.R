@@ -799,6 +799,7 @@ setMethod(f = "process",
                   writeLog(.Object,as.character(Sys.time()))
                   writeLog(.Object, "start processing data: ")
                   .Object@timeStampStart<-Sys.time()
+                  unlink(file.path(getStepWorkDir(.Object), "pipeFrame.obj.*.rds"), force = TRUE)
                   obj_return_from_processing <- processing(.Object, ...)
                   stopifnot(is(obj_return_from_processing, stepType(.Object)))
                   .Object <- obj_return_from_processing
