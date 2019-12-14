@@ -792,8 +792,11 @@ setMethod(f = "process",
                   writeLog(.Object,
                            paste0("If you need to redo,",
                                   "please call 'clearStepCache(YourObject)'"))
-                  pipeFrameObj <- loadStep(getParamMD5Path(.Object),regClass = FALSE)
-                  .Object <- pipeFrameObj
+                  .Object <- loadStep(getParamMD5Path(.Object),regClass = FALSE)
+                  obj_return_from_genReport <- genReport(.Object, ...)
+                  stopifnot(is(obj_return_from_genReport,stepType(.Object)))
+                  .Object <- obj_return_from_genReport
+                  saveRDS(.Object, file = getParamMD5Path(.Object))
                   .Object@loaded <- TRUE
               }else{
                   writeLog(.Object,as.character(Sys.time()))
@@ -809,11 +812,11 @@ setMethod(f = "process",
                   .Object@reportList$timeStampEnd <-
                       .Object@timeStampEnd
                   .Object <- setFinish(.Object)
-                  pipeFrameObj <- .Object
+                  saveRDS(.Object, file = getParamMD5Path(.Object))
                   obj_return_from_genReport <- genReport(.Object, ...)
                   stopifnot(is(obj_return_from_genReport,stepType(.Object)))
                   .Object <- obj_return_from_genReport
-                  saveRDS(pipeFrameObj, file = getParamMD5Path(.Object))
+                  saveRDS(.Object, file = getParamMD5Path(.Object))
               }
 
               .Object
