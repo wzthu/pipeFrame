@@ -592,7 +592,7 @@ loadConfig <- function(configFile){
    nodename <- names(graphMng@attachedNode)
    lapply(nodename, function(x){
        setClass(Class = x,
-                contains = raphMng@attachedNode[[x]],
+                contains = graphMng@attachedNode[[x]],
                 where = topenv(sys.frame(which = 0))
        )
    })
