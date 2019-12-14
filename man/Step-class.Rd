@@ -61,6 +61,7 @@
 \alias{writeLog,Step-method}
 \alias{writeLog}
 \alias{processing}
+\alias{genReport}
 \title{Methods for Step objects}
 \usage{
 \S4method{init}{Step}(.Object, prevSteps = list(), ...)
@@ -127,6 +128,8 @@
 )
 
 processing(.Object, ...)
+
+genReport(.Object, ...)
 }
 \arguments{
 \item{.Object}{\code{Step} object scalar.
@@ -245,6 +248,8 @@ Check required inputs or parameters are filled.}
 \item{writeLog}{(For package developer) write log.}
 
 \item{processing}{(For package developer) Run pipeline step}
+
+\item{genReport}{(For package developer) Generate report list}
 }
 \description{
 Users can call Step object operation methods below
