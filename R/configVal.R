@@ -590,12 +590,12 @@ loadConfig <- function(configFile){
    do.call(options,config)
    graphMng <- getGraphObj()
    nodename <- names(graphMng@attachedNode)
-   lapply(nodename, function(x){
+   invisible(lapply(nodename, function(x){
        setClass(Class = x,
                 contains = graphMng@attachedNode[[x]],
                 where = topenv(sys.frame(which = 0))
        )
-   })
+   }))
 }
 
 
