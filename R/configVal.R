@@ -588,6 +588,14 @@ checkAndInstall <- function(){
 loadConfig <- function(configFile){
    config <- readRDS(configFile)
    do.call(options,config)
+   graphMng <- getGraphObj()
+   nodename <- names(graphMng@attachedNode)
+   lapply(nodename, function(x){
+       setClass(Class = x,
+                contains = raphMng@attachedNode[[x]],
+                where = topenv(sys.frame(which = 0))
+       )
+   })
 }
 
 
