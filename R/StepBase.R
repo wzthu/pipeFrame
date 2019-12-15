@@ -306,9 +306,7 @@ Step <- setClass(Class = "Step",
                      loaded = "logical",
                      isReportStep = "logical",
                      initParam = "list",
-                     processingParam = "list",
-                     refdir = "character",
-                     jobdir = "character"
+                     processingParam = "list"
                  ),
                  prototype = c(argv = list(),
                                paramList = list(),
@@ -326,9 +324,7 @@ Step <- setClass(Class = "Step",
                                loaded = FALSE,
                                isReportStep = FALSE,
                                initParam = list(),
-                               processingParam = list(),
-                               refdir = ".",
-                               jobdir = ".")
+                               processingParam = list())
 )
 setMethod(f = "initialize",
           signature = "Step",
@@ -790,42 +786,50 @@ setMethod(f = "process",
                   stopifnot(is(obj_return_from_genReport,stepType(.Object)))
                   .Object <- obj_return_from_genReport
                   .Object <- setFinish(.Object)
-              }else if(checkMD5Cache(.Object)){
+              }else {
                   writeLog(.Object,paste0("The step:`",.Object@stepName,
                                           "` was finished. Nothing to do."))
-                  writeLog(.Object,
-                           paste0("If you need to redo,",
-                                  "please call 'clearStepCache(YourObject)'"))
-                  pipeFrameObj <- loadStep(getParamMD5Path(.Object),regClass = FALSE)
-                  input(pipeFrameObj) <- input(.Object)
-                  output(pipeFrameObj) <- output(.Object)
-                  param(pipeFrameObj) <- param(.Object)
-                  property(pipeFrameObj) <- property(.Object)
-                  .Object <- pipeFrameObj
-                  obj_return_from_genReport <- genReport(.Object, ...)
-                  stopifnot(is(obj_return_from_genReport,stepType(.Object)))
-                  .Object <- obj_return_from_genReport
-                  saveRDS(.Object, file = getParamMD5Path(.Object))
-                  .Object@loaded <- TRUE
-              }else{
-                  writeLog(.Object,as.character(Sys.time()))
-                  writeLog(.Object, "start processing data: ")
-                  .Object@timeStampStart<-Sys.time()
-                  unlink(file.path(getStepWorkDir(.Object), "pipeFrame.obj.*.rds"), force = TRUE)
-                  obj_return_from_processing <- processing(.Object, ...)
-                  stopifnot(is(obj_return_from_processing, stepType(.Object)))
-                  .Object <- obj_return_from_processing
-                  .Object@timeStampEnd<-Sys.time()
-                  .Object@reportList$timeStampStart <-
-                      .Object@timeStampStart
-                  .Object@reportList$timeStampEnd <-
-                      .Object@timeStampEnd
-                  .Object <- setFinish(.Object)
-                  saveRDS(.Object, file = getParamMD5Path(.Object))
-                  obj_return_from_genReport <- genReport(.Object, ...)
-                  stopifnot(is(obj_return_from_genReport,stepType(.Object)))
-                  .Object <- obj_return_from_genReport
-                  saveRDS(.Object, file = getParamMD5Path(.Object))
+                  md5filepath <- getParamMD5Path(.Object)
+                  if(file.exists(md5filepath)){
+                      writeLog(.Object,paste0("The step:`",.Object@stepName,
+                                              "` was finished. Nothing to do."))
+                      writeLog(.Object,
+                               paste0("If you need to redo or rerun this step,",
+                                      "please call 'clearStepCache(YourStepObject)'",
+                                      "or remove file: ", md5filepath))
+                      pipeFrameObj <- loadStep(md5filepath,regClass = FALSE)
+                      input(pipeFrameObj) <- input(.Object)
+                      output(pipeFrameObj) <- output(.Object)
+                      param(pipeFrameObj) <- param(.Object)
+                      property(pipeFrameObj) <- property(.Object)
+                      .Object <- pipeFrameObj
+                      obj_return_from_genReport <- genReport(.Object, ...)
+                      stopifnot(is(obj_return_from_genReport,stepType(.Object)))
+                      .Object <- obj_return_from_genReport
+                      saveRDS(.Object, file = md5filepath)
+                      .Object@loaded <- TRUE
+                  }else{
+                      writeLog(.Object,as.character(Sys.time()))
+                      writeLog(.Object, "start processing data: ")
+                      .Object@timeStampStart<-Sys.time()
+                      unlink(file.path(getStepWorkDir(.Object), "pipeFrame.obj.*.rds"), force = TRUE)
+                      obj_return_from_processing <- processing(.Object, ...)
+                      stopifnot(is(obj_return_from_processing, stepType(.Object)))
+                      .Object <- obj_return_from_processing
+                      .Object@timeStampEnd<-Sys.time()
+                      .Object@reportList$timeStampStart <-
+                          .Object@timeStampStart
+                      .Object@reportList$timeStampEnd <-
+                          .Object@timeStampEnd
+                      .Object <- setFinish(.Object)
+                      md5filepath <- getParamMD5Path(.Object)
+                      saveRDS(.Object, file = md5filepath)
+                      obj_return_from_genReport <- genReport(.Object, ...)
+                      stopifnot(is(obj_return_from_genReport,stepType(.Object)))
+                      .Object <- obj_return_from_genReport
+                      saveRDS(.Object, file = md5filepath)
+                      writeLog(.Object, "start processing data: ")
+                  }
               }
 
               .Object
@@ -1599,7 +1603,10 @@ setMethod(f = "getParamMD5Path",
                   paths <- paths[grep("pipeFrame.obj",paths,invert = TRUE)]
 
                   if(sum(unlist(paths2))==0){
-                      paths <- tools::md5sum(paths)
+                      cl <- makeCluster(getThreads())
+                      paths <- parSapply(cl = cl, X = paths, FUN = tools::md5sum)
+                      stopCluster(cl)
+                      #paths <- tools::md5sum(paths)
                       names(paths) <- NULL
                   }
                   paramstr0 <- c(paramstr0, paths)
@@ -1651,19 +1658,7 @@ setMethod(f = "setFinish",
               writeLog(.Object,"processing finished")
               .Object
           })
-setGeneric(name = "checkMD5Cache",
-           def = function(.Object,...){
-               standardGeneric("checkMD5Cache")
-           })
-setMethod(f = "checkMD5Cache",
-          signature = "Step",
-          definition = function(.Object,...){
-              if(file.exists(getParamMD5Path(.Object))){
-                  return(TRUE)
-              }else{
-                  return(FALSE)
-              }
-          })
+
 
 setGeneric(name = "getStepWorkDir",
            def = function(.Object, filename = NULL, ...){
