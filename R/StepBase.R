@@ -1567,7 +1567,7 @@ setMethod(f = "getParamMD5Path",
                   return(paramstr0)
               })
 
-              ios <- c(input(.Objec),output(.Object))
+              ios <- c(input(.Object),output(.Object))
 
               threadsize <- getThreads()
 
