@@ -790,7 +790,7 @@ setMethod(f = "process",
                   writeLog(.Object,"Begin to check if it is finished.")
                   ifexist <- FALSE
                   md5filepath <- NULL
-                  if(length(dir(getStepWorkDir(),pattern = "^pipeFrame.obj.*rds"))>1){
+                  if(length(dir(getStepWorkDir(.Object),pattern = "^pipeFrame.obj.*rds"))>1){
                       md5filepath <- getParamMD5Path(.Object)
                       if(file.exists(md5filepath)){
                           ifexist <- TRUE
