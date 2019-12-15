@@ -787,10 +787,18 @@ setMethod(f = "process",
                   .Object <- obj_return_from_genReport
                   .Object <- setFinish(.Object)
               }else {
-                  writeLog(.Object,paste0("The step:`",.Object@stepName,
-                                          "` was finished. Nothing to do."))
-                  md5filepath <- getParamMD5Path(.Object)
-                  if(file.exists(md5filepath)){
+                  writeLog(.Object,"Begin to check if it is finished.")
+                  ifexist <- FALSE
+                  md5filepath <- NULL
+                  if(length(dir(getStepWorkDir(),pattern = "^pipeFrame.obj.*rds"))>1){
+                      md5filepath <- getParamMD5Path(.Object)
+                      if(file.exists(md5filepath)){
+                          ifexist <- TRUE
+                      }
+                  }
+
+
+                  if(ifexist){
                       writeLog(.Object,paste0("The step:`",.Object@stepName,
                                               "` was finished. Nothing to do."))
                       writeLog(.Object,
@@ -801,7 +809,6 @@ setMethod(f = "process",
                       input(pipeFrameObj) <- input(.Object)
                       output(pipeFrameObj) <- output(.Object)
                       param(pipeFrameObj) <- param(.Object)
-                      property(pipeFrameObj) <- property(.Object)
                       .Object <- pipeFrameObj
                       obj_return_from_genReport <- genReport(.Object, ...)
                       stopifnot(is(obj_return_from_genReport,stepType(.Object)))
@@ -810,7 +817,7 @@ setMethod(f = "process",
                       .Object@loaded <- TRUE
                   }else{
                       writeLog(.Object,as.character(Sys.time()))
-                      writeLog(.Object, "start processing data: ")
+                      writeLog(.Object, "New step. Start processing data: ")
                       .Object@timeStampStart<-Sys.time()
                       unlink(file.path(getStepWorkDir(.Object), "pipeFrame.obj.*.rds"), force = TRUE)
                       obj_return_from_processing <- processing(.Object, ...)
@@ -828,7 +835,7 @@ setMethod(f = "process",
                       stopifnot(is(obj_return_from_genReport,stepType(.Object)))
                       .Object <- obj_return_from_genReport
                       saveRDS(.Object, file = md5filepath)
-                      writeLog(.Object, "start processing data: ")
+                      writeLog(.Object, "All results have been saved.")
                   }
               }
 
@@ -1547,6 +1554,9 @@ setMethod(f = "getParamMD5Path",
               #         paramstr <- c(paramstr,filesize)
               #     }
               # }
+              cl <- NULL
+
+
               paramstr0 <- lapply(sort(ioNames), function(n){
                   paramstr0<- n
                   paths <- getParam(.Object,n,type = c("input","output"))
@@ -1554,20 +1564,23 @@ setMethod(f = "getParamMD5Path",
                       paramstr0 <- c(paramstr0, paths) ## stop error in check file dir
                       return(paramstr0)
                   }
+                  return(paramstr0)
+              })
+
+              ios <- c(input(.Objec),output(.Object))
+
+              threadsize <- getThreads()
+
+              if(length(ios) < threadsize){
+                  threadsize <- length(ios)
+              }
+
+              cl <- makeCluster(threadsize)
+
+
+              paramstr01 <- parLapply(cl = cl, X = ios, fun = function(paths){
                   paths <- sort(unlist(paths))
-                  paths1 <- c()
                   breakflag <- FALSE
-                  # for(path in paths){
-                  #     if(dir.exists(path)){
-                  #         paths1 <- c(paths1, sort(dir(path,recursive = TRUE)))
-                  #     }else if(file.exists(path)){
-                  #         paths1 <- c(paths1, path)
-                  #     }else{
-                  #         paramstr <- c(paramstr,runif(1))
-                  #         breakflag <- TRUE
-                  #         break;
-                  #     }
-                  # }
                   flag <- lapply(paths,function(path){
                       if(dir.exists(path)){
                           return(FALSE)
@@ -1578,7 +1591,7 @@ setMethod(f = "getParamMD5Path",
                       }
                   })
                   if(sum(unlist(flag))>0){
-                      return(runif(1))
+                      return(as.character(runif(1)))
                   }
                   paths1 <- lapply(paths,function(path){
                       if(dir.exists(path)){
@@ -1603,13 +1616,12 @@ setMethod(f = "getParamMD5Path",
                   paths <- paths[grep("pipeFrame.obj",paths,invert = TRUE)]
 
                   if(sum(unlist(paths2))==0){
-                      cl <- makeCluster(getThreads())
-                      paths <- parSapply(cl = cl, X = paths, FUN = tools::md5sum)
-                      stopCluster(cl)
-                      #paths <- tools::md5sum(paths)
+                      paths <- tools::md5sum(paths)
                       names(paths) <- NULL
                   }
-                  paramstr0 <- c(paramstr0, paths)
+
+                  return(paths)
+                  #paramstr0 <- c(paramstr0, paths)
 
                   # checkpaths <- c()
                   # # for(path in paths){
@@ -1637,9 +1649,12 @@ setMethod(f = "getParamMD5Path",
                   #     file.info(p)$size
                   # })
                   # paramstr0 <- c(paramstr0, unlist(fs))
-                  return(paramstr0)
+                  # return(paramstr0)
               })
-              paramstr <- c(paramstr,paramstr0)
+
+              stopCluster(cl)
+
+              paramstr <- c(paramstr,paramstr0, paramstr01)
               md5code<-substr(digest(object = paramstr,algo = "md5"),1,8)
               md5filepath<-file.path(getStepWorkDir(.Object),
                                      paste("pipeFrame.obj",md5code,
