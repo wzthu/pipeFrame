@@ -128,6 +128,7 @@ setRefDir <- function(refdir, createDir = TRUE)
             stop(paste("path does not exist:",refdir))
         }
     }
+    refdir <-normalizePath(refdir)
     options(pipeFrameConfig.refdir = refdir)
 }
 #' @return \item{getRefDir}{\code{Character} scalar.
@@ -257,7 +258,7 @@ getJobDir <- function(){
     if(!dir.exists(jobDir)){
         dir.create(jobDir)
     }
-    return(jobDir)
+    return(normalizePath(jobDir))
 }
 
 

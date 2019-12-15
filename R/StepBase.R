@@ -306,7 +306,9 @@ Step <- setClass(Class = "Step",
                      loaded = "logical",
                      isReportStep = "logical",
                      initParam = "list",
-                     processingParam = "list"
+                     processingParam = "list",
+                     refdir = "character",
+                     jobdir = "character"
                  ),
                  prototype = c(argv = list(),
                                paramList = list(),
@@ -324,7 +326,9 @@ Step <- setClass(Class = "Step",
                                loaded = FALSE,
                                isReportStep = FALSE,
                                initParam = list(),
-                               processingParam = list())
+                               processingParam = list(),
+                               refdir = ".",
+                               jobdir = ".")
 )
 setMethod(f = "initialize",
           signature = "Step",
@@ -792,7 +796,12 @@ setMethod(f = "process",
                   writeLog(.Object,
                            paste0("If you need to redo,",
                                   "please call 'clearStepCache(YourObject)'"))
-                  .Object <- loadStep(getParamMD5Path(.Object),regClass = FALSE)
+                  pipeFrameObj <- loadStep(getParamMD5Path(.Object),regClass = FALSE)
+                  input(pipeFrameObj) <- input(.Object)
+                  output(pipeFrameObj) <- output(.Object)
+                  param(pipeFrameObj) <- param(.Object)
+                  property(pipeFrameObj) <- property(.Object)
+                  .Object <- pipeFrameObj
                   obj_return_from_genReport <- genReport(.Object, ...)
                   stopifnot(is(obj_return_from_genReport,stepType(.Object)))
                   .Object <- obj_return_from_genReport
@@ -1477,7 +1486,20 @@ setMethod(f = "getParamMD5Path",
               #     paramstr<-c(paramstr,getParam(.Object,n,type="other"))
               # }
               rs <- lapply(sort(itNames), function(n){
-                  return(c(n,getParam(.Object,n,type="other")))
+                   ap <- getParam(.Object,n,type="other")
+                   if(is.character(ap)){
+                       ap <- lapply(ap,function(x){
+                           if(startsWith(x,getJobDir())){
+                               return(substring(x,2+nchar(getJobDir())))
+                           }else if(startsWith(x,getRefDir())){
+                               return(substring(x,2+nchar(getRefDir())))
+                           }else{
+                               return(x)
+                           }
+                       })
+                       ap <- sort(unlist(ap))
+                   }
+                   return(c(n,ap))
               })
               paramstr <- c(paramstr,unlist(rs))
               ioNames <- getParamItems(.Object,type=c("input","output"))
@@ -1525,7 +1547,7 @@ setMethod(f = "getParamMD5Path",
                   paramstr0<- n
                   paths <- getParam(.Object,n,type = c("input","output"))
                   if(!is.character(paths) && !is.list(paths)){
-                      paramstr0 <- c(paramstr0, paths)
+                      paramstr0 <- c(paramstr0, paths) ## stop error in check file dir
                       return(paramstr0)
                   }
                   paths <- sort(unlist(paths))
@@ -1556,43 +1578,58 @@ setMethod(f = "getParamMD5Path",
                   }
                   paths1 <- lapply(paths,function(path){
                       if(dir.exists(path)){
-                          return(sort(dir(path,recursive = TRUE)))
+                          allfiles <- dir(path,recursive = TRUE)
+                          if(length(allfiles)==0){
+                              return(runif(1))
+                          }else{
+                              return(sort(file.path(path,allfiles)))
+                          }
                       }else if(file.exists(path)){
                           return(path)
                       }else{
                           return(runif(1))
                       }
                   })
-                  paths1 <- unlist(paths1)
+                  paths2 <- lapply(paths1,function(path){
+                      return(is.numeric(path))
+                  })
 
+                  paths1 <- unlist(paths1)
                   paths <- paths1
                   paths <- paths[grep("pipeFrame.obj",paths,invert = TRUE)]
-                  checkpaths <- c()
-                  # for(path in paths){
+
+                  if(sum(unlist(paths2))==0){
+                      paths <- tools::md5sum(paths)
+                      names(paths) <- NULL
+                  }
+                  paramstr0 <- c(paramstr0, paths)
+
+                  # checkpaths <- c()
+                  # # for(path in paths){
+                  # #     p <- normalizePath(path)
+                  # #     checkpaths <- c(checkpaths,p)
+                  # #     if(startsWith(p,getJobDir())){
+                  # #         p <- substring(p,2+nchar(getJobDir()))
+                  # #     }
+                  # #     paramstr <- c(paramstr,p)
+                  # # }
+                  # ps <- lapply(paths, function(path){
                   #     p <- normalizePath(path)
                   #     checkpaths <- c(checkpaths,p)
                   #     if(startsWith(p,getJobDir())){
                   #         p <- substring(p,2+nchar(getJobDir()))
                   #     }
-                  #     paramstr <- c(paramstr,p)
-                  # }
-                  ps <- lapply(paths, function(path){
-                      p <- normalizePath(path)
-                      checkpaths <- c(checkpaths,p)
-                      if(startsWith(p,getJobDir())){
-                          p <- substring(p,2+nchar(getJobDir()))
-                      }
-                      return(p)
-                  })
-                  paramstr0 <- c(paramstr0,unlist(ps))
-                  # for(p in checkpaths){
-                  #     filesize <- file.info(p)$size
-                  #     paramstr <- c(paramstr,filesize)
-                  # }
-                  fs <- lapply(checkpaths, function(p){
-                      file.info(p)$size
-                  })
-                  paramstr0 <- c(paramstr0, unlist(fs))
+                  #     return(p)
+                  # })
+                  # paramstr0 <- c(paramstr0,unlist(ps))
+                  # # for(p in checkpaths){
+                  # #     filesize <- file.info(p)$size
+                  # #     paramstr <- c(paramstr,filesize)
+                  # # }
+                  # fs <- lapply(checkpaths, function(p){
+                  #     file.info(p)$size
+                  # })
+                  # paramstr0 <- c(paramstr0, unlist(fs))
                   return(paramstr0)
               })
               paramstr <- c(paramstr,paramstr0)
