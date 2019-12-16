@@ -4,6 +4,10 @@
 #' @importFrom stats na.omit
 #' @importFrom methods is
 #' @importFrom utils write.table
+#' @importFrom methods setClass
+#' @importFrom parallel makeCluster
+#' @importFrom parallel parLapply
+#' @importFrom parallel stopCluster
 #' @name Step-class
 #' @rdname  Step-class
 #' @title Methods for Step objects
@@ -50,6 +54,9 @@
 #' @param appendLog \code{Logical} scalar. Append to the log file.
 #' Default: TRUE
 #' @param showMsg \code{Logical} scalar. Show the message on screen.
+#' Default: TRUE
+#' @param attachedTypes \code{Logical} scalar.
+#' Show the new type name or show the original type name
 #' Default: TRUE
 #' @param filename \code{Character} scaler.
 #' The name of file under step working directiory

@@ -34,8 +34,12 @@ The argument order of the input Step object.}
 \item{stepType}{\code{Character} scalar.
 Step class name of each step.}
 
+\item{newStepType}{\code{Logical} scalar.
+give a new step step type name to the original step type with
+ different default parameter value}
+
 \item{display}{\code{Logical} scalar.
-Whether show the picture on device or not.}
+Wether show the picture on device or not.}
 
 \item{...}{Additional arguments, currently used.}
 }

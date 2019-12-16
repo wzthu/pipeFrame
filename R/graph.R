@@ -116,7 +116,10 @@ setMethod(f = "graphMngCheckRelation",
 #' @param stepType \code{Character} scalar.
 #' Step class name of each step.
 #' @param display \code{Logical} scalar.
-#'  Whether show the picture on device or not.
+#'  Wether show the picture on device or not.
+#' @param newStepType \code{Logical} scalar.
+#' give a new step step type name to the original step type with
+#'  different default parameter value
 #' @param ... Additional arguments, currently used.
 #' @return \item{addEdges}{No value will be returned.}
 #' @aliases  graphMng

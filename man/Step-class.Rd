@@ -139,6 +139,10 @@ Step object is returned by functions in each step.}
 
 \item{...}{Additional arguments, currently unused.}
 
+\item{attachedTypes}{\code{Logical} scalar.
+Show the new type name or show the original type name
+Default: TRUE}
+
 \item{value}{any type scalar.
 The value to be set for corresponding item in a list.}
 

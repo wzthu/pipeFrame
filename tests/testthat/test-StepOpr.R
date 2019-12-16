@@ -79,6 +79,14 @@ test_that("test basic operation of class Step ",{
         }
     )
 
+    setMethod(
+        f = "genReport",
+        signature = "RandomRegionOnGenome",
+        definition = function(.Object, ...){
+            .Object
+        }
+    )
+
     # This function is exported in NAMESPACE for user to use
     randomRegionOnGenome <- function(sampleNumb, regionLen = 1000,
                                      genome = NULL, outputBed = NULL, ...){
@@ -157,6 +165,14 @@ test_that("test basic operation of class Step ",{
             gr <- second(findOverlapPairs(gr1,gr2))
             export.bed(gr,con = outputBed)
             # don't forget to return .Object
+            .Object
+        }
+    )
+
+    setMethod(
+        f = "genReport",
+        signature = "OverlappedRandomRegion",
+        definition = function(.Object, ...){
             .Object
         }
     )
