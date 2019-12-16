@@ -8,7 +8,7 @@
 \alias{checkAndInstallGenomeFa}
 \title{Install dependent data or software with finishing check}
 \usage{
-runWithFinishCheck(func, refName, refFilePath = NULL)
+runWithFinishCheck(func, refName, refFilePath = NULL, genome = NULL)
 
 checkAndInstallBSgenome(refFilePath, genome = getGenome())
 
