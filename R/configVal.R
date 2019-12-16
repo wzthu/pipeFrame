@@ -350,7 +350,12 @@ getObjsInPipe <- function(pipeName = "pipe"){
 #' setGenome("hg19")
 #'
 #' @export
-runWithFinishCheck <- function(func, refName, refFilePath = NULL){
+runWithFinishCheck <- function(func, refName, refFilePath = NULL, genome = NULL){
+    if(!is.null(genome)){
+        if(getGenome() %in% genome){
+            return()
+        }
+    }
     message(paste("Configure",refName,"..."))
     objPath <- file.path(getRefDir(),getGenome(),paste0(refName,".obj.rds"))
     refFilePathBase <- refFilePath
