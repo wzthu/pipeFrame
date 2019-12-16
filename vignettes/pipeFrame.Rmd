@@ -664,7 +664,13 @@ setMethod(
     }
 )
 
-
+setMethod(
+    f = "genReport",
+    signature = "RandomRegionOnGenome",
+    definition = function(.Object, ...){
+        .Object
+    }
+)
 
 
 
@@ -685,6 +691,14 @@ setMethod(
         gr <- second(findOverlapPairs(gr1,gr2))
         export.bed(gr,con = outputBed)
         # don't forget to return .Object
+        .Object
+    }
+)
+
+setMethod(
+    f = "genReport",
+    signature = "OverlappedRandomRegion",
+    definition = function(.Object, ...){
         .Object
     }
 )

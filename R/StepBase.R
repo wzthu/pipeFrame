@@ -136,6 +136,21 @@
 #'     }
 #' )
 #'
+#'
+#'
+#' setMethod(
+#'     f = "genReport",
+#'     signature = "RandomRegionOnGenome",
+#'     definition = function(.Object, ...){
+#'         .Object
+#'     }
+#' )
+#'
+#'
+#'
+#'
+#'
+#'
 #' # This function is exported in NAMESPACE for user to use
 #' randomRegionOnGenome <- function(sampleNumb, regionLen = 1000,
 #'                                  genome = NULL, outputBed = NULL, ...){
@@ -217,6 +232,17 @@
 #'         .Object
 #'     }
 #' )
+#'
+#'
+#' setMethod(
+#'     f = "genReport",
+#'     signature = "OverlappedRandomRegion",
+#'     definition = function(.Object, ...){
+#'         .Object
+#'     }
+#' )
+#'
+#'
 #'
 #'
 #' # This function is exported in NAMESPACE for user to use
