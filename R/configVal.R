@@ -378,7 +378,7 @@ runWithFinishCheck <- function(func, refName, refFilePath = NULL, genome = NULL)
 
     if(prod(file.exists(refFilePath)) < 0.5){
         file.create(lockFilePath)
-        if(refFilePath == objPath){
+        if(refFilePath[1] == objPath){ #refFilePath[1] to avoid multi-refFilePaths
             rc <- func(NULL)
         }else{
             rc <- func(refFilePath)
