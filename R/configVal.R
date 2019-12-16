@@ -352,7 +352,7 @@ getObjsInPipe <- function(pipeName = "pipe"){
 #' @export
 runWithFinishCheck <- function(func, refName, refFilePath = NULL, genome = NULL){
     if(!is.null(genome)){
-        if(getGenome() %in% genome){
+        if(!(getGenome() %in% genome)){
             return()
         }
     }
