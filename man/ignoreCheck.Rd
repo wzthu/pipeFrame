@@ -4,10 +4,10 @@
 \alias{ignoreCheck}
 \title{ignore checking input and output file (for developer)}
 \usage{
-ignoreCheck(check = TRUE)
+ignoreCheck(ignore = TRUE)
 }
 \arguments{
-\item{check}{\code{Logical} scalar.
+\item{ignore}{\code{Logical} scalar.
 Ignore checking input and output file MD5 value when skipping the step.}
 }
 \value{
