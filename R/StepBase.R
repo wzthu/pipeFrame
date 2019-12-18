@@ -825,14 +825,9 @@ setMethod(f = "process",
                   md5filepath <- NULL
                   objfiles <- dir(getStepWorkDir(.Object),pattern = "^pipeFrame.obj.*rds")
                   if(length(objfiles)>0){
-                      if(getOption("pipeFrameConfig.ignoreCheck")){
-                          md5filepath <- objfiles[1]
+                      md5filepath <- getParamMD5Path(.Object)
+                      if(file.exists(md5filepath)){
                           ifexist <- TRUE
-                      }else{
-                          md5filepath <- getParamMD5Path(.Object)
-                          if(file.exists(md5filepath)){
-                              ifexist <- TRUE
-                          }
                       }
                   }
 
@@ -1655,8 +1650,16 @@ setMethod(f = "getParamMD5Path",
                   paths <- paths[grep("pipeFrame.obj",paths,invert = TRUE)]
 
                   if(sum(unlist(paths2))==0){
-                      paths <- tools::md5sum(paths)
-                      names(paths) <- NULL
+                      if(getOption("pipeFrameConfig.ignoreCheck")){
+                          paths <- lapply(paths, function(p){
+                              file.info(p)$size
+                          })
+                          paths <- unlist(paths)
+                      }else{
+                          paths <- tools::md5sum(paths)
+                          names(paths) <- NULL
+                      }
+
                   }
 
                   return(paths)
