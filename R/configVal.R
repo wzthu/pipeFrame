@@ -647,7 +647,7 @@ configRegName <- function(){
 #' @name ignoreCheck
 #' @rdname ignoreCheck
 #' @title ignore checking input and output file (for developer)
-#' @param check \code{Logical} scalar.
+#' @param ignore \code{Logical} scalar.
 #' Ignore checking input and output file MD5 value when skipping the step.
 #' @return \item{ignoreCheck}{No value will be returned}
 #' @aliases ignoreCheck
@@ -655,6 +655,7 @@ configRegName <- function(){
 #' ignoreCheck(FALSE)
 #'
 #' @export
-ignoreCheck <- function(check = TRUE){
-    options(pipeFrameConfig.ignoreCheck = check)
+ignoreCheck <- function(ignore = TRUE){
+    stopifnot(is.logical(ignore))
+    options(pipeFrameConfig.ignoreCheck = ignore)
 }
