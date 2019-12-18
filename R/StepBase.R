@@ -1619,19 +1619,6 @@ setMethod(f = "getParamMD5Path",
               print(Sys.time())
               paramstr01 <- parLapply(cl = cl, X = ios, fun = function(paths){
                   paths <- sort(unlist(paths))
-                  breakflag <- FALSE
-                  flag <- lapply(paths,function(path){
-                      if(dir.exists(path)){
-                          return(FALSE)
-                      }else if(file.exists(path)){
-                          return(FALSE)
-                      }else{
-                          return(TRUE)
-                      }
-                  })
-                  if(sum(unlist(flag))>0){
-                      return(as.character(runif(1)))
-                  }
                   paths1 <- lapply(paths,function(path){
                       if(dir.exists(path)){
                           allfiles <- dir(path,recursive = TRUE)
