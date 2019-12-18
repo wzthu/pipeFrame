@@ -820,7 +820,7 @@ setMethod(f = "process",
                   .Object <- obj_return_from_genReport
                   .Object <- setFinish(.Object)
               }else {
-                  writeLog(.Object,"Begin to check if it is finished.")
+                  writeLog(.Object,"Begin to check if it is finished...")
                   ifexist <- FALSE
                   md5filepath <- NULL
                   objfiles <- dir(getStepWorkDir(.Object),pattern = "^pipeFrame.obj.*rds")
@@ -1607,19 +1607,10 @@ setMethod(f = "getParamMD5Path",
               })
 
               ios <- c(input(.Object),output(.Object))
-
-              threadsize <- getThreads()
-
-              if(length(ios) < threadsize){
-                  threadsize <- length(ios)
-              }
-              print(Sys.time())
-              cl <- makeCluster(threadsize)
-
-              print(Sys.time())
-              paramstr01 <- parLapply(cl = cl, X = ios, fun = function(paths){
-                  paths <- sort(unlist(paths))
-                  paths1 <- lapply(paths,function(path){
+              
+              ios <- unlist(ios)
+              
+              paths <- tryCatch(lapply(ios,function(path){
                       if(dir.exists(path)){
                           allfiles <- dir(path,recursive = TRUE)
                           if(length(allfiles)==0){
@@ -1632,63 +1623,127 @@ setMethod(f = "getParamMD5Path",
                       }else{
                           return(runif(1))
                       }
-                  })
-                  paths2 <- lapply(paths1,function(path){
-                      return(is.numeric(path))
-                  })
+                  }), error = function(e){})
+                  
+             
+             if(is.null(rs)){
+                 md5code<-substr(digest(object = runif(1),algo = "md5"),1,8)
+                 md5filepath<-file.path(getStepWorkDir(.Object),
+                                        paste("pipeFrame.obj",md5code,
+                                              "rds",sep = "."))
+                 return(md5filepath)
+             }else{
+                 paths<-unlist(paths)
+                 paths <- paths[grep("pipeFrame.obj",paths,invert = TRUE)]
+                 if(getOption("pipeFrameConfig.ignoreCheck")){
+                     paths <- file.info(paths)$size
+                 }else{
+                     sizes <- file.info(paths)$size
+                     print(Sys.time())
+                     if(max(sizes)<1000000000){
+                         paths <- tools::md5sum(paths)
+                         names(paths) <- NULL
+                     }else{
+                         threadsize <- getThreads()
+                         if(length(paths) < threadsize){
+                             threadsize <- length(paths)
+                         }
+                         cl <- makeCluster(threadsize)
+                         paths <- parLapply(cl = cl, X = paths, fun = function(path){
+                             return(tools::md5sum(path))
+                         })
+                         stopCluster(cl)
+                         paths <- unlist(paths)
+                         names(paths) <- NULL
+                     }
+                     print(Sys.time())
+                 }
+             }
+              
 
-                  paths1 <- unlist(paths1)
-                  paths <- paths1
-                  paths <- paths[grep("pipeFrame.obj",paths,invert = TRUE)]
-
-                  if(sum(unlist(paths2))==0){
-                      if(getOption("pipeFrameConfig.ignoreCheck")){
-                          paths <- lapply(paths, function(p){
-                              file.info(p)$size
-                          })
-                          paths <- unlist(paths)
-                      }else{
-                          paths <- tools::md5sum(paths)
-                          names(paths) <- NULL
-                      }
-
-                  }
-
-                  return(paths)
-                  #paramstr0 <- c(paramstr0, paths)
-
-                  # checkpaths <- c()
-                  # # for(path in paths){
-                  # #     p <- normalizePath(path)
-                  # #     checkpaths <- c(checkpaths,p)
-                  # #     if(startsWith(p,getJobDir())){
-                  # #         p <- substring(p,2+nchar(getJobDir()))
-                  # #     }
-                  # #     paramstr <- c(paramstr,p)
-                  # # }
-                  # ps <- lapply(paths, function(path){
-                  #     p <- normalizePath(path)
-                  #     checkpaths <- c(checkpaths,p)
-                  #     if(startsWith(p,getJobDir())){
-                  #         p <- substring(p,2+nchar(getJobDir()))
-                  #     }
-                  #     return(p)
-                  # })
-                  # paramstr0 <- c(paramstr0,unlist(ps))
-                  # # for(p in checkpaths){
-                  # #     filesize <- file.info(p)$size
-                  # #     paramstr <- c(paramstr,filesize)
-                  # # }
-                  # fs <- lapply(checkpaths, function(p){
-                  #     file.info(p)$size
-                  # })
-                  # paramstr0 <- c(paramstr0, unlist(fs))
-                  # return(paramstr0)
-              })
+              # threadsize <- getThreads()
+              # 
+              # if(length(ios) < threadsize){
+              #     threadsize <- length(ios)
+              # }
+              # print(Sys.time())
+              # cl <- makeCluster(threadsize)
+              # 
+              # print(Sys.time())
+              # paramstr01 <- parLapply(cl = cl, X = ios, fun = function(paths){
+              #     paths <- sort(unlist(paths))
+              #     paths1 <- lapply(paths,function(path){
+              #         if(dir.exists(path)){
+              #             allfiles <- dir(path,recursive = TRUE)
+              #             if(length(allfiles)==0){
+              #                 return(runif(1))
+              #             }else{
+              #                 return(sort(file.path(path,allfiles)))
+              #             }
+              #         }else if(file.exists(path)){
+              #             return(path)
+              #         }else{
+              #             return(runif(1))
+              #         }
+              #     })
+              #     paths2 <- lapply(paths1,function(path){
+              #         return(is.numeric(path))
+              #     })
+              # 
+              #     paths1 <- unlist(paths1)
+              #     paths <- paths1
+              #     paths <- paths[grep("pipeFrame.obj",paths,invert = TRUE)]
+              # 
+              #     if(sum(unlist(paths2))==0){
+              #         if(getOption("pipeFrameConfig.ignoreCheck")){
+              #             paths <- lapply(paths, function(p){
+              #                 file.info(p)$size
+              #             })
+              #             paths <- unlist(paths)
+              #         }else{
+              #             paths <- tools::md5sum(paths)
+              #             names(paths) <- NULL
+              #         }
+              # 
+              #     }
+              # 
+              #     return(paths)
+              #     #paramstr0 <- c(paramstr0, paths)
+              # 
+              #     # checkpaths <- c()
+              #     # # for(path in paths){
+              #     # #     p <- normalizePath(path)
+              #     # #     checkpaths <- c(checkpaths,p)
+              #     # #     if(startsWith(p,getJobDir())){
+              #     # #         p <- substring(p,2+nchar(getJobDir()))
+              #     # #     }
+              #     # #     paramstr <- c(paramstr,p)
+              #     # # }
+              #     # ps <- lapply(paths, function(path){
+              #     #     p <- normalizePath(path)
+              #     #     checkpaths <- c(checkpaths,p)
+              #     #     if(startsWith(p,getJobDir())){
+              #     #         p <- substring(p,2+nchar(getJobDir()))
+              #     #     }
+              #     #     return(p)
+              #     # })
+              #     # paramstr0 <- c(paramstr0,unlist(ps))
+              #     # # for(p in checkpaths){
+              #     # #     filesize <- file.info(p)$size
+              #     # #     paramstr <- c(paramstr,filesize)
+              #     # # }
+              #     # fs <- lapply(checkpaths, function(p){
+              #     #     file.info(p)$size
+              #     # })
+              #     # paramstr0 <- c(paramstr0, unlist(fs))
+              #     # return(paramstr0)
+              # })
+              # print(Sys.time())
+              # stopCluster(cl)
               print(Sys.time())
-              stopCluster(cl)
-              print(Sys.time())
-              paramstr <- c(paramstr,paramstr0, paramstr01)
+              #paramstr <- c(paramstr,paramstr0, paramstr01)
+              paramstr <- c(paramstr, paramstr0, paths)
+              names(paramstr) <- NULL
               md5code<-substr(digest(object = paramstr,algo = "md5"),1,8)
               md5filepath<-file.path(getStepWorkDir(.Object),
                                      paste("pipeFrame.obj",md5code,
