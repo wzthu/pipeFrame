@@ -131,7 +131,7 @@ initPipeFrame <- function(defaultJobName,
     }
 
     options(pipeFrameConfig.nameObjList = list())
-    options(pipeFrameConfig.ignoreCheck = TRUE)
+    options(pipeFrameConfig.ignoreCheck = FALSE)
 
 
 }
