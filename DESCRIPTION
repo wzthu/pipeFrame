@@ -24,6 +24,8 @@ Description: pipeFrame is an R package for building
 License: GPL-3 
 Encoding: UTF-8
 LazyData: FALSE
+Depends:
+    R (>= 3.6.1),
 Imports:
     BSgenome,
     digest,
