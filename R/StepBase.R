@@ -1524,14 +1524,15 @@ setGeneric(name = "getParamMD5Path",
 setMethod(f = "getParamMD5Path",
           signature = "Step",
           definition = function(.Object,...){
+              print(Sys.time())
               paramstr <- c(stepName(.Object))
-              itNames <- getParamItems(.Object,type="other")
+              itNames <- names(param(.Object))
               # for(n in sort(itNames)){
               #     paramstr<-c(paramstr,n)
               #     paramstr<-c(paramstr,getParam(.Object,n,type="other"))
               # }
               rs <- lapply(sort(itNames), function(n){
-                   ap <- getParam(.Object,n,type="other")
+                   ap <- param(.Object)[[n]]
                    if(is.character(ap)){
                        ap <- lapply(ap,function(x){
                            if(startsWith(x,getJobDir())){
@@ -1546,8 +1547,9 @@ setMethod(f = "getParamMD5Path",
                    }
                    return(c(n,ap))
               })
+              print(Sys.time())
               paramstr <- c(paramstr,unlist(rs))
-              ioNames <- getParamItems(.Object,type=c("input","output"))
+              ioNames <- c(names(input(.Object)),names(output(.Object)))
               # for(n in sort(ioNames)){
               #     paramstr<-c(paramstr,n)
               #     paths <- getParam(.Object,n,type = c("input","output"))
@@ -1593,7 +1595,10 @@ setMethod(f = "getParamMD5Path",
 
               paramstr0 <- lapply(sort(ioNames), function(n){
                   paramstr0<- n
-                  paths <- getParam(.Object,n,type = c("input","output"))
+                  paths <- input(.Object)[[n]]
+                  if(is.null(paths)){
+                      paths <- output(.Object)[[n]]
+                  }
                   if(!is.character(paths) && !is.list(paths)){
                       paramstr0 <- c(paramstr0, paths) ## stop error in check file dir
                       return(paramstr0)
@@ -1608,10 +1613,10 @@ setMethod(f = "getParamMD5Path",
               if(length(ios) < threadsize){
                   threadsize <- length(ios)
               }
-
+              print(Sys.time())
               cl <- makeCluster(threadsize)
 
-
+              print(Sys.time())
               paramstr01 <- parLapply(cl = cl, X = ios, fun = function(paths){
                   paths <- sort(unlist(paths))
                   breakflag <- FALSE
@@ -1693,14 +1698,15 @@ setMethod(f = "getParamMD5Path",
                   # paramstr0 <- c(paramstr0, unlist(fs))
                   # return(paramstr0)
               })
-
+              print(Sys.time())
               stopCluster(cl)
-
+              print(Sys.time())
               paramstr <- c(paramstr,paramstr0, paramstr01)
               md5code<-substr(digest(object = paramstr,algo = "md5"),1,8)
               md5filepath<-file.path(getStepWorkDir(.Object),
                                      paste("pipeFrame.obj",md5code,
                                           "rds",sep = "."))
+              print(Sys.time())
               return(md5filepath)
           })
 setGeneric(name = "setFinish",
