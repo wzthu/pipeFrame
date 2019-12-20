@@ -1373,16 +1373,13 @@ setMethod(f = "clearStepCache",
               }else{
                   message("Chache does not exist. Nothing has been done.")
               }
-              outItems <-getParamItems(.Object,type="output")
-              # for(item in outItems){
-              #     unlink(normalizePath(unlist(getParam(.Object,item))),
-              #            recursive = TRUE)
-              # }
-              lapply(outItems, function(item){
-                  if(sum(file.exists(unlist(getParam(.Object,item))))>0){
-                        unlink(normalizePath(unlist(getParam(.Object,item))),
-                         recursive = TRUE)
-                  }
+              message("cleaning output files ...")
+              lapply(output(.Object), function(x){
+                  message("removing files if exist:")
+                  x <- unlist(x)
+                  x <- normalizePath(x)
+                  print(x)
+                  unlink(x,recursive = TRUE, force = TRUE)
               })
               .Object@finish<-FALSE
               .Object
