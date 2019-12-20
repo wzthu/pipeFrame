@@ -10,7 +10,7 @@ initPipeFrame(
     "rheMac3", "rheMac8", "panTro4", "rn5", "rn6", "sacCer2", "sacCer3", "susScr3",
     "testgenome"),
   defaultCheckAndInstallFunc = NULL,
-  defaultThreads = 1,
+  defaultThreads = 2,
   defaultTmpDir = getwd(),
   defaultRefDir = file.path(getwd(), "refdir"),
   defaultReference = list(test = list(file = "fileName", rc = "obj"))
