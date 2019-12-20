@@ -1621,7 +1621,7 @@ setMethod(f = "getParamMD5Path",
                       }else if(file.exists(path)){
                           return(path)
                       }else{
-                          return(runif(1))
+                          stop("")
                       }
                   }), error = function(e){})
 
