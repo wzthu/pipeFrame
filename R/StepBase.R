@@ -1607,9 +1607,9 @@ setMethod(f = "getParamMD5Path",
               })
 
               ios <- c(input(.Object),output(.Object))
-              
+
               ios <- unlist(ios)
-              
+
               paths <- tryCatch(lapply(ios,function(path){
                       if(dir.exists(path)){
                           allfiles <- dir(path,recursive = TRUE)
@@ -1624,9 +1624,9 @@ setMethod(f = "getParamMD5Path",
                           return(runif(1))
                       }
                   }), error = function(e){})
-                  
-             
-             if(is.null(rs)){
+
+
+             if(is.null(paths) || length(paths) == 0){
                  md5code<-substr(digest(object = runif(1),algo = "md5"),1,8)
                  md5filepath<-file.path(getStepWorkDir(.Object),
                                         paste("pipeFrame.obj",md5code,
@@ -1659,16 +1659,16 @@ setMethod(f = "getParamMD5Path",
                      print(Sys.time())
                  }
              }
-              
+
 
               # threadsize <- getThreads()
-              # 
+              #
               # if(length(ios) < threadsize){
               #     threadsize <- length(ios)
               # }
               # print(Sys.time())
               # cl <- makeCluster(threadsize)
-              # 
+              #
               # print(Sys.time())
               # paramstr01 <- parLapply(cl = cl, X = ios, fun = function(paths){
               #     paths <- sort(unlist(paths))
@@ -1689,11 +1689,11 @@ setMethod(f = "getParamMD5Path",
               #     paths2 <- lapply(paths1,function(path){
               #         return(is.numeric(path))
               #     })
-              # 
+              #
               #     paths1 <- unlist(paths1)
               #     paths <- paths1
               #     paths <- paths[grep("pipeFrame.obj",paths,invert = TRUE)]
-              # 
+              #
               #     if(sum(unlist(paths2))==0){
               #         if(getOption("pipeFrameConfig.ignoreCheck")){
               #             paths <- lapply(paths, function(p){
@@ -1704,12 +1704,12 @@ setMethod(f = "getParamMD5Path",
               #             paths <- tools::md5sum(paths)
               #             names(paths) <- NULL
               #         }
-              # 
+              #
               #     }
-              # 
+              #
               #     return(paths)
               #     #paramstr0 <- c(paramstr0, paths)
-              # 
+              #
               #     # checkpaths <- c()
               #     # # for(path in paths){
               #     # #     p <- normalizePath(path)
