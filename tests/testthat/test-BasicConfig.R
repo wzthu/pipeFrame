@@ -68,7 +68,8 @@ test_that("test job directory configuration ",{
 
     setJobName("testJobName")
     expect_equal(getJobName(),"testJobName")
-    expect_equal(getJobDir(),file.path(getTmpDir(),getJobName()))
+    expect_equal(normalizePath(getJobDir()),normalizePath(file.path(getTmpDir(),getJobName())))
+
 
 
 })
