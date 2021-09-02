@@ -36,7 +36,8 @@ Imports:
     GenomeInfoDb,
     parallel,
     stats,
-    utils
+    utils,
+    rmarkdown
 Suggests:
     BiocManager,
     knitr,
