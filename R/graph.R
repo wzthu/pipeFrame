@@ -18,9 +18,7 @@ setClass(Class = "GraphMng",
 setMethod(f = "initialize",
           signature = "GraphMng",
           definition = function(.Object, ...){
-              options(stringsAsFactors = FALSE)
               .Object@edges <- data.frame(fromStepType= "BASE",toStepType = "BASE", argOrder = 1)
-              options(stringsAsFactors = TRUE)
               allStepNames <- "BASE"
               .Object
           })
@@ -44,9 +42,7 @@ setMethod(f = "graphMngAddEdges",
               }
               fromStepType <- edges[seq_len(length(edges))%%2==1]
               toStepType <- edges[seq_len(length(edges))%%2==0]
-              options(stringsAsFactors = FALSE)
               newEdges <- data.frame(fromStepType, toStepType, argOrder)
-              options(stringsAsFactors = TRUE)
               newEdges <- rbind(graphMngObj@edges, newEdges)
 
               graphMngObj@edges <- newEdges
